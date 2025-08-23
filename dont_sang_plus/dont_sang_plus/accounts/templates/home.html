@@ -1,0 +1,44 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+<div class="jumbotron bg-light p-5 rounded">
+    <h1 class="display-4">Bienvenue sur Don Sang Plus</h1>
+    <p class="lead">Votre plateforme de mise en relation entre donneurs de sang et structures médicales.</p>
+    <hr class="my-4">
+    <p>Rejoignez notre communauté de donneurs ou inscrivez votre établissement médical.</p>
+    <div class="mt-4">
+        <a class="btn btn-danger btn-lg me-2" href="{% url 'donor_signup' %}" role="button">Je suis donneur</a>
+        <a class="btn btn-outline-danger btn-lg" href="{% url 'hospital_signup' %}" role="button">Je suis un hôpital</a>
+    </div>
+</div>
+
+<div class="container mt-5">
+    <h2 class="mb-4 text-center">Les défis du don de sang</h2>
+    <div class="row">
+        <div class="col-md-4 mb-4">
+            <div class="card h-100">
+                <img src="{% static 'images/urgence.jpeg' %}" class="card-img-top" alt="Urgence transfusion">
+                <div class="card-body">
+                    <p class="card-text">Des urgences vitales nécessitent du sang rapidement, mais les donneurs sont parfois difficiles à trouver.</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 mb-4">
+            <div class="card h-100">
+                <img src="{% static 'images/rupture_stock.jpg' %}" class="card-img-top" alt="Rupture de stock">
+                <div class="card-body">
+                    <p class="card-text">Les hôpitaux font face à des ruptures de stock, mettant en danger de nombreux patients.</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 mb-4">
+            <div class="card h-100">
+                <img src="{% static 'images/solidarite.jpg' %}" class="card-img-top" alt="Solidarité don de sang">
+                <div class="card-body">
+                    <p class="card-text">Faciliter les échanges permet de renforcer la solidarité et de sauver plus de vies.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
