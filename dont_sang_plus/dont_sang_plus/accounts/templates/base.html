@@ -1,72 +1,211 @@
+<!-- accounts/templates/base.html -->
 {% load static %}
 <!DOCTYPE html>
 <html lang="fr">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>{% block title %}Don Sang Plus{% endblock %}</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="{% static 'css/site.css' %}" rel="stylesheet">
+    <title>{% block title %}Don Sang Plus - Sauvez des vies{% endblock %}</title>
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    
+    <!-- Bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Custom CSS -->
+    <link href="{% static 'css/style.css' %}" rel="stylesheet">
+    
+    {% block extra_css %}{% endblock %}
+    
+    <!-- Meta tags -->
+    <meta name="description" content="Don Sang Plus - Plateforme de mise en relation entre donneurs de sang et hôpitaux. Sauvez des vies en donnant votre sang.">
+    <meta name="keywords" content="don sang, donneurs, hôpitaux, urgence médicale, sauver vies">
+    <meta name="author" content="Don Sang Plus">
 </head>
 <body>
-    <nav class="navbar navbar-expand-lg navbar-dark bg-danger">
+        <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark">
         <div class="container">
-            <a class="navbar-brand" href="{% url 'home' %}">Don Sang Plus</a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNavbar" aria-controls="mainNavbar" aria-expanded="false" aria-label="Toggle navigation">
+            <a class="navbar-brand glow-effect" href="/">
+                <i class="fas fa-heart-pulse me-2"></i>Don Sang Plus
+            </a>
+            
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNavbar">
                 <span class="navbar-toggler-icon"></span>
             </button>
 
             <div class="collapse navbar-collapse" id="mainNavbar">
                 <ul class="navbar-nav me-auto">
-                    <li class="nav-item"><a class="nav-link" href="{% url 'home' %}">Accueil</a></li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/">
+                            <i class="fas fa-home me-1"></i>Accueil
+                        </a>
+                    </li>
+                    
                 </ul>
 
                 <ul class="navbar-nav ms-auto">
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" id="signupDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">Inscription</a>
-                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="signupDropdown">
-                            <li><a class="dropdown-item" href="{% url 'donor_signup' %}">Je suis donneur</a></li>
-                            <li><a class="dropdown-item" href="{% url 'hospital_signup' %}">Je suis un hôpital</a></li>
-                        </ul>
-                    </li>
-                    <li class="nav-item"><a class="nav-link" href="{% url 'login' %}">Connexion</a></li>
+                    {% if user.is_authenticated %}
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">
+                                {% if user.profile_picture %}
+                                <img src="{{ user.profile_picture.url }}" alt="Profil" class="rounded-circle me-2" width="30" height="30">
+                                {% else %}
+                                <i class="fas fa-user-circle me-2"></i>
+                                {% endif %}
+                                {{ user.get_full_name|default:user.username }}
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-end">
+                                {% if user.user_type == 'donor' %}
+                                    <li><a class="dropdown-item" href="/donations/donor-dashboard/">
+                                        <i class="fas fa-tachometer-alt me-2"></i>Tableau de bord
+                                    </a></li>
+                                    <li><a class="dropdown-item" href="/donations/edit-profile/">
+                                        <i class="fas fa-user-edit me-2"></i>Modifier profil
+                                    </a></li>
+                                    <li><a class="dropdown-item" href="/donations/update-availability/">
+                                        <i class="fas fa-calendar-check me-2"></i>Disponibilité
+                                    </a></li>
+                                    
+                                {% elif user.user_type == 'hospital' %}
+                                    <li><a class="dropdown-item" href="/donations/hospital-dashboard/">
+                                        <i class="fas fa-hospital me-2"></i>Tableau de bord
+                                    </a></li>
+                                    
+                                    <li><a class="dropdown-item" href="/donations/edit-profile/">
+                                        <i class="fas fa-user-edit me-2"></i>Modifier profil
+                                    </a></li>
+                                {% endif %}
+                                <li><hr class="dropdown-divider"></li>
+                                <li>
+                                    <form method="post" action="/accounts/logout/" id="logout-form" style="display: none;">
+                                        {% csrf_token %}
+                                    </form>
+                                    <a class="dropdown-item text-danger" href="#" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
+                                        <i class="fas fa-sign-out-alt me-2"></i>Déconnexion
+                                    </a>
+                                </li>
+                            </ul>
+                        </li>
+                    {% else %}
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">
+                                <i class="fas fa-user-plus me-1"></i>Inscription
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-end">
+                                <li><a class="dropdown-item" href="/accounts/signup/donor/">
+                                    <i class="fas fa-heart me-2 text-danger"></i>Je suis donneur
+                                </a></li>
+                                <li><a class="dropdown-item" href="/accounts/signup/hospital/">
+                                    <i class="fas fa-hospital me-2 text-info"></i>Je suis un hôpital
+                                </a></li>
+                            </ul>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link btn btn-outline-light rounded-pill px-3 ms-2" href="/accounts/login/">
+                                <i class="fas fa-sign-in-alt me-1"></i>Connexion
+                            </a>
+                        </li>
+                    {% endif %}
                 </ul>
             </div>
         </div>
     </nav>
 
-    <div class="container mt-4">
-        {% block content %}{% endblock %}
+    <!-- Messages Flash -->
+    {% if messages %}
+    <div class="container mt-3">
+        {% for message in messages %}
+        <div class="alert alert-{{ message.tags }} alert-dismissible fade show animate-on-scroll" role="alert">
+            <i class="fas fa-info-circle me-2"></i>{{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+        {% endfor %}
     </div>
+    {% endif %}
 
-    <footer class="bg-light text-muted mt-5">
-        <div class="container py-4">
+    <!-- Contenu principal -->
+    <main>
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-dark text-white mt-5">
+        <div class="container py-5">
             <div class="row">
-                <div class="col-md-6 mb-3">
-                    <h5 class="text-dark">Don Sang Plus</h5>
-                    <p class="mb-0">Plateforme de mise en relation entre donneurs et structures médicales.</p>
+                <div class="col-lg-4 mb-4">
+                    <h5 class="text-gradient mb-3">
+                        <i class="fas fa-heart-pulse me-2"></i>Don Sang Plus
+                    </h5>
+                    <p class="text-light">
+                        Plateforme innovante de mise en relation entre donneurs de sang bénévoles et établissements de santé. 
+                        Ensemble, sauvons des vies !
+                    </p>
+                    <div class="social-links">
+                        <a href="#" class="text-light me-3"><i class="fab fa-facebook fa-lg"></i></a>
+                        <a href="#" class="text-light me-3"><i class="fab fa-twitter fa-lg"></i></a>
+                        <a href="#" class="text-light me-3"><i class="fab fa-instagram fa-lg"></i></a>
+                        <a href="#" class="text-light"><i class="fab fa-linkedin fa-lg"></i></a>
+                    </div>
                 </div>
-                <div class="col-md-3 mb-3">
-                    <h6 class="text-dark">Contact</h6>
-                    <ul class="list-unstyled mb-0">
-                        <li><a href="mailto:contact@donsangplus.example" class="text-muted">contact@donsangplus.example</a></li>
-                        <li class="text-muted">Tél: +225 0574432780</li>
+                
+                <div class="col-lg-2 col-md-6 mb-4">
+    <h6 class="text-warning mb-3">Navigation</h6>
+    <ul class="list-unstyled">
+        <li><a href="/" class="text-light-emphasis">Accueil</a></li>
+        {% if user.is_authenticated %}
+        <li>
+            {% if user.user_type == 'donor' %}
+            <a href="/donations/donor-dashboard/" class="text-light-emphasis">Tableau de bord</a>
+            {% else %}
+            <a href="/donations/hospital-dashboard/" class="text-light-emphasis">Tableau de bord</a>
+            {% endif %}
+        </li>
+        {% else %}
+        <li><a href="/accounts/signup/donor/" class="text-light-emphasis">Devenir donneur</a></li>
+        <li><a href="/accounts/signup/hospital/" class="text-light-emphasis">Espace hôpital</a></li>
+        {% endif %}
+    </ul>
+</div>
+                
+                <div class="col-lg-3 col-md-6 mb-4">
+                    <h6 class="text-warning mb-3">Contact</h6>
+                    <ul class="list-unstyled text-light">
+                        <li class="mb-2"><i class="fas fa-envelope me-2"><a href="mailto:donsangplus@gmail.com">donsangplus@gmail.com</a></i></li>
+                        <li class="mb-2"><i class="fas fa-phone me-2"></i>+225 0574432780</li>
+                        <li class="mb-2"><i class="fas fa-map-marker-alt me-2"></i>Abidjan, Côte d'Ivoire</li>
                     </ul>
                 </div>
-                <div class="col-md-3 mb-3">
-                    <h6 class="text-dark">Liens</h6>
-                    <ul class="list-unstyled mb-0">
-                        <li><a href="{% url 'home' %}" class="text-muted">Accueil</a></li>
-                        <li><a href="{% url 'login' %}" class="text-muted">Connexion</a></li>
-                    </ul>
+                
+                <div class="col-lg-3 mb-4">
+                    <h6 class="text-warning mb-3">Informations</h6>
+                    <p class="text-light small">
+                        <i class="fas fa-shield-alt me-2 text-success"></i>
+                        Plateforme sécurisée et conforme aux normes de santé publique.
+                    </p>
+                    <p class="text-light small">
+                        <i class="fas fa-clock me-2 text-info"></i>
+                        Support disponible 24h/7j pour les urgences.
+                    </p>
                 </div>
             </div>
         </div>
-        <div class="text-center py-2 bg-danger text-white">
-            © {% now "Y" %} Don Sang Plus
+        
+        <div class="text-center py-3 bg-danger">
+            <p class="mb-0">&copy; {% now "Y" %} Don Sang Plus - Développé avec ❤️ pour sauver des vies</p>
         </div>
     </footer>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="{% static 'js/main.js' %}"></script>
+    
+    {% block extra_js %}{% endblock %}
 </body>
 </html>

@@ -1,0 +1,463 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Dashboard Donneur - Don Sang Plus{% endblock %}
+
+{% block content %}
+<div class="container-fluid mt-4">
+    <!-- En-tête avec info compatibilité -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card bg-light">
+                <div class="card-body">
+                    <div class="row align-items-center">
+                        <div class="col-md-6">
+                            <h4 class="mb-1">
+                                👋 Bonjour {{ user.get_full_name|default:user.username }}
+                            </h4>
+                            <p class="text-muted mb-0">
+                                <i class="fas fa-tint me-2"></i>
+                                Votre groupe sanguin : <strong class="badge bg-danger">{{ donor_blood_type }}</strong>
+                            </p>
+                        </div>
+                        <div class="col-md-3">
+                            <!-- ✅ INFOS DE COMPATIBILITÉ -->
+                            <div class="mb-2">
+                                <small class="text-muted">Vous pouvez donner aux groupes :</small><br>
+                                {% for blood_type in can_give_to %}
+                                    <span class="badge bg-success me-1">{{ blood_type }}</span>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        <div class="col-md-3 text-end">
+                            <!-- ✅ BOUTON MODIFIER PROFIL AJOUTÉ -->
+                            <a href="/donations/edit-profile/" class="btn btn-outline-primary btn-sm">
+                                <i class="fas fa-user-edit me-2"></i>
+                                Modifier mon profil
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Messages non lus -->
+    {% if new_messages and new_messages.count %}
+    <div class="alert alert-info">
+        <strong>🔔 Vous avez {{ new_messages.count }} nouveau(x) message(s) !</strong>
+        <ul class="mb-0">
+            {% for msg in new_messages %}
+            <li>
+                <a href="/donations/chat/{{ msg.donation_response.id }}/">
+                    Message de {{ msg.sender.get_full_name }} ({{ msg.timestamp|date:"d/m/Y H:i" }})
+                </a>
+            </li>
+            {% endfor %}
+        </ul>
+    </div>
+    {% endif %}
+
+    <!-- Messages Django -->
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} alert-dismissible fade show">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        {% endfor %}
+    {% endif %}
+
+    <!-- Statistiques -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card text-center border-primary">
+                <div class="card-body">
+                    <i class="fas fa-heart fa-2x text-primary mb-2"></i>
+                    <h5 class="card-title">{{ total_compatible }}</h5>
+                    <p class="card-text text-muted">Demandes compatibles</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center border-info">
+                <div class="card-body">
+                    <i class="fas fa-reply fa-2x text-info mb-2"></i>
+                    <h5 class="card-title">{{ total_responses }}</h5>
+                    <p class="card-text text-muted">Mes réponses</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center border-success">
+                <div class="card-body">
+                    <i class="fas fa-check-circle fa-2x text-success mb-2"></i>
+                    <h5 class="card-title">{{ accepted_responses }}</h5>
+                    <p class="card-text text-muted">Réponses acceptées</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center border-warning">
+                <div class="card-body">
+                    <i class="fas fa-gift fa-2x text-warning mb-2"></i>
+                    <h5 class="card-title">{{ completed_donations_count }}</h5>
+                    <p class="card-text text-muted">Dons effectués</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Demandes compatibles -->
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-heart me-2"></i>
+                        Demandes compatibles avec votre groupe {{ donor_blood_type }}
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {% if matching_requests %}
+                        {% for request in matching_requests %}
+                            <div class="card mb-3 border-left-{{ request.urgency }}">
+                                <div class="card-body">
+                                    <div class="row align-items-center">
+                                        <div class="col-md-8">
+                                            <h6 class="card-title mb-1">
+                                                🏥 {{ request.hospital.hospital_name }}
+                                                <!-- ✅ AFFICHE LA COMPATIBILITÉ -->
+                                                <span class="badge bg-success ms-2">
+                                                    {{ donor_blood_type }} → {{ request.blood_type }}
+                                                </span>
+                                            </h6>
+                                            <p class="card-text">
+                                                <i class="fas fa-tint text-danger me-1"></i>
+                                                <strong>{{ request.blood_type }}</strong> - 
+                                                {{ request.quantity }} poche(s)
+                                                
+                                                <span class="ms-3">
+                                                    <i class="fas fa-clock text-warning me-1"></i>
+                                                    {% if request.urgency == 'immediate' %}
+                                                        🔴 Urgent
+                                                    {% elif request.urgency == '24h' %}
+                                                        🟠 24h
+                                                    {% else %}
+                                                        🟢 Planifié
+                                                    {% endif %}
+                                                </span>
+                                            </p>
+                                            <small class="text-muted">
+                                                <i class="fas fa-map-marker-alt me-1"></i>
+                                                {{ request.city }} • 
+                                                <i class="fas fa-calendar me-1"></i>
+                                                Limite : {{ request.deadline|date:"d/m/Y à H:i" }}
+                                            </small>
+                                            {% if request.description %}
+                                            <p class="text-muted mt-2 mb-0">
+                                                <small><i class="fas fa-info-circle me-1"></i>{{ request.description|truncatewords:15 }}</small>
+                                            </p>
+                                            {% endif %}
+                                        </div>
+                                        <div class="col-md-4 text-end">
+                                            {% if can_respond_to_requests %}
+                                                <!-- ✅ BOUTON RÉPONDRE AVEC DATA ATTRIBUTES (SÉCURISÉ) -->
+                                                <button class="btn btn-primary btn-sm mb-2 response-btn" 
+                                                        data-request-id="{{ request.id }}" 
+                                                        data-hospital-name="{{ request.hospital.hospital_name }}" 
+                                                        data-blood-type="{{ request.blood_type }}">
+                                                    <i class="fas fa-hand-holding-heart me-2"></i>
+                                                    Répondre
+                                                </button>
+                                                <!-- ✅ BOUTON VOIR DÉTAILS -->
+                                                <a href="/donations/request/{{ request.id }}/" class="btn btn-outline-info btn-sm d-block">
+                                                    <i class="fas fa-info-circle me-2"></i>
+                                                    Détails
+                                                </a>
+                                            {% else %}
+                                                <button class="btn btn-secondary btn-sm" disabled 
+                                                        title="Vous ne pouvez pas répondre avant {{ availability.next_available_date }}">
+                                                    🔒 Bloqué
+                                                </button>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="text-center py-4">
+                            <i class="fas fa-heart-broken fa-3x text-muted mb-3"></i>
+                            <h6 class="text-muted">Aucune demande compatible disponible</h6>
+                            <p class="text-muted">
+                                Les demandes pour les groupes compatibles avec {{ donor_blood_type }} 
+                                ({{ can_give_to|join:", " }}) apparaîtront ici.
+                            </p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Sidebar -->
+        <div class="col-md-4">
+            <!-- Carte de disponibilité -->
+            <div class="card mb-4">
+                <div class="card-header bg-info text-white">
+                    <h6 class="mb-0">
+                        <i class="fas fa-clock me-2"></i>
+                        Ma disponibilité
+                    </h6>
+                </div>
+                <div class="card-body text-center">
+                    {% if availability.is_available %}
+                    <div class="text-success mb-2">
+                       <i class="fas fa-check-circle fa-3x"></i>
+                       <h6>Disponible pour donner</h6>
+                    </div>
+                   {% else %}
+                   <div class="text-warning mb-2">
+                       <i class="fas fa-clock fa-3x"></i>
+                       <h6>Indisponible pour le moment</h6>
+                   </div>
+                   {% endif %}
+
+                   {% if availability.next_available_date %}
+                   <p>Prochaine disponibilité: <strong>{{ availability.next_available_date }}</strong></p>
+                   {% endif %}
+
+                   {% if availability.notes %}
+                   <div class="alert alert-light mt-3">
+                      <small>📝 <strong>Note:</strong> {{ availability.notes }}</small>
+                   </div>
+                  {% endif %}
+
+                  {% if can_update_availability %}
+                      <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#availabilityModal">
+                         ⚙️ Modifier ma disponibilité
+                      </button>
+                  {% else %}
+                      <button class="btn btn-secondary btn-sm" disabled 
+                              title="Vous ne pouvez pas modifier votre disponibilité avant {{ availability.next_available_date }}">
+                         🔒 Modification bloquée
+                      </button>
+                      <small class="text-muted d-block mt-2">
+                         Disponible le {{ availability.next_available_date|date:"d/m/Y" }}
+                      </small>
+                 {% endif %}
+               </div>
+            </div>
+
+            <!-- Mes dernières réponses -->
+            <div class="card">
+                <div class="card-header bg-success text-white">
+                    <h6 class="mb-0">
+                        <i class="fas fa-reply me-2"></i>
+                        Mes dernières réponses
+                    </h6>
+                </div>
+                <div class="card-body">
+                    {% if my_responses %}
+                        {% for response in my_responses|slice:":5" %}
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <div>
+                                    <small class="fw-bold">{{ response.blood_request.hospital.hospital_name }}</small><br>
+                                    <small class="text-muted">
+                                        {{ response.blood_request.blood_type }} - {{ response.response_date|date:"d/m" }}
+                                        <!-- ✅ COMPATIBILITÉ DANS LA SIDEBAR -->
+                                        <span class="badge bg-light text-dark">{{ donor_blood_type }}→{{ response.blood_request.blood_type }}</span>
+                                    </small>
+                                </div>
+                                <div class="text-end">
+                                    <span class="badge bg-{% if response.status == 'completed' %}success{% elif response.status == 'accepted' %}primary{% elif response.status == 'rejected' %}danger{% else %}secondary{% endif %} d-block mb-1">
+                                        {{ response.get_status_display }}
+                                    </span>
+                                    <!-- ✅ BOUTON DISCUTER AJOUTÉ -->
+                                    <a href="/donations/chat/{{ response.id }}/" class="btn btn-outline-primary btn-xs">
+                                        💬 Discuter
+                                    </a>
+                                </div>
+                            </div>
+                            <hr class="my-2">
+                        {% endfor %}
+                        <a href="/donations/my-responses/" class="btn btn-sm btn-outline-success">
+                            Voir toutes mes réponses
+                        </a>
+                    {% else %}
+                        <p class="text-muted text-center">Aucune réponse encore</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ✅ MODAL POUR RÉPONDRE RAPIDEMENT -->
+<div class="modal fade" id="responseModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title">💌 Répondre à la demande</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form id="responseForm" method="post">
+                {% csrf_token %}
+                <div class="modal-body">
+                    <div class="alert alert-info mb-3">
+                        <div id="request-info"></div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="message" class="form-label fw-bold">
+                            <i class="fas fa-comment me-2"></i>
+                            Message à l'hôpital (optionnel)
+                        </label>
+                        <textarea class="form-control" 
+                                  id="message" 
+                                  name="message" 
+                                  rows="4" 
+                                  placeholder="Votre message à l'équipe médicale..."></textarea>
+                        <div class="form-text">
+                            Ex: "Je suis disponible demain matin", "Contacter moi au 07 XX XX XX XX", etc.
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">❌ Annuler</button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-paper-plane me-2"></i>
+                        Envoyer ma réponse
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de disponibilité -->
+<div class="modal fade" id="availabilityModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-info text-white">
+                <h5 class="modal-title">⚙️ Gestion de ma disponibilité</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form id="availabilityForm" method="post" action="/donations/update-availability/">
+                {% csrf_token %}
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" name="is_available" id="is_available" {% if availability.is_available %}checked{% endif %}>
+                                    <label class="form-check-label" for="is_available">
+                                        <strong>Je suis disponible pour donner du sang</strong>
+                                    </label>
+                                </div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="next_available_date" class="form-label">
+                                    <strong>📅 Prochaine disponibilité</strong>
+                                </label>
+                                <input type="date" class="form-control" id="next_available_date" name="next_available_date" value="{{ availability.next_available_date|date:'Y-m-d' }}">
+                                <div class="form-text">Laissez vide si vous êtes disponible maintenant</div>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="notes" class="form-label">
+                                    <strong>📝 Notes personnelles</strong>
+                                </label>
+                                <textarea class="form-control" id="notes" name="notes" rows="4" placeholder="Raison de l'indisponibilité, contraintes horaires, informations importantes...">{{ availability.notes }}</textarea>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="alert alert-info">
+                        <small>💡 <strong>Conseil:</strong> Maintenez votre disponibilité à jour pour aider les hôpitaux à vous contacter au bon moment.</small>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">❌ Annuler</button>
+                    <button type="submit" class="btn btn-primary">💾 Enregistrer les modifications</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<style>
+.border-left-immediate { border-left: 4px solid #dc3545 !important; }
+.border-left-24h { border-left: 4px solid #fd7e14 !important; }
+.border-left-planned { border-left: 4px solid #198754 !important; }
+
+.card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    transition: all 0.3s ease;
+}
+
+.badge {
+    font-size: 0.75em;
+}
+
+.btn-xs {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.75rem;
+}
+</style>
+
+<!-- ✅ SCRIPTS JAVASCRIPT CORRIGÉS AVEC DATA ATTRIBUTES -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // ✅ GESTION DES BOUTONS DE RÉPONSE AVEC DATA ATTRIBUTES
+    document.querySelectorAll('.response-btn').forEach(button => {
+        button.addEventListener('click', function() {
+            const requestId = this.dataset.requestId;
+            const hospitalName = this.dataset.hospitalName;
+            const bloodType = this.dataset.bloodType;
+            openResponseModal(requestId, hospitalName, bloodType);
+        });
+    });
+
+    // ✅ GESTION DU FORMULAIRE DE RÉPONSE
+    const form = document.getElementById('responseForm');
+    if (form) {
+        form.addEventListener('submit', function(e) {
+            const submitBtn = this.querySelector('button[type="submit"]');
+            if (submitBtn) {
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Envoi...';
+            }
+        });
+    }
+});
+
+// ✅ FONCTION POUR OUVRIR LE MODAL DE RÉPONSE (SÉCURISÉE)
+function openResponseModal(requestId, hospitalName, bloodType) {
+    const modal = new bootstrap.Modal(document.getElementById('responseModal'));
+    const form = document.getElementById('responseForm');
+    const requestInfo = document.getElementById('request-info');
+    
+    // Mettre à jour l'action du formulaire
+    form.action = '/donations/respond/' + requestId + '/';
+    
+    // Récupérer le groupe sanguin du donneur
+    const donorBloodType = '{{ donor_blood_type|escapejs }}';
+    
+    // Mettre à jour les informations de la demande (sécurisé)
+    requestInfo.innerHTML = 
+        '<strong>🏥 Hôpital:</strong> ' + hospitalName + '<br>' +
+        '<strong>🩸 Groupe sanguin:</strong> <span class="badge bg-danger">' + bloodType + '</span><br>' +
+        '<strong>🤝 Compatibilité:</strong> <span class="badge bg-success">' + donorBloodType + ' → ' + bloodType + '</span>';
+    
+    // Vider le message
+    document.getElementById('message').value = '';
+    
+    modal.show();
+}
+</script>
+{% endblock %}

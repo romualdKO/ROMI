@@ -1,0 +1,37 @@
+from django.urls import path
+from . import views
+
+app_name = 'donations'
+
+urlpatterns = [
+    # Dashboards principaux
+    path('', views.dashboard, name='dashboard'),
+    path('donor-dashboard/', views.donor_dashboard, name='donor_dashboard'),
+    path('hospital-dashboard/', views.hospital_dashboard, name='hospital_dashboard'),
+    
+    # ✅ CORRIGE LES URLs DES DEMANDES DE SANG
+    path('create-blood-request/', views.create_blood_request, name='create_blood_request'),
+    path('create-request/', views.create_blood_request, name='create_request'),  # URL alternative
+    path('blood-request/<int:request_id>/edit/', views.edit_blood_request, name='edit_blood_request'),
+    path('edit-request/<int:request_id>/', views.edit_blood_request, name='edit_request'),  # URL alternative
+    
+    # Gestion des réponses
+    path('responses/<int:request_id>/', views.view_responses, name='view_responses'),
+    path('respond/<int:request_id>/', views.respond_to_request, name='respond_to_request'),
+    path('response/<int:response_id>/update/<str:status>/', views.update_response_status, name='update_response_status'),
+    path('my-responses/', views.my_responses, name='my_responses'),
+    path('response/<int:response_id>/', views.response_detail, name='response_detail'),
+    path('request/<int:request_id>/', views.request_detail, name='request_detail'),
+    path('update-status/<int:response_id>/<str:status>/', views.update_response_status, name='update_response_status'),
+    path('api/message-counts/', views.api_message_counts, name='api_message_counts'),
+    # ... autres URLs ...
+    # Chat et communication
+    path('chat/<int:response_id>/', views.chat_with_donor, name='chat_with_donor'),
+    
+    # Disponibilité des donneurs
+    path('update-availability/', views.update_availability, name='update_availability'),
+    path('availability-updated/', views.update_availability, name='update_availability_page'),
+    
+    # Profil utilisateur
+    path('edit-profile/', views.edit_profile, name='edit_profile'),
+]

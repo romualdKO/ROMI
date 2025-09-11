@@ -1,0 +1,227 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Connexion - Don Sang Plus{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6 col-lg-5">
+            <div class="card shadow-lg animate-on-scroll">
+                <div class="card-header text-white text-center">
+                    <h3 class="mb-0">
+                        <i class="fas fa-sign-in-alt me-2"></i>
+                        Connexion
+                    </h3>
+                    <p class="mb-0 mt-2 opacity-75">
+                        Accédez à votre espace personnel
+                    </p>
+                </div>
+                
+                <div class="card-body p-4">
+                    <!-- Messages Django -->
+                    {% if messages %}
+                        {% for message in messages %}
+                            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                                <i class="fas fa-{% if message.tags == 'error' %}exclamation-circle{% elif message.tags == 'success' %}check-circle{% elif message.tags == 'warning' %}exclamation-triangle{% else %}info-circle{% endif %} me-2"></i>
+                                {{ message }}
+                                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+
+                    <!-- Erreurs du formulaire -->
+                    {% if form.errors %}
+                        <div class="alert alert-danger">
+                            <i class="fas fa-exclamation-circle me-2"></i>
+                            <strong>Erreur de connexion :</strong>
+                            <ul class="mb-0 mt-2">
+                                {% for field, errors in form.errors.items %}
+                                    {% for error in errors %}
+                                        <li>{{ error }}</li>
+                                    {% endfor %}
+                                {% endfor %}
+                            </ul>
+                        </div>
+                    {% endif %}
+
+                    <form method="post" action="/accounts/login/" id="loginForm" novalidate>
+                        {% csrf_token %}
+                        
+                        <div class="mb-3">
+                            <label for="id_username" class="form-label fw-bold">
+                                <i class="fas fa-envelope me-2 text-primary"></i>
+                                Adresse Email
+                            </label>
+                            <input type="email" 
+                                   class="form-control form-control-lg" 
+                                   name="username" 
+                                   id="id_username" 
+                                   value="{{ form.username.value|default:'' }}"
+                                   placeholder="Entrez votre adresse email" 
+                                   autocomplete="email"
+                                   required>
+                            <div class="invalid-feedback">
+                                Veuillez entrer une adresse email valide.
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="id_password" class="form-label fw-bold">
+                                <i class="fas fa-lock me-2 text-primary"></i>
+                                Mot de passe
+                            </label>
+                            <div class="input-group">
+                                <input type="password" 
+                                       class="form-control form-control-lg" 
+                                       name="password" 
+                                       id="id_password" 
+                                       placeholder="Entrez votre mot de passe" 
+                                       autocomplete="current-password"
+                                       required>
+                                <button class="btn btn-outline-secondary" 
+                                        type="button" 
+                                        id="togglePassword"
+                                        onclick="togglePasswordVisibility()">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                            </div>
+                            <div class="invalid-feedback">
+                                Veuillez entrer votre mot de passe.
+                            </div>
+                        </div>
+
+                        <!-- ✅ LIEN MOT DE PASSE OUBLIÉ CORRIGÉ -->
+                        <div class="mb-3 text-end">
+                            <a href="{% url 'password_reset' %}" class="text-decoration-none text-primary">
+                                <i class="fas fa-key me-1"></i>
+                                Mot de passe oublié ?
+                            </a>
+                        </div>
+
+                        <div class="d-grid gap-2 mb-3">
+                            <button type="submit" 
+                                    class="btn btn-primary btn-lg" 
+                                    id="loginButton">
+                                <i class="fas fa-sign-in-alt me-2"></i>
+                                <span id="buttonText">Se connecter</span>
+                            </button>
+                        </div>
+                    </form>
+
+                    <hr class="my-4">
+                    
+                    <div class="text-center">
+                        <p class="mb-3 text-muted">
+                            <i class="fas fa-user-plus me-2"></i>
+                            Pas encore de compte ?
+                        </p>
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-center">
+                            <a href="/accounts/signup/donor/" 
+                               class="btn btn-outline-danger flex-fill">
+                                <i class="fas fa-heart me-2"></i>
+                                Inscription Donneur
+                            </a>
+                            <a href="/accounts/signup/hospital/" 
+                               class="btn btn-outline-info flex-fill">
+                                <i class="fas fa-hospital me-2"></i>
+                                Inscription Hôpital
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card-footer text-center bg-light">
+                    <small class="text-muted">
+                        <i class="fas fa-shield-alt me-1"></i>
+                        Connexion sécurisée SSL
+                    </small>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const loginForm = document.getElementById('loginForm');
+    const loginButton = document.getElementById('loginButton');
+    const buttonText = document.getElementById('buttonText');
+
+    loginForm.addEventListener('submit', function(e) {
+        loginButton.disabled = true;
+        buttonText.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Connexion...';
+        
+        setTimeout(() => {
+            loginButton.disabled = false;
+            buttonText.innerHTML = '<i class="fas fa-sign-in-alt me-2"></i>Se connecter';
+        }, 5000);
+    });
+});
+
+function togglePasswordVisibility() {
+    const passwordInput = document.getElementById('id_password');
+    const toggleButton = document.getElementById('togglePassword');
+    const icon = toggleButton.querySelector('i');
+
+    if (passwordInput.type === 'password') {
+        passwordInput.type = 'text';
+        icon.classList.replace('fa-eye', 'fa-eye-slash');
+    } else {
+        passwordInput.type = 'password';
+        icon.classList.replace('fa-eye-slash', 'fa-eye');
+    }
+}
+</script>
+
+<style>
+.card-header {
+    background: linear-gradient(135deg, #dc3545 0%, #ff6b7d 100%);
+}
+
+.form-control:focus {
+    border-color: #dc3545;
+    box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25);
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, #dc3545 0%, #ff6b7d 100%);
+    border: none;
+}
+
+.btn-primary:hover {
+    background: linear-gradient(135deg, #c82333 0%, #e55a70 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(220, 53, 69, 0.3);
+}
+
+.animate-on-scroll {
+    animation: fadeInUp 0.8s ease;
+}
+
+@keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(30px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* ✅ STYLE POUR LE LIEN MOT DE PASSE OUBLIÉ */
+a.text-primary:hover {
+    color: #dc3545 !important;
+    text-decoration: underline !important;
+}
+
+.btn-outline-danger:hover {
+    background-color: #dc3545;
+    border-color: #dc3545;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(220, 53, 69, 0.3);
+}
+
+.btn-outline-info:hover {
+    background-color: #0dcaf0;
+    border-color: #0dcaf0;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(13, 202, 240, 0.3);
+}
+</style>
+{% endblock %}

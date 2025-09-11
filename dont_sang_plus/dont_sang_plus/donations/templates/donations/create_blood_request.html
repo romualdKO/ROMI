@@ -1,0 +1,228 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Créer une demande de sang - Don Sang Plus{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow">
+                <div class="card-header bg-danger text-white">
+                    <h4 class="mb-0">
+                        <i class="fas fa-plus-circle me-2"></i>
+                        Créer une demande de sang
+                    </h4>
+                </div>
+                <div class="card-body">
+                    <!-- Messages -->
+                    {% if messages %}
+                        {% for message in messages %}
+                            <div class="alert alert-{{ message.tags }} alert-dismissible fade show">
+                                {{ message }}
+                                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+
+                    <!-- Erreurs de formulaire -->
+                    {% if form.errors %}
+                        <div class="alert alert-danger">
+                            <h6><i class="fas fa-exclamation-triangle me-2"></i>Erreurs détectées :</h6>
+                            <ul class="mb-0">
+                                {% for field, errors in form.errors.items %}
+                                    {% for error in errors %}
+                                        <li><strong>{{ field|capfirst }} :</strong> {{ error }}</li>
+                                    {% endfor %}
+                                {% endfor %}
+                            </ul>
+                        </div>
+                    {% endif %}
+
+                    <form method="post" action="/donations/create-blood-request/">
+                        {% csrf_token %}
+                        
+                        <div class="row">
+                            <!-- Groupe sanguin -->
+                            <div class="col-md-6 mb-3">
+                                <label for="id_blood_type" class="form-label fw-bold">
+                                    <i class="fas fa-tint me-2 text-danger"></i>
+                                    Groupe sanguin requis *
+                                </label>
+                                <select class="form-select" id="id_blood_type" name="blood_type" required>
+                                    <option value="">Sélectionnez un groupe sanguin...</option>
+                                    <option value="A+" {% if form.blood_type.value == 'A+' %}selected{% endif %}>A+</option>
+                                    <option value="A-" {% if form.blood_type.value == 'A-' %}selected{% endif %}>A-</option>
+                                    <option value="B+" {% if form.blood_type.value == 'B+' %}selected{% endif %}>B+</option>
+                                    <option value="B-" {% if form.blood_type.value == 'B-' %}selected{% endif %}>B-</option>
+                                    <option value="AB+" {% if form.blood_type.value == 'AB+' %}selected{% endif %}>AB+</option>
+                                    <option value="AB-" {% if form.blood_type.value == 'AB-' %}selected{% endif %}>AB-</option>
+                                    <option value="O+" {% if form.blood_type.value == 'O+' %}selected{% endif %}>O+</option>
+                                    <option value="O-" {% if form.blood_type.value == 'O-' %}selected{% endif %}>O-</option>
+                                </select>
+                                {% if form.blood_type.errors %}
+                                    <div class="text-danger mt-1">{{ form.blood_type.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+
+                            <!-- ✅ QUANTITÉ CORRIGÉE - SUPPRIME LA LIMITE -->
+                            <div class="col-md-6 mb-3">
+                                <label for="id_quantity" class="form-label fw-bold">
+                                    <i class="fas fa-flask me-2 text-primary"></i>
+                                    Quantité (poches de sang) *
+                                </label>
+                                <input type="number" 
+                                       class="form-control" 
+                                       id="id_quantity" 
+                                       name="quantity" 
+                                       min="1" 
+                                       max="100"
+                                       step="1"
+                                       value="{{ form.quantity.value|default:'' }}"
+                                       placeholder="Nombre de poches nécessaires"
+                                       required>
+                                <div class="form-text">
+                                    <i class="fas fa-info-circle me-1"></i>
+                                    Nombre de poches de sang nécessaires (1-100)
+                                </div>
+                                {% if form.quantity.errors %}
+                                    <div class="text-danger mt-1">{{ form.quantity.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <!-- ✅ URGENCE SELON TON MODÈLE -->
+                            <div class="col-md-6 mb-3">
+                                <label for="id_urgency" class="form-label fw-bold">
+                                    <i class="fas fa-exclamation-triangle me-2 text-warning"></i>
+                                    Niveau d'urgence *
+                                </label>
+                                <select class="form-select" id="id_urgency" name="urgency" required>
+                                    <option value="">Sélectionnez le niveau d'urgence...</option>
+                                    <option value="immediate" {% if form.urgency.value == 'immediate' %}selected{% endif %}>
+                                        🔴 Immédiat (urgence vitale)
+                                    </option>
+                                    <option value="24h" {% if form.urgency.value == '24h' %}selected{% endif %}>
+                                        🟠 Dans les 24h
+                                    </option>
+                                    <option value="planned" {% if form.urgency.value == 'planned' %}selected{% endif %}>
+                                        🟢 Planifié
+                                    </option>
+                                </select>
+                                {% if form.urgency.errors %}
+                                    <div class="text-danger mt-1">{{ form.urgency.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+
+                            <!-- Date limite -->
+                            <div class="col-md-6 mb-3">
+                                <label for="id_deadline" class="form-label fw-bold">
+                                    <i class="fas fa-calendar me-2 text-success"></i>
+                                    Date limite *
+                                </label>
+                                <input type="datetime-local" 
+                                       class="form-control" 
+                                       id="id_deadline" 
+                                       name="deadline" 
+                                       value="{{ form.deadline.value|date:'Y-m-d\TH:i' }}"
+                                       required>
+                                <div class="form-text">Date et heure limite pour recevoir le sang</div>
+                                {% if form.deadline.errors %}
+                                    <div class="text-danger mt-1">{{ form.deadline.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <!-- ✅ ADRESSE ET VILLE SELON TON MODÈLE -->
+                        <div class="row">
+                            <div class="col-md-8 mb-3">
+                                <label for="id_address" class="form-label fw-bold">
+                                    <i class="fas fa-map-marker-alt me-2 text-info"></i>
+                                    Adresse de l'hôpital *
+                                </label>
+                                <input type="text" 
+                                       class="form-control" 
+                                       id="id_address" 
+                                       name="address" 
+                                       value="{{ form.address.value|default:user.address }}"
+                                       placeholder="Adresse complète de l'hôpital"
+                                       required>
+                                {% if form.address.errors %}
+                                    <div class="text-danger mt-1">{{ form.address.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="col-md-4 mb-3">
+                                <label for="id_city" class="form-label fw-bold">
+                                    <i class="fas fa-city me-2 text-info"></i>
+                                    Ville *
+                                </label>
+                                <input type="text" 
+                                       class="form-control" 
+                                       id="id_city" 
+                                       name="city" 
+                                       value="{{ form.city.value|default:user.city }}"
+                                       placeholder="Ville"
+                                       required>
+                                {% if form.city.errors %}
+                                    <div class="text-danger mt-1">{{ form.city.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <!-- Description -->
+                        <div class="mb-3">
+                            <label for="id_description" class="form-label fw-bold">
+                                <i class="fas fa-comment me-2 text-secondary"></i>
+                                Description / Informations complémentaires
+                            </label>
+                            <textarea class="form-control" 
+                                      id="id_description" 
+                                      name="description" 
+                                      rows="4" 
+                                      placeholder="Détails sur le patient, raison de la demande, instructions spéciales...">{{ form.description.value|default:'' }}</textarea>
+                            <div class="form-text">Informations utiles pour les donneurs (optionnel)</div>
+                            {% if form.description.errors %}
+                                <div class="text-danger mt-1">{{ form.description.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                            <a href="/donations/hospital-dashboard/" class="btn btn-outline-secondary me-md-2">
+                                <i class="fas fa-arrow-left me-2"></i>
+                                Annuler
+                            </a>
+                            <button type="submit" class="btn btn-danger btn-lg">
+                                <i class="fas fa-save me-2"></i>
+                                Créer la demande
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .form-control:focus, .form-select:focus {
+        border-color: #dc3545;
+        box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25);
+    }
+    
+    .form-control, .form-select {
+        padding: 12px;
+        border-radius: 8px;
+        border: 2px solid #e9ecef;
+        transition: all 0.3s ease;
+    }
+    
+    .card {
+        border: none;
+        border-radius: 15px;
+    }
+</style>
+{% endblock %}

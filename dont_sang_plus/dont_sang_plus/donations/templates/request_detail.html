@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container mt-4">
+    <h2>Détail de la demande</h2>
+    <ul>
+        <li>Hôpital : {{ blood_request.hospital.hospital_name }}</li>
+        <li>Groupe sanguin : {{ blood_request.blood_type }}</li>
+        <li>Quantité : {{ blood_request.quantity }}</li>
+        <li>Ville : {{ blood_request.city }}</li>
+        <li>Date limite : {{ blood_request.deadline }}</li>
+        <li>Urgence : {{ blood_request.get_urgency_display }}</li>
+        <li>Adresse : {{ blood_request.hospital.address }}</li>
+        <li>Description : {{ blood_request.description }}</li>
+    </ul>
+    <a href="{% url 'respond_to_request' blood_request.id %}" class="btn btn-success">Répondre à la demande</a>
+</div>
+{% endblock %}

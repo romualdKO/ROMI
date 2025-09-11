@@ -1,0 +1,354 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<!-- ✅ MESSAGES NON LUS AVEC COMPTEUR DYNAMIQUE -->
+{% if new_messages and new_messages.count %}
+<div class="container mt-3">
+    <div class="alert alert-info alert-dismissible fade show">
+        <strong>🔔 Vous avez {{ new_messages.count }} nouveau(x) message(s) !</strong>
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        <ul class="mb-0 mt-2">
+            {% for msg in new_messages|slice:":5" %}
+            <li>
+                <a href="/donations/chat/{{ msg.donation_response.id }}/" class="text-decoration-none">
+                    💬 <strong>{{ msg.sender.get_full_name }}</strong> 
+                    ({{ msg.timestamp|date:"d/m/Y H:i" }}) 
+                    - Demande {{ msg.donation_response.blood_request.blood_type }}
+                </a>
+            </li>
+            {% endfor %}
+            {% if new_messages.count > 5 %}
+            <li class="text-muted"><em>... et {{ new_messages.count|add:"-5" }} autre(s) message(s)</em></li>
+            {% endif %}
+        </ul>
+    </div>
+</div>
+{% endif %}
+
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2>📊 Tableau de bord {{ user.hospital_name }}</h2>
+                <div>
+                    <a href="/donations/edit-profile/" class="btn btn-outline-primary me-2">
+                        <i class="fas fa-user-edit"></i> Modifier profil
+                    </a>
+                    <a href="/donations/create-request/" class="btn btn-danger">
+                        ➕ Créer une demande
+                    </a>
+                </div>
+            </div>
+            
+            <!-- ✅ STATISTIQUES AMÉLIORÉES -->
+            <div class="row mb-4">
+                <div class="col-md-3">
+                    <div class="card text-center border-primary">
+                        <div class="card-body">
+                            <i class="fas fa-heartbeat fa-2x text-primary mb-2"></i>
+                            <h5 class="card-title">{{ blood_requests.count }}</h5>
+                            <p class="card-text">Demandes actives</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card text-center border-info">
+                        <div class="card-body">
+                            <i class="fas fa-reply fa-2x text-info mb-2"></i>
+                            <h5 class="card-title">{{ responses.count }}</h5>
+                            <p class="card-text">Réponses reçues</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card text-center border-success">
+                        <div class="card-body">
+                            <i class="fas fa-check-circle fa-2x text-success mb-2"></i>
+                            <h5 class="card-title">{{ completed_responses }}</h5>
+                            <p class="card-text">Dons complétés</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card text-center border-warning">
+                        <div class="card-body">
+                            <i class="fas fa-users fa-2x text-warning mb-2"></i>
+                            <h5 class="card-title">{{ pending_responses }}</h5>
+                            <p class="card-text">En attente</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- ✅ DEMANDES RÉCENTES AVEC COMPTEURS DE MESSAGES -->
+            <div class="card mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">📋 Mes demandes récentes</h5>
+                </div>
+                <div class="card-body">
+                    {% if blood_requests %}
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Groupe sanguin</th>
+                                    <th>Urgence</th>
+                                    <th>Quantité</th>
+                                    <th>Date limite</th>
+                                    <th>Statut</th>
+                                    <th>Messages</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for request in blood_requests|slice:":10" %}
+                                <tr>
+                                    <td><span class="badge bg-danger fs-6">{{ request.blood_type }}</span></td>
+                                    <td>
+                                        <span class="badge bg-{% if request.urgency == 'immediate' %}danger{% elif request.urgency == '24h' %}warning{% else %}success{% endif %}">
+                                            {{ request.get_urgency_display }}
+                                        </span>
+                                    </td>
+                                    <td>{{ request.quantity }} poche(s)</td>
+                                    <td>{{ request.deadline|date:"d/m/Y H:i" }}</td>
+                                    <td>
+                                        {% if request.is_fulfilled %}
+                                           <span class="badge bg-success">✅ Terminée</span>
+                                        {% elif request.deadline < now %}
+                                          <span class="badge bg-secondary">⏰ Expirée</span>
+                                        {% else %}
+                                          <span class="badge bg-warning">🔄 En cours</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <!-- ✅ COMPTEUR DE MESSAGES DYNAMIQUE -->
+                                        {% with request.id as req_id %}
+                                            {% for key, value in unread_counts.items %}
+                                                {% if key == req_id %}
+                                                    {% if value > 0 %}
+                                                        <span class="badge bg-danger pulse">
+                                                            🔔 {{ value }} nouveau(x)
+                                                        </span>
+                                                    {% else %}
+                                                        <span class="badge bg-light text-dark">
+                                                            💬 0 message
+                                                        </span>
+                                                    {% endif %}
+                                                {% endif %}
+                                            {% endfor %}
+                                        {% endwith %}
+                                    </td>
+                                    <td>
+                                        <div class="btn-group" role="group">
+                                            <a href="/donations/responses/{{ request.id }}/" 
+                                               class="btn btn-sm btn-info" 
+                                               title="Voir les réponses">
+                                                👥 Réponses
+                                                {% with request.id as req_id %}
+                                                    ({{ responses|length }})
+                                                {% endwith %}
+                                            </a>
+                                            <a href="/donations/edit-request/{{ request.id }}/" 
+                                               class="btn btn-sm btn-warning" 
+                                               title="Modifier la demande">
+                                                ✏️ Modifier
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% if blood_requests.count > 10 %}
+                    <div class="text-center">
+                        <a href="/donations/all-requests/" class="btn btn-outline-primary btn-sm">
+                            Voir toutes les demandes ({{ blood_requests.count }})
+                        </a>
+                    </div>
+                    {% endif %}
+                    {% else %}
+                    <div class="text-center py-4">
+                        <i class="fas fa-inbox fa-3x text-muted mb-3"></i>
+                        <h6 class="text-muted">Vous n'avez pas encore créé de demandes</h6>
+                        <a href="/donations/create-request/" class="btn btn-primary">
+                            ➕ Créer votre première demande
+                        </a>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <!-- ✅ RÉPONSES RÉCENTES AVEC GESTION DES STATUTS -->
+            <div class="card mb-4">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0">📨 Réponses récentes des donneurs</h5>
+                </div>
+                <div class="card-body">
+                    {% if responses %}
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Donneur</th>
+                                    <th>Groupe sanguin</th>
+                                    <th>Demande</th>
+                                    <th>Date</th>
+                                    <th>Statut</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for response in responses|slice:":10" %}
+                                <tr>
+                                    <td>
+                                        <strong>{{ response.donor.get_full_name }}</strong><br>
+                                        <small class="text-muted">{{ response.donor.phone|default:"📞 Non renseigné" }}</small>
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-danger">{{ response.donor.blood_type }}</span>
+                                        →
+                                        <span class="badge bg-primary">{{ response.blood_request.blood_type }}</span>
+                                    </td>
+                                    <td>{{ response.blood_request.quantity }} poche(s)</td>
+                                    <td>{{ response.response_date|date:"d/m/Y H:i" }}</td>
+                                    <td>
+                                        <span class="badge bg-{% if response.status == 'completed' %}success{% elif response.status == 'accepted' %}primary{% elif response.status == 'rejected' %}danger{% elif response.status == 'pending' %}warning{% else %}secondary{% endif %}">
+                                            {% if response.status == 'completed' %}
+                                                ✅ {{ response.get_status_display }}
+                                            {% elif response.status == 'accepted' %}
+                                                📋 {{ response.get_status_display }}
+                                            {% elif response.status == 'rejected' %}
+                                                ❌ {{ response.get_status_display }}
+                                            {% elif response.status == 'pending' %}
+                                                ⏳ {{ response.get_status_display }}
+                                            {% else %}
+                                                ⚠️ {{ response.get_status_display }}
+                                            {% endif %}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <div class="btn-group" role="group">
+                                            <!-- ✅ BOUTON CHAT AVEC COMPTEUR -->
+                                            <a href="/donations/chat/{{ response.id }}/" 
+                                               class="btn btn-sm btn-primary" 
+                                               title="Discuter avec le donneur">
+                                                💬 Chat
+                                                {% if response.id in unread_counts and unread_counts.response.id > 0 %}
+                                                    <span class="badge bg-danger">{{ unread_counts.response.id }}</span>
+                                                {% endif %}
+                                            </a>
+                                            
+                                            <!-- ✅ GESTION DES STATUTS -->
+                                            {% if response.status == 'pending' %}
+                                                <div class="btn-group">
+                                                    <a href="/donations/update-status/{{ response.id }}/accepted/" 
+                                                       class="btn btn-sm btn-success" 
+                                                       title="Accepter le donneur">
+                                                        ✅ Accepter
+                                                    </a>
+                                                    <a href="/donations/update-status/{{ response.id }}/rejected/" 
+                                                       class="btn btn-sm btn-danger" 
+                                                       title="Rejeter le donneur">
+                                                        ❌ Rejeter
+                                                    </a>
+                                                </div>
+                                            {% elif response.status == 'accepted' %}
+                                                <div class="btn-group">
+                                                    <a href="/donations/update-status/{{ response.id }}/completed/" 
+                                                       class="btn btn-sm btn-success" 
+                                                       title="Marquer comme terminé">
+                                                        🎉 Terminer
+                                                    </a>
+                                                    <a href="/donations/update-status/{{ response.id }}/unsatisfied/" 
+                                                       class="btn btn-sm btn-warning" 
+                                                       title="Marquer comme non satisfaisant">
+                                                        ⚠️ Annuler
+                                                    </a>
+                                                </div>
+                                            {% endif %}
+                                            
+                                            <a href="/donations/response/{{ response.id }}/" 
+                                               class="btn btn-sm btn-info" 
+                                               title="Voir les détails">
+                                               👁️ Détails
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% if responses.count > 10 %}
+                    <div class="text-center">
+                        <a href="/donations/all-responses/" class="btn btn-outline-success btn-sm">
+                            Voir toutes les réponses ({{ responses.count }})
+                        </a>
+                    </div>
+                    {% endif %}
+                    {% else %}
+                    <div class="text-center py-4">
+                        <i class="fas fa-envelope-open fa-3x text-muted mb-3"></i>
+                        <h6 class="text-muted">Aucune réponse reçue pour le moment</h6>
+                        <p class="text-muted">Les donneurs intéressés par vos demandes apparaîtront ici.</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ✅ STYLES POUR LES ANIMATIONS -->
+<style>
+.pulse {
+    animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+    100% { transform: scale(1); }
+}
+
+.badge {
+    font-size: 0.75em;
+}
+
+.btn-group .btn {
+    margin-right: 2px;
+}
+
+.table th {
+    font-weight: 600;
+    background-color: #f8f9fa;
+}
+
+.card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    transition: all 0.3s ease;
+}
+</style>
+
+<!-- ✅ SCRIPT POUR AUTO-REFRESH DES COMPTEURS -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Auto-refresh des compteurs de messages toutes les 30 secondes
+    setInterval(function() {
+        fetch('/donations/api/message-counts/')
+            .then(response => response.json())
+            .then(data => {
+                // Mettre à jour les compteurs sans recharger la page
+                if (data.total_unread > 0) {
+                    document.title = `(${data.total_unread}) Tableau de bord - Don Sang Plus`;
+                } else {
+                    document.title = 'Tableau de bord - Don Sang Plus';
+                }
+            })
+            .catch(error => console.log('Erreur refresh:', error));
+    }, 30000); // 30 secondes
+});
+</script>
+{% endblock %}

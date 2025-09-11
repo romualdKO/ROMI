@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container mt-4">
+    <h2>Attestation de Don</h2>
+    <div class="card">
+        <div class="card-body">
+            <p><strong>Donneur :</strong> {{ response.donor.get_full_name }}</p>
+            <p><strong>Hôpital :</strong> {{ response.blood_request.hospital.hospital_name }}</p>
+            <p><strong>Groupe sanguin :</strong> {{ response.blood_request.blood_type }}</p>
+            <p><strong>Date de réponse :</strong> {{ response.response_date|date:"d/m/Y H:i" }}</p>
+            <p><strong>Statut :</strong> {{ response.get_status_display }}</p>
+            <p><strong>Message :</strong> {{ response.message }}</p>
+            <hr>
+            <button onclick="window.print()" class="btn btn-primary">🖨️ Imprimer l'attestation</button>
+        </div>
+    </div>
+</div>
+{% endblock %}

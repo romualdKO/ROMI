@@ -9,7 +9,7 @@ https://docs.djangoproject.com/en/5.2/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.2/ref/settings/
 """
-
+import os
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -42,6 +42,10 @@ INSTALLED_APPS = [
     'hospitals',
     'widget_tweaks',
 ]
+# Ajouter ces configurations
+LOGIN_REDIRECT_URL = 'dashboard'
+LOGOUT_REDIRECT_URL = 'home'
+AUTH_USER_MODEL = 'accounts.CustomUser'
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -51,6 +55,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    
 ]
 
 ROOT_URLCONF = 'dont_sang_plus.urls'
@@ -124,4 +129,27 @@ STATICFILES_DIRS = [ BASE_DIR / "static" ]
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
-AUTH_USER_MODEL = 'accounts.CustomUser'
+
+
+
+# Ajoutez ces configurations
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
+# Assurez-vous que votre répertoire media existe
+os.makedirs(MEDIA_ROOT, exist_ok=True)
+
+# ...existing code...
+
+# Email configuration pour le reset password
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = 'romualdndri9@gmail.com'
+EMAIL_HOST_PASSWORD = 'pxxepotxvtwqbixf'  # Remplace par le mot de passe généré
+DEFAULT_FROM_EMAIL = 'Don Sang Plus <romualdndri9@gmail.com>'
+SERVER_EMAIL = 'romualdndri9@gmail.com'
+ADMIN_EMAIL = 'romualdndri9@gmail.com'
+# Pour le développement (optionnel, pour tester sans envoyer de vrais emails)
+# EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'

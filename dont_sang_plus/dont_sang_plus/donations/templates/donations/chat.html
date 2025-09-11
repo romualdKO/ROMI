@@ -1,0 +1,60 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">Discussion avec {{ other_user.get_full_name }}</h5>
+                    <span class="badge bg-light text-dark">{{ donation_response.get_status_display }}</span>
+                </div>
+                
+                <div class="card-body chat-messages" style="max-height: 400px; overflow-y: auto;">
+                    {% for message in messages %}
+                    <div class="message {% if message.sender == request.user %}message-sent{% else %}message-received{% endif %} mb-3">
+                        <div class="d-flex justify-content-{% if message.sender == request.user %}end{% else %}start{% endif %}">
+                            <div class="message-bubble {% if message.sender == request.user %}bg-primary text-white{% else %}bg-light{% endif %} p-3 rounded">
+                                <p class="mb-1">{{ message.message }}</p>
+                                <small class="text-muted">{{ message.timestamp|date:"d/m/Y H:i" }}</small>
+                            </div>
+                        </div>
+                    </div>
+                    {% empty %}
+                    <p class="text-center text-muted">Aucun message pour le moment.</p>
+                    {% endfor %}
+                </div>
+                
+                <div class="card-footer">
+                    <form method="post">
+                        {% csrf_token %}
+                        <div class="input-group">
+                            <input type="text" name="message" class="form-control" placeholder="Tapez votre message..." required>
+                            <button type="submit" class="btn btn-primary">Envoyer</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+.chat-messages {
+    background-color: #f8f9fa;
+    padding: 15px;
+    border-radius: 5px;
+}
+.message-bubble {
+    max-width: 70%;
+}
+.message-sent .message-bubble {
+    border-bottom-right-radius: 0;
+}
+.message-received .message-bubble {
+    border-bottom-left-radius: 0;
+}
+</style>
+{% endblock %}

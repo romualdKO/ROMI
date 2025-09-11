@@ -1,0 +1,37 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header bg-success text-white">
+                    <h4>Répondre à la demande</h4>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-info">
+                        <strong>Détails de la demande :</strong><br>
+                        Hôpital: {{ blood_request.hospital.hospital_name }}<br>
+                        Groupe sanguin: {{ blood_request.blood_type }}<br>
+                        Urgence: {{ blood_request.get_urgency_display }}<br>
+                        Date limite: {{ blood_request.deadline|date:"d/m/Y H:i" }}
+                    </div>
+                    
+                    <form method="post">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <label for="message" class="form-label">Message (optionnel) :</label>
+                            <textarea class="form-control" id="message" name="message" rows="4" 
+                                      placeholder="Précisez votre disponibilité ou posez des questions..."></textarea>
+                        </div>
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-success">✅ Je peux aider</button>
+                            <a href="{% url 'donor_dashboard' %}" class="btn btn-secondary">Annuler</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

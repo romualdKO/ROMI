@@ -1,44 +1,82 @@
 {% extends 'base.html' %}
 {% load static %}
-{% block content %}
-<div class="jumbotron bg-light p-5 rounded">
-    <h1 class="display-4">Bienvenue sur Don Sang Plus</h1>
-    <p class="lead">Votre plateforme de mise en relation entre donneurs de sang et structures médicales.</p>
-    <hr class="my-4">
-    <p>Rejoignez notre communauté de donneurs ou inscrivez votre établissement médical.</p>
-    <div class="mt-4">
-        <a class="btn btn-danger btn-lg me-2" href="{% url 'donor_signup' %}" role="button">Je suis donneur</a>
-        <a class="btn btn-outline-danger btn-lg" href="{% url 'hospital_signup' %}" role="button">Je suis un hôpital</a>
-    </div>
-</div>
 
-<div class="container mt-5">
-    <h2 class="mb-4 text-center">Les défis du don de sang</h2>
-    <div class="row">
-        <div class="col-md-4 mb-4">
-            <div class="card h-100">
-                <img src="{% static 'images/urgence.jpeg' %}" class="card-img-top" alt="Urgence transfusion">
-                <div class="card-body">
-                    <p class="card-text">Des urgences vitales nécessitent du sang rapidement, mais les donneurs sont parfois difficiles à trouver.</p>
+{% block content %}
+<!-- Hero Section -->
+<section class="jumbotron bg-light p-5 rounded mb-5">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-6">
+                <h1 class="display-4 fw-bold text-danger mb-3">Bienvenue sur Don Sang Plus</h1>
+                <p class="lead mb-4">Votre plateforme de mise en relation entre donneurs de sang et structures médicales. Ensemble, sauvons plus de vies.</p>
+                
+                <div class="d-flex flex-wrap gap-3 mb-4">
+                    <a class="btn btn-danger btn-lg px-4 py-2" href="{% url 'donor_signup' %}">
+                        <i class="fas fa-user me-2"></i>Je suis donneur
+                    </a>
+                    <a class="btn btn-outline-danger btn-lg px-4 py-2" href="{% url 'hospital_signup' %}">
+                        <i class="fas fa-hospital me-2"></i>Je suis un hôpital
+                    </a>
+                </div>
+                
+                <div class="d-flex flex-wrap gap-4 text-muted">
+                    <span><i class="fas fa-check-circle text-success me-1"></i>Plateforme sécurisée</span>
+                    <span><i class="fas fa-check-circle text-success me-1"></i>Mise en relation rapide</span>
+                    <span><i class="fas fa-check-circle text-success me-1"></i>Urgences prioritaires</span>
                 </div>
             </div>
-        </div>
-        <div class="col-md-4 mb-4">
-            <div class="card h-100">
-                <img src="{% static 'images/rupture_stock.jpg' %}" class="card-img-top" alt="Rupture de stock">
-                <div class="card-body">
-                    <p class="card-text">Les hôpitaux font face à des ruptures de stock, mettant en danger de nombreux patients.</p>
-                </div>
+            <div class="col-lg-6 text-center">
+                <img src="{% static 'images/urgence.jpeg' %}" alt="Don de sang" class="img-fluid rounded-3 shadow" style="max-height: 300px;">
             </div>
         </div>
-        <div class="col-md-4 mb-4">
-            <div class="card h-100">
-                <img src="{% static 'images/solidarite.jpg' %}" class="card-img-top" alt="Solidarité don de sang">
-                <div class="card-body">
-                    <p class="card-text">Faciliter les échanges permet de renforcer la solidarité et de sauver plus de vies.</p>
+    </div>
+</section>
+
+<!-- Statistics Section -->
+<section class="py-5 bg-white">
+    <div class="container">
+        <div class="row text-center">
+            <div class="col-md-3 col-6 mb-4">
+                <div class="stat-item">
+                    <h2 class="text-danger fw-bold">1 500+</h2>
+                    <p class="text-muted">Donneurs actifs</p>
+                </div>
+            </div>
+            <div class="col-md-3 col-6 mb-4">
+                <div class="stat-item">
+                    <h2 class="text-danger fw-bold">120+</h2>
+                    <p class="text-muted">Hôpitaux partenaires</p>
+                </div>
+            </div>
+            <div class="col-md-3 col-6 mb-4">
+                <div class="stat-item">
+                    <h2 class="text-danger fw-bold">5 000+</h2>
+                    <p class="text-muted">Vies sauvées</p>
+                </div>
+            </div>
+            <div class="col-md-3 col-6 mb-4">
+                <div class="stat-item">
+                    <h2 class="text-danger fw-bold">24/7</h2>
+                    <p class="text-muted">Service d'urgence</p>
                 </div>
             </div>
         </div>
     </div>
-</div>
+</section>
+
+<!-- Call to Action -->
+<section class="py-5 bg-danger text-white">
+    <div class="container text-center">
+        <h2 class="fw-bold mb-3">Prêt à faire la différence ?</h2>
+        <p class="lead mb-4">Rejoignez notre communauté de héros du quotidien</p>
+        <div class="d-flex justify-content-center gap-3">
+            <a href="{% url 'donor_signup' %}" class="btn btn-light btn-lg px-4">
+                <i class="fas fa-heart me-2 text-danger"></i>Devenir donneur
+            </a>
+            <a href="{% url 'login' %}" class="btn btn-outline-light btn-lg px-4">
+                <i class="fas fa-sign-in-alt me-2"></i>Se connecter
+            </a>
+        </div>
+    </div>
+</section>
 {% endblock %}

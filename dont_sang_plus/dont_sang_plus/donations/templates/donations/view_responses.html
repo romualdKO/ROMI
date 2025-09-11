@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Réponses pour la demande de {{ blood_request.blood_type }}</h2>
+    
+    {% if responses %}
+    <div class="table-responsive">
+        <table class="table table-hover">
+            <thead>
+                <tr>
+                    <th>Donneur</th>
+                    <th>Groupe sanguin</th>
+                    <th>Date de réponse</th>
+                    <th>Message</th>
+                    <th>Statut</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for response in responses %}
+                <tr>
+                    <td>{{ response.donor.get_full_name }}</td>
+                    <td>{{ response.donor.blood_type }}</td>
+                    <td>{{ response.response_date|date:"d/m/Y H:i" }}</td>
+                    <td>{{ response.message|truncatewords:10 }}</td>
+                    <td>
+                        <span class="badge bg-{% if response.status == 'accepted' %}success{% elif response.status == 'rejected' %}danger{% else %}warning{% endif %}">
+                            {{ response.get_status_display }}
+                        </span>
+                    </td>
+                    <td>
+                        <a href="{% url 'chat_with_donor' response.id %}" class="btn btn-sm btn-primary">
+                            💬 Discuter
+                        </a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div class="alert alert-info">
+        Aucune réponse pour le moment.
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
