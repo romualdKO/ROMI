@@ -1,0 +1,87 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600">
+  <!-- Background -->
+  <rect width="800" height="600" fill="#f5f5f5"/>
+  
+  <!-- Room setting -->
+  <rect x="0" y="400" width="800" height="200" fill="#e8e8e8"/>
+  
+  <!-- Donation chairs and people -->
+  <g id="donation-scene">
+    <!-- Chair 1 -->
+    <rect x="50" y="350" width="100" height="80" rx="10" fill="#4a90e2"/>
+    <rect x="30" y="320" width="140" height="30" rx="15" fill="#4a90e2"/>
+    
+    <!-- Person 1 (young man) -->
+    <circle cx="100" cy="280" r="35" fill="#d4a574"/>
+    <ellipse cx="100" cy="340" rx="40" ry="60" fill="#ffffff"/>
+    <rect x="140" cy="320" width="60" height="20" rx="10" fill="#d4a574"/>
+    
+    <!-- Chair 2 -->
+    <rect x="200" y="350" width="100" height="80" rx="10" fill="#4a90e2"/>
+    <rect x="180" y="320" width="140" height="30" rx="15" fill="#4a90e2"/>
+    
+    <!-- Person 2 (woman) -->
+    <circle cx="250" cy="280" r="35" fill="#f4c2a1"/>
+    <ellipse cx="250" cy="340" rx="40" ry="60" fill="#ffffff"/>
+    <rect x="290" cy="320" width="60" height="20" rx="10" fill="#f4c2a1"/>
+    
+    <!-- Chair 3 -->
+    <rect x="350" y="350" width="100" height="80" rx="10" fill="#4a90e2"/>
+    <rect x="330" y="320" width="140" height="30" rx="15" fill="#4a90e2"/>
+    
+    <!-- Person 3 -->
+    <circle cx="400" cy="280" r="35" fill="#8b4513"/>
+    <ellipse cx="400" cy="340" rx="40" ry="60" fill="#ffffff"/>
+    <rect x="440" cy="320" width="60" height="20" rx="10" fill="#8b4513"/>
+    
+    <!-- Medical staff -->
+    <g id="medical-staff">
+      <!-- Nurse 1 -->
+      <circle cx="120" cy="200" r="30" fill="#f4c2a1"/>
+      <rect x="100" y="230" width="40" height="80" fill="#ffffff"/>
+      <path d="M110 240 L130 240 M120 235 L120 245" stroke="#e74c3c" stroke-width="2"/>
+      
+      <!-- Nurse 2 -->
+      <circle cx="280" cy="200" r="30" fill="#d4a574"/>
+      <rect x="260" y="230" width="40" height="80" fill="#ffffff"/>
+      <circle cx="270" cy="240" r="8" fill="#4a90e2"/>
+      
+      <!-- Doctor -->
+      <circle cx="450" cy="180" r="35" fill="#f4c2a1"/>
+      <rect x="425" y="215" width="50" height="90" fill="#ffffff"/>
+      <circle cx="440" cy="235" r="10" fill="#4a90e2"/>
+      <path d="M440 245 Q450 255 460 265" stroke="#4a90e2" stroke-width="3" fill="none"/>
+    </g>
+    
+    <!-- Blood bags -->
+    <rect x="80" y="280" width="25" height="35" rx="5" fill="#ffffff" stroke="#ccc"/>
+    <rect x="85" y="285" width="15" height="20" fill="#e74c3c"/>
+    
+    <rect x="230" y="280" width="25" height="35" rx="5" fill="#ffffff" stroke="#ccc"/>
+    <rect x="235" y="285" width="15" height="20" fill="#e74c3c"/>
+    
+    <rect x="380" y="280" width="25" height="35" rx="5" fill="#ffffff" stroke="#ccc"/>
+    <rect x="385" y="285" width="15" height="20" fill="#e74c3c"/>
+    
+    <!-- Tubes connecting to arms -->
+    <path d="M105 315 Q115 300 95 290" stroke="#e74c3c" stroke-width="3" fill="none"/>
+    <path d="M255 315 Q245 300 245 290" stroke="#e74c3c" stroke-width="3" fill="none"/>
+    <path d="M405 315 Q395 300 395 290" stroke="#e74c3c" stroke-width="3" fill="none"/>
+  </g>
+  
+  <!-- Equipment -->
+  <rect x="550" y="300" width="60" height="80" fill="#cccccc"/>
+  <rect x="560" y="310" width="40" height="15" fill="#4a90e2"/>
+  <rect x="560" y="330" width="40" height="15" fill="#28a745"/>
+  <circle cx="580" cy="355" r="8" fill="#e74c3c"/>
+  
+  <!-- CNTS Logo area -->
+  <rect x="650" y="380" width="120" height="60" rx="10" fill="#ffffff" stroke="#e74c3c" stroke-width="2"/>
+  <text x="710" y="405" text-anchor="middle" font-family="Arial, sans-serif" font-size="16" font-weight="bold" fill="#e74c3c">CNTS</text>
+  <text x="710" y="425" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" fill="#666">Centre National</text>
+  
+  <!-- Hearts floating -->
+  <path d="M600 150 C590 140, 570 140, 570 160 C570 140, 550 140, 540 150 C540 170, 600 200, 600 200 C600 200, 660 170, 660 150 C650 140, 630 140, 630 160 C630 140, 610 140, 600 150" fill="#e74c3c" opacity="0.7"/>
+  
+  <path d="M700 100 C695 95, 685 95, 685 105 C685 95, 675 95, 670 100 C670 110, 700 125, 700 125 C700 125, 730 110, 730 100 C725 95, 715 95, 715 105 C715 95, 705 95, 700 100" fill="#e74c3c" opacity="0.5"/>
+</svg>

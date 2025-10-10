@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600">
+  <!-- Background -->
+  <rect width="800" height="600" fill="#f8f9fa"/>
+  
+  <!-- Title -->
+  <text x="400" y="80" text-anchor="middle" font-family="Arial, sans-serif" font-size="48" font-weight="bold" fill="#e74c3c">Don du Sang au Forum</text>
+  
+  <!-- Main content area -->
+  <rect x="130" y="150" width="540" height="350" rx="15" fill="#17a2b8"/>
+  
+  <!-- Speech bubble -->
+  <rect x="170" y="200" width="460" height="120" rx="10" fill="#ffffff" stroke="#ffffff" stroke-width="3"/>
+  <polygon points="200,320 170,340 230,320" fill="#ffffff"/>
+  
+  <!-- Text in bubble -->
+  <text x="400" y="240" text-anchor="middle" font-family="Arial, sans-serif" font-size="36" font-weight="bold" fill="#17a2b8">JE DONNE MON SANG,</text>
+  <text x="400" y="290" text-anchor="middle" font-family="Arial, sans-serif" font-size="36" font-weight="bold" fill="#17a2b8">JE SAUVE DES VIES!</text>
+  
+  <!-- Blood drop with smile -->
+  <g id="happy-drop">
+    <!-- Drop shape -->
+    <path d="M400 350 C380 330, 360 340, 360 380 C360 420, 380 440, 400 440 C420 440, 440 420, 440 380 C440 340, 420 330, 400 350" fill="#e74c3c"/>
+    <!-- Smile -->
+    <path d="M385 395 Q400 410 415 395" stroke="#ffffff" stroke-width="4" fill="none" stroke-linecap="round"/>
+    <!-- Eyes -->
+    <circle cx="390" cy="375" r="3" fill="#ffffff"/>
+    <circle cx="410" cy="375" r="3" fill="#ffffff"/>
+  </g>
+</svg>

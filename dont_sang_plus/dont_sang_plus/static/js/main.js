@@ -55,11 +55,80 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     // ================================
+    // CARROUSEL D'IMAGES SIMPLE
+    // ================================
+    function initSimpleImageCarousel() {
+        const carouselImage = document.getElementById('carousel-image');
+        if (!carouselImage) {
+            console.log('❌ Element carousel-image non trouvé');
+            return;
+        }
+
+        // Liste des images disponibles avec chemins Django
+        const images = [
+            'urgence.jpeg',
+            'solidarite.jpg', 
+            'rupture_stock.jpg',
+            'Don de Sang Stylisé.png',
+            'don_sang_illustration.svg',
+            'don_sang_forum.svg',
+            'collecte_sang.svg'
+        ];
+        
+        const imageAlts = [
+            'Urgence médicale - Don de sang',
+            'Solidarité - Don de sang', 
+            'Rupture de stock - Besoin urgent',
+            'Don de sang stylisé',
+            'Illustration don de sang médecin-patient',
+            'Don du sang au forum - Je sauve des vies',
+            'Collecte de sang - Scène de donation'
+        ];
+        
+        let currentIndex = 0;
+
+        function changeImage() {
+            console.log('🔄 Changement d\'image vers index:', currentIndex + 1);
+            
+            // Effet de fondu sortant
+            carouselImage.style.opacity = '0.3';
+            
+            setTimeout(() => {
+                // Changer l'image après le fondu
+                currentIndex = (currentIndex + 1) % images.length;
+                
+                // Construire le chemin de l'image
+                const staticUrl = '/static/images/';
+                carouselImage.src = staticUrl + images[currentIndex];
+                carouselImage.alt = imageAlts[currentIndex];
+                
+                console.log('📷 Nouvelle image:', images[currentIndex]);
+                
+                // Effet de fondu entrant
+                carouselImage.style.opacity = '1';
+            }, 300);
+        }
+
+        // Test initial après 2 secondes pour vérifier que ça fonctionne
+        setTimeout(() => {
+            console.log('🚀 Test initial du carrousel');
+            changeImage();
+        }, 2000);
+
+        // Démarrer le carrousel automatique (change toutes les 3 secondes pour être plus visible)
+        setInterval(changeImage, 3000);
+        
+        console.log('✅ Carrousel d\'images simple initialisé avec', images.length, 'images');
+        console.log('📋 Images disponibles:', images);
+    }
+
+    // ================================
     // INITIALISATION SIMPLIFIÉE
     // ================================
     try {
         initNavbar();
         initScrollAnimations();
+        initSimpleImageCarousel();
         console.log('✅ Interface initialisée');
     } catch (error) {
         console.error('Erreur initialisation:', error);
