@@ -1,227 +1,144 @@
-{% extends 'base.html' %}
-{% load static %}
-
-{% block title %}Connexion - Don Sang Plus{% endblock %}
-
-{% block content %}
-<div class="container mt-5">
-    <div class="row justify-content-center">
-        <div class="col-md-6 col-lg-5">
-            <div class="card shadow-lg animate-on-scroll">
-                <div class="card-header text-white text-center">
-                    <h3 class="mb-0">
-                        <i class="fas fa-sign-in-alt me-2"></i>
-                        Connexion
-                    </h3>
-                    <p class="mb-0 mt-2 opacity-75">
-                        Accédez à votre espace personnel
-                    </p>
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Connexion - Don Sang Plus</title>
+    {% load static %}
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="{% static 'css/modern-design.css' %}">
+</head>
+<body>
+    <div class="auth-container">
+        <div class="auth-card">
+            <!-- Logo et titre -->
+            <div class="auth-logo">
+                <div class="auth-logo-icon">
+                    <i class="fas fa-heart-pulse"></i>
                 </div>
-                
-                <div class="card-body p-4">
-                    <!-- Messages Django -->
-                    {% if messages %}
-                        {% for message in messages %}
-                            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
-                                <i class="fas fa-{% if message.tags == 'error' %}exclamation-circle{% elif message.tags == 'success' %}check-circle{% elif message.tags == 'warning' %}exclamation-triangle{% else %}info-circle{% endif %} me-2"></i>
-                                {{ message }}
-                                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                            </div>
-                        {% endfor %}
-                    {% endif %}
+                <h1 class="auth-title">Don Sang Plus</h1>
+                <p class="auth-subtitle">Connectez-vous à votre espace pour sauver des vies</p>
+            </div>
 
-                    <!-- Erreurs du formulaire -->
-                    {% if form.errors %}
-                        <div class="alert alert-danger">
-                            <i class="fas fa-exclamation-circle me-2"></i>
-                            <strong>Erreur de connexion :</strong>
-                            <ul class="mb-0 mt-2">
-                                {% for field, errors in form.errors.items %}
-                                    {% for error in errors %}
-                                        <li>{{ error }}</li>
-                                    {% endfor %}
-                                {% endfor %}
-                            </ul>
+            <!-- Messages d'erreur/succès -->
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert-modern {% if message.tags == 'error' %}danger{% else %}{{ message.tags }}{% endif %}">
+                        <div class="alert-modern-icon">
+                            <i class="fas fa-{% if message.tags == 'error' %}exclamation-circle{% elif message.tags == 'success' %}check-circle{% else %}info-circle{% endif %}"></i>
                         </div>
-                    {% endif %}
-
-                    <form method="post" action="/accounts/login/" id="loginForm" novalidate>
-                        {% csrf_token %}
-                        
-                        <div class="mb-3">
-                            <label for="id_username" class="form-label fw-bold">
-                                <i class="fas fa-envelope me-2 text-primary"></i>
-                                Adresse Email
-                            </label>
-                            <input type="email" 
-                                   class="form-control form-control-lg" 
-                                   name="username" 
-                                   id="id_username" 
-                                   value="{{ form.username.value|default:'' }}"
-                                   placeholder="Entrez votre adresse email" 
-                                   autocomplete="email"
-                                   required>
-                            <div class="invalid-feedback">
-                                Veuillez entrer une adresse email valide.
-                            </div>
-                        </div>
-
-                        <div class="mb-3">
-                            <label for="id_password" class="form-label fw-bold">
-                                <i class="fas fa-lock me-2 text-primary"></i>
-                                Mot de passe
-                            </label>
-                            <div class="input-group">
-                                <input type="password" 
-                                       class="form-control form-control-lg" 
-                                       name="password" 
-                                       id="id_password" 
-                                       placeholder="Entrez votre mot de passe" 
-                                       autocomplete="current-password"
-                                       required>
-                                <button class="btn btn-outline-secondary" 
-                                        type="button" 
-                                        id="togglePassword"
-                                        onclick="togglePasswordVisibility()">
-                                    <i class="fas fa-eye"></i>
-                                </button>
-                            </div>
-                            <div class="invalid-feedback">
-                                Veuillez entrer votre mot de passe.
-                            </div>
-                        </div>
-
-                        <!-- ✅ LIEN MOT DE PASSE OUBLIÉ CORRIGÉ -->
-                        <div class="mb-3 text-end">
-                            <a href="{% url 'password_reset' %}" class="text-decoration-none text-primary">
-                                <i class="fas fa-key me-1"></i>
-                                Mot de passe oublié ?
-                            </a>
-                        </div>
-
-                        <div class="d-grid gap-2 mb-3">
-                            <button type="submit" 
-                                    class="btn btn-primary btn-lg" 
-                                    id="loginButton">
-                                <i class="fas fa-sign-in-alt me-2"></i>
-                                <span id="buttonText">Se connecter</span>
-                            </button>
-                        </div>
-                    </form>
-
-                    <hr class="my-4">
-                    
-                    <div class="text-center">
-                        <p class="mb-3 text-muted">
-                            <i class="fas fa-user-plus me-2"></i>
-                            Pas encore de compte ?
-                        </p>
-                        <div class="d-grid gap-2 d-md-flex justify-content-md-center">
-                            <a href="/accounts/signup/donor/" 
-                               class="btn btn-outline-danger flex-fill">
-                                <i class="fas fa-heart me-2"></i>
-                                Inscription Donneur
-                            </a>
-                            <a href="/accounts/signup/hospital/" 
-                               class="btn btn-outline-info flex-fill">
-                                <i class="fas fa-hospital me-2"></i>
-                                Inscription Hôpital
-                            </a>
+                        <div class="alert-modern-content">
+                            {{ message }}
                         </div>
                     </div>
+                {% endfor %}
+            {% endif %}
+
+            {% if form.errors %}
+                <div class="alert-modern danger">
+                    <div class="alert-modern-icon">
+                        <i class="fas fa-exclamation-circle"></i>
+                    </div>
+                    <div class="alert-modern-content">
+                        <div class="alert-modern-title">Erreur de connexion</div>
+                        {% for field, errors in form.errors.items %}
+                            {% for error in errors %}
+                                <div>{{ error }}</div>
+                            {% endfor %}
+                        {% endfor %}
+                    </div>
                 </div>
+            {% endif %}
+
+            <!-- Formulaire de connexion -->
+            <form method="post" action="{% url 'accounts:login' %}" id="loginForm">
+                {% csrf_token %}
                 
-                <div class="card-footer text-center bg-light">
-                    <small class="text-muted">
-                        <i class="fas fa-shield-alt me-1"></i>
-                        Connexion sécurisée SSL
-                    </small>
+                <div class="form-group-modern">
+                    <label class="form-label-modern" for="id_username">
+                        Adresse Email
+                    </label>
+                    <input type="email" 
+                           class="form-input-modern" 
+                           name="username" 
+                           id="id_username" 
+                           value="{{ form.username.value|default:'' }}"
+                           placeholder="Entrez votre email" 
+                           autocomplete="email"
+                           required>
                 </div>
+
+                <div class="form-group-modern">
+                    <label class="form-label-modern" for="id_password">
+                        Mot de passe
+                    </label>
+                    <input type="password" 
+                           class="form-input-modern" 
+                           name="password" 
+                           id="id_password" 
+                           placeholder="Entrez votre mot de passe" 
+                           autocomplete="current-password"
+                           required>
+                </div>
+
+                <div style="text-align: right; margin-bottom: 24px;">
+                    <a href="{% url 'accounts:password_reset' %}" style="color: var(--primary-red); font-size: 14px; text-decoration: none; font-weight: 500;">
+                        Mot de passe oublié?
+                    </a>
+                </div>
+
+                <button type="submit" class="btn-modern btn-modern-primary" style="width: 100%; margin-bottom: 16px;">
+                    <i class="fas fa-sign-in-alt"></i>
+                    <span id="buttonText">Se connecter</span>
+                </button>
+            </form>
+
+            <!-- Divider -->
+            <div class="auth-divider">
+                <div class="auth-divider-line"></div>
+                <span class="auth-divider-text">Ou</span>
+                <div class="auth-divider-line"></div>
+            </div>
+
+            <!-- Liens d'inscription -->
+            <div style="text-align: center;">
+                <p style="color: var(--text-gray); font-size: 14px; margin-bottom: 16px;">
+                    Pas encore de compte?
+                </p>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                    <a href="{% url 'accounts:donor_signup' %}" class="btn-modern btn-modern-outline" style="font-size: 14px;">
+                        <i class="fas fa-user"></i>
+                        Donneur
+                    </a>
+                    <a href="{% url 'accounts:hospital_signup' %}" class="btn-modern btn-modern-secondary" style="font-size: 14px;">
+                        <i class="fas fa-hospital"></i>
+                        Hôpital
+                    </a>
+                </div>
+            </div>
+
+            <!-- Footer -->
+            <div class="auth-footer">
+                <p>
+                    <a href="{% url 'home' %}">Retour à l'accueil</a>
+                </p>
+                <p style="margin-top: 8px;">
+                    <i class="fas fa-shield-alt"></i>
+                    Connexion sécurisée SSL
+                </p>
             </div>
         </div>
     </div>
-</div>
 
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    const loginForm = document.getElementById('loginForm');
-    const loginButton = document.getElementById('loginButton');
-    const buttonText = document.getElementById('buttonText');
-
-    loginForm.addEventListener('submit', function(e) {
-        loginButton.disabled = true;
-        buttonText.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Connexion...';
-        
-        setTimeout(() => {
-            loginButton.disabled = false;
-            buttonText.innerHTML = '<i class="fas fa-sign-in-alt me-2"></i>Se connecter';
-        }, 5000);
-    });
-});
-
-function togglePasswordVisibility() {
-    const passwordInput = document.getElementById('id_password');
-    const toggleButton = document.getElementById('togglePassword');
-    const icon = toggleButton.querySelector('i');
-
-    if (passwordInput.type === 'password') {
-        passwordInput.type = 'text';
-        icon.classList.replace('fa-eye', 'fa-eye-slash');
-    } else {
-        passwordInput.type = 'password';
-        icon.classList.replace('fa-eye-slash', 'fa-eye');
-    }
-}
-</script>
-
-<style>
-.card-header {
-    background: linear-gradient(135deg, #dc3545 0%, #ff6b7d 100%);
-}
-
-.form-control:focus {
-    border-color: #dc3545;
-    box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25);
-}
-
-.btn-primary {
-    background: linear-gradient(135deg, #dc3545 0%, #ff6b7d 100%);
-    border: none;
-}
-
-.btn-primary:hover {
-    background: linear-gradient(135deg, #c82333 0%, #e55a70 100%);
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(220, 53, 69, 0.3);
-}
-
-.animate-on-scroll {
-    animation: fadeInUp 0.8s ease;
-}
-
-@keyframes fadeInUp {
-    from { opacity: 0; transform: translateY(30px); }
-    to { opacity: 1; transform: translateY(0); }
-}
-
-/* ✅ STYLE POUR LE LIEN MOT DE PASSE OUBLIÉ */
-a.text-primary:hover {
-    color: #dc3545 !important;
-    text-decoration: underline !important;
-}
-
-.btn-outline-danger:hover {
-    background-color: #dc3545;
-    border-color: #dc3545;
-    transform: translateY(-2px);
-    box-shadow: 0 4px 8px rgba(220, 53, 69, 0.3);
-}
-
-.btn-outline-info:hover {
-    background-color: #0dcaf0;
-    border-color: #0dcaf0;
-    transform: translateY(-2px);
-    box-shadow: 0 4px 8px rgba(13, 202, 240, 0.3);
-}
-</style>
-{% endblock %}
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.getElementById('loginForm').addEventListener('submit', function(e) {
+            const button = document.querySelector('button[type="submit"]');
+            const buttonText = document.getElementById('buttonText');
+            button.disabled = true;
+            buttonText.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Connexion...';
+        });
+    </script>
+</body>
+</html>

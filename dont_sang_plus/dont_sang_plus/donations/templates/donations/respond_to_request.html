@@ -1,37 +1,217 @@
 {% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Répondre à la demande - Don Sang Plus{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/modern-design.css' %}">
+{% endblock %}
 
 {% block content %}
-<div class="container mt-4">
-    <div class="row justify-content-center">
-        <div class="col-md-6">
-            <div class="card">
-                <div class="card-header bg-success text-white">
-                    <h4>Répondre à la demande</h4>
-                </div>
-                <div class="card-body">
-                    <div class="alert alert-info">
-                        <strong>Détails de la demande :</strong><br>
-                        Hôpital: {{ blood_request.hospital.hospital_name }}<br>
-                        Groupe sanguin: {{ blood_request.blood_type }}<br>
-                        Urgence: {{ blood_request.get_urgency_display }}<br>
-                        Date limite: {{ blood_request.deadline|date:"d/m/Y H:i" }}
+<div class="dashboard-container">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <div class="logo">
+                <i class="fas fa-heartbeat"></i>
+                <span>Don Sang Plus</span>
+            </div>
+        </div>
+        
+        <nav class="sidebar-nav">
+            <a href="{% url 'donations:donor_dashboard' %}" class="nav-item">
+                <i class="fas fa-home"></i>
+                <span>Tableau de bord</span>
+            </a>
+            <a href="{% url 'donations:donor_dashboard' %}" class="nav-item active">
+                <i class="fas fa-list"></i>
+                <span>Demandes</span>
+            </a>
+            <a href="{% url 'donations:donor_messages' %}" class="nav-item">
+                <i class="fas fa-comments"></i>
+                <span>Messages</span>
+            </a>
+            <a href="{% url 'donations:donor_history' %}" class="nav-item">
+                <i class="fas fa-history"></i>
+                <span>Historique</span>
+            </a>
+            <a href="{% url 'donations:edit_profile' %}" class="nav-item">
+                <i class="fas fa-user"></i>
+                <span>Profil</span>
+            </a>
+        </nav>
+        
+        <div class="sidebar-footer">
+            <a href="{% url 'accounts:logout' %}" class="nav-item text-danger">
+                <i class="fas fa-sign-out-alt"></i>
+                <span>Déconnexion</span>
+            </a>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Topbar -->
+        <div class="topbar">
+            <div class="topbar-left">
+                <h1 class="page-title">Répondre à une demande de sang</h1>
+            </div>
+            <div class="topbar-right">
+                <a href="{% url 'donations:donor_dashboard' %}" class="btn-modern btn-modern-secondary">
+                    <i class="fas fa-times"></i> Annuler
+                </a>
+            </div>
+        </div>
+
+        <!-- Content Area -->
+        <div class="content-area">
+            <div class="row justify-content-center">
+                <div class="col-lg-8">
+                    <!-- Request Summary -->
+                    <div class="modern-card mb-4">
+                        <div class="card-header">
+                            <h2 class="card-title">
+                                <i class="fas fa-info-circle"></i>
+                                Détails de la demande
+                            </h2>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <div class="info-item">
+                                        <i class="fas fa-hospital text-primary"></i>
+                                        <div>
+                                            <small class="text-muted">Établissement</small>
+                                            <div class="fw-bold">{{ blood_request.hospital.hospital_name }}</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <div class="info-item">
+                                        <i class="fas fa-tint text-danger"></i>
+                                        <div>
+                                            <small class="text-muted">Groupe sanguin requis</small>
+                                            <div class="fw-bold">
+                                                <span class="blood-type-badge-small">{{ blood_request.blood_type }}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <div class="info-item">
+                                        <i class="fas fa-exclamation-triangle text-warning"></i>
+                                        <div>
+                                            <small class="text-muted">Niveau d'urgence</small>
+                                            <div class="fw-bold">{{ blood_request.get_urgency_display }}</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <div class="info-item">
+                                        <i class="fas fa-calendar-alt text-info"></i>
+                                        <div>
+                                            <small class="text-muted">Date limite</small>
+                                            <div class="fw-bold">{{ blood_request.deadline|date:"d/m/Y à H:i" }}</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                    
-                    <form method="post">
-                        {% csrf_token %}
-                        <div class="mb-3">
-                            <label for="message" class="form-label">Message (optionnel) :</label>
-                            <textarea class="form-control" id="message" name="message" rows="4" 
-                                      placeholder="Précisez votre disponibilité ou posez des questions..."></textarea>
+
+                    <!-- Response Form -->
+                    <div class="modern-card">
+                        <div class="card-header">
+                            <h2 class="card-title">
+                                <i class="fas fa-hand-holding-heart"></i>
+                                Confirmez votre disponibilité
+                            </h2>
                         </div>
-                        <div class="d-grid gap-2">
-                            <button type="submit" class="btn btn-success">✅ Je peux aider</button>
-                            <a href="{% url 'donor_dashboard' %}" class="btn btn-secondary">Annuler</a>
+                        <div class="card-body">
+                            <div class="alert alert-info mb-4">
+                                <i class="fas fa-info-circle me-2"></i>
+                                <strong>Important :</strong> En répondant à cette demande, vous confirmez être disponible pour faire un don de sang. L'hôpital vous contactera pour fixer un rendez-vous.
+                            </div>
+
+                            <form method="post">
+                                {% csrf_token %}
+                                
+                                <div class="form-group mb-4">
+                                    <label for="message" class="form-label">
+                                        <i class="fas fa-comment-alt"></i>
+                                        Message (optionnel)
+                                    </label>
+                                    <textarea 
+                                        class="form-control" 
+                                        id="message" 
+                                        name="message" 
+                                        rows="5" 
+                                        placeholder="Précisez votre disponibilité, posez des questions ou laissez un message à l'hôpital..."></textarea>
+                                    <small class="text-muted">
+                                        <i class="fas fa-lightbulb"></i>
+                                        Exemple : "Je suis disponible tous les jours entre 9h et 17h"
+                                    </small>
+                                </div>
+
+                                <div class="alert alert-warning mb-4">
+                                    <div class="d-flex align-items-start">
+                                        <i class="fas fa-exclamation-triangle fa-2x me-3"></i>
+                                        <div>
+                                            <h6 class="mb-2">Avant de confirmer, assurez-vous que :</h6>
+                                            <ul class="mb-0">
+                                                <li>Vous êtes en bonne santé</li>
+                                                <li>Vous avez plus de 18 ans</li>
+                                                <li>Votre dernier don remonte à plus de 3 mois</li>
+                                                <li>Vous pesez plus de 50 kg</li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="form-actions">
+                                    <button type="submit" class="btn-modern btn-modern-primary btn-modern-lg">
+                                        <i class="fas fa-check-circle"></i>
+                                        Confirmer ma disponibilité
+                                    </button>
+                                    <a href="{% url 'donations:donor_dashboard' %}" class="btn-modern btn-modern-secondary btn-modern-lg">
+                                        <i class="fas fa-times"></i>
+                                        Annuler
+                                    </a>
+                                </div>
+                            </form>
                         </div>
-                    </form>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
+    </main>
 </div>
+
+<style>
+.info-item {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.info-item i {
+    font-size: 1.5rem;
+}
+
+.blood-type-badge-small {
+    display: inline-block;
+    background: linear-gradient(135deg, #EF4444, #DC2626);
+    color: white;
+    padding: 0.25rem 0.75rem;
+    border-radius: 20px;
+    font-weight: 700;
+}
+
+.form-actions {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    margin-top: 2rem;
+}
+</style>
 {% endblock %}

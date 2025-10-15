@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Historique - Don Sang Plus</title>
+    {% load static %}
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="{% static 'css/modern-design.css' %}">
+</head>
+<body>
+    <!-- Sidebar -->
+    <div class="modern-sidebar">
+        <div class="sidebar-logo">
+            <div class="sidebar-logo-icon">
+                <i class="fas fa-heart-pulse"></i>
+            </div>
+            <div class="sidebar-logo-text">Don Sang Plus</div>
+        </div>
+
+        <nav class="sidebar-nav">
+            <a href="{% url 'donations:hospital_dashboard' %}" class="sidebar-nav-item">
+                <i class="fas fa-home sidebar-nav-icon"></i>
+                Dashboard
+            </a>
+            <a href="{% url 'donations:hospital_dashboard' %}#requests-section" class="sidebar-nav-item">
+                <i class="fas fa-clipboard-list sidebar-nav-icon"></i>
+                Demandes
+            </a>
+            <a href="{% url 'donations:hospital_messages' %}" class="sidebar-nav-item">
+                <i class="fas fa-envelope sidebar-nav-icon"></i>
+                Messages
+            </a>
+            <a href="{% url 'donations:hospital_history' %}" class="sidebar-nav-item active">
+                <i class="fas fa-history sidebar-nav-icon"></i>
+                Historique
+            </a>
+            <a href="{% url 'donations:hospital_dashboard' %}#donors-section" class="sidebar-nav-item">
+                <i class="fas fa-users sidebar-nav-icon"></i>
+                Donneurs
+            </a>
+            <a href="{% url 'donations:edit_profile' %}" class="sidebar-nav-item">
+                <i class="fas fa-cog sidebar-nav-icon"></i>
+                Paramètres
+            </a>
+        </nav>
+
+        <div class="sidebar-footer">
+            <a href="{% url 'accounts:logout' %}" class="sidebar-nav-item" style="color: var(--danger-red);">
+                <i class="fas fa-sign-out-alt sidebar-nav-icon"></i>
+                Déconnexion
+            </a>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="modern-main-content">
+        <div class="modern-topbar">
+            <div>
+                <div class="topbar-title">
+                    <i class="fas fa-history"></i> Historique
+                </div>
+                <div class="topbar-subtitle">{{ stats.total }} demande(s) • {{ stats.total_donations }} don(s) reçu(s)</div>
+            </div>
+            <div class="topbar-actions">
+                <a href="{% url 'donations:hospital_dashboard' %}" class="btn-modern btn-modern-secondary" style="display: inline-flex; align-items: center; gap: 8px; padding: 10px 20px; font-weight: 600; transition: all 0.3s ease;">
+                    <i class="fas fa-arrow-left"></i> Retour
+                </a>
+            </div>
+        </div>
+
+        <div class="container-modern">
+            <!-- Statistics -->
+            <div class="stats-grid" style="margin-bottom: 24px;">
+                <div class="stat-card blue">
+                    <div class="stat-card-header">
+                        <div><div class="stat-card-title">En Cours</div></div>
+                        <div class="stat-card-icon"><i class="fas fa-folder-open"></i></div>
+                    </div>
+                    <div class="stat-card-value">{{ stats.open }}</div>
+                </div>
+                
+                <div class="stat-card green">
+                    <div class="stat-card-header">
+                        <div><div class="stat-card-title">Complétées</div></div>
+                        <div class="stat-card-icon"><i class="fas fa-check-circle"></i></div>
+                    </div>
+                    <div class="stat-card-value">{{ stats.completed }}</div>
+                </div>
+                
+                <div class="stat-card red">
+                    <div class="stat-card-header">
+                        <div><div class="stat-card-title">Annulées/Rejetées</div></div>
+                        <div class="stat-card-icon"><i class="fas fa-times-circle"></i></div>
+                    </div>
+                    <div class="stat-card-value">{{ stats.closed }}</div>
+                </div>
+                
+                <div class="stat-card yellow">
+                    <div class="stat-card-header">
+                        <div><div class="stat-card-title">Dons Reçus</div></div>
+                        <div class="stat-card-icon"><i class="fas fa-trophy"></i></div>
+                    </div>
+                    <div class="stat-card-value">{{ stats.total_donations }}</div>
+                </div>
+            </div>
+
+            <!-- Donations Received -->
+            {% if received_donations %}
+            <div class="card-modern" style="margin-bottom: 24px;">
+                <div class="card-modern-header">
+                    <h3 class="card-modern-title">
+                        <i class="fas fa-gift"></i>
+                        Dons Reçus
+                    </h3>
+                    <span class="badge-modern success">{{ received_donations.count }}</span>
+                </div>
+                <div class="card-modern-body">
+                    <div class="modern-table-container">
+                        <table class="modern-table">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Donneur</th>
+                                    <th>Groupe Sanguin</th>
+                                    <th>Quantité</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for donation in received_donations %}
+                                <tr style="cursor: pointer;" data-href="{% url 'donations:request_detail' donation.blood_request.id %}" onclick="window.location.href=this.dataset.href">
+                                    <td>{{ donation.donation_date|date:"d/m/Y" }}</td>
+                                    <td>
+                                        <div style="font-weight: 600;">{{ donation.donor.get_full_name }}</div>
+                                        <small style="color: var(--text-gray);">{{ donation.donor.phone }}</small>
+                                    </td>
+                                    <td>
+                                        <span class="badge-modern danger">
+                                            <i class="fas fa-tint"></i> {{ donation.blood_request.blood_type }}
+                                        </span>
+                                    </td>
+                                    <td><strong>{{ donation.quantity }}</strong> poche(s)</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- All Blood Requests -->
+            <div class="card-modern">
+                <div class="card-modern-header">
+                    <h3 class="card-modern-title">
+                        <i class="fas fa-list"></i>
+                        Toutes les demandes
+                    </h3>
+                    <span class="badge-modern info">{{ stats.total }}</span>
+                </div>
+                <div class="card-modern-body">
+                    {% if requests %}
+                        <div class="modern-table-container">
+                            <table class="modern-table">
+                                <thead>
+                                    <tr>
+                                        <th>Date</th>
+                                        <th>Groupe</th>
+                                        <th>Quantité</th>
+                                        <th>Réponses</th>
+                                        <th>Statut</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for request in requests %}
+                                    <tr style="cursor: pointer;" data-href="{% url 'donations:request_detail' request.id %}" onclick="window.location.href=this.dataset.href">
+                                        <td>{{ request.deadline|date:"d/m/Y" }}</td>
+                                        <td>
+                                            <span class="badge-modern danger">
+                                                {{ request.blood_type }}
+                                            </span>
+                                        </td>
+                                        <td><strong>{{ request.quantity }}</strong> poche(s)</td>
+                                        <td>
+                                            <span style="font-weight: 700; color: var(--primary-red);">
+                                                {{ request.donationresponse_set.count }}
+                                            </span> donneurs
+                                        </td>
+                                        <td>
+                                            {% if request.status == 'completed' %}
+                                                <span class="badge-modern success">
+                                                    <i class="fas fa-check-circle"></i> Complétée
+                                                </span>
+                                            {% elif request.status == 'cancelled' %}
+                                                <span class="badge-modern secondary">
+                                                    <i class="fas fa-times-circle"></i> Annulée
+                                                </span>
+                                            {% elif request.status == 'rejected' %}
+                                                <span class="badge-modern danger">
+                                                    <i class="fas fa-ban"></i> Rejetée
+                                                </span>
+                                            {% elif request.status == 'approved' %}
+                                                <span class="badge-modern info">
+                                                    <i class="fas fa-check"></i> Approuvée
+                                                </span>
+                                            {% else %}
+                                                <span class="badge-modern warning">
+                                                    <i class="fas fa-clock"></i> En attente
+                                                </span>
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <div style="text-align: center; padding: 40px 20px; color: var(--text-gray);">
+                            <i class="fas fa-inbox" style="font-size: 48px; margin-bottom: 16px;"></i>
+                            <div style="font-size: 16px;">Aucune demande pour le moment</div>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

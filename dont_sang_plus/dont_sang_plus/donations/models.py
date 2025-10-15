@@ -10,10 +10,19 @@ class BloodRequest(models.Model):
         ('planned', 'Planifié'),
     )
     
+    STATUS_CHOICES = (
+        ('pending', 'En attente'),
+        ('approved', 'Approuvé'),
+        ('completed', 'Effectué'),
+        ('cancelled', 'Annulé'),
+        ('rejected', 'Rejeté'),
+    )
+    
     hospital = models.ForeignKey(User, on_delete=models.CASCADE, limit_choices_to={'user_type': 'hospital'})
     blood_type = models.CharField(max_length=3, choices=User.BLOOD_TYPE_CHOICES)
     quantity = models.PositiveIntegerField(help_text="Nombre de poches de sang nécessaires")
     urgency = models.CharField(max_length=10, choices=URGENCY_CHOICES)
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
     address = models.CharField(max_length=255)
     city = models.CharField(max_length=100)
     deadline = models.DateTimeField()

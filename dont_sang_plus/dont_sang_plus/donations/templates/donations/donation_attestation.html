@@ -1,0 +1,287 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Attestation de Don - Don Sang Plus{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/modern-design.css' %}">
+<style>
+    body {
+        background: #f8f9fa;
+    }
+
+    .attestation-container {
+        max-width: 800px;
+        margin: 40px auto;
+        padding: 20px;
+    }
+
+    .attestation-card {
+        background: white;
+        border-radius: 16px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        overflow: hidden;
+    }
+
+    .attestation-header {
+        background: linear-gradient(135deg, #EF4444, #DC2626);
+        color: white;
+        padding: 2.5rem;
+        text-align: center;
+    }
+
+    .header-logo {
+        width: 60px;
+        height: 60px;
+        background: white;
+        border-radius: 50%;
+        margin: 0 auto 1rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #EF4444;
+        font-size: 2rem;
+    }
+
+    .header-title {
+        font-size: 2rem;
+        font-weight: 700;
+        margin: 0 0 0.5rem 0;
+    }
+
+    .header-subtitle {
+        font-size: 1rem;
+        opacity: 0.9;
+    }
+
+    .attestation-body {
+        padding: 3rem;
+    }
+
+    .section-title {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: #1f2937;
+        text-align: center;
+        margin-bottom: 2rem;
+    }
+
+    .info-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 2rem;
+        margin-bottom: 2.5rem;
+    }
+
+    .info-item {
+        background: #f9fafb;
+        padding: 1.5rem;
+        border-radius: 12px;
+        border-left: 4px solid #EF4444;
+    }
+
+    .info-label {
+        font-size: 0.875rem;
+        color: #6b7280;
+        margin-bottom: 0.5rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .info-value {
+        font-size: 1.25rem;
+        color: #1f2937;
+        font-weight: 700;
+    }
+
+    .info-value.highlight {
+        color: #EF4444;
+        font-size: 1.5rem;
+    }
+
+    .thank-you-section {
+        background: #fef2f2;
+        padding: 2rem;
+        border-radius: 12px;
+        text-align: center;
+        margin: 2rem 0;
+        border: 2px dashed #EF4444;
+    }
+
+    .thank-you-text {
+        color: #6b7280;
+        font-size: 0.9375rem;
+        line-height: 1.6;
+        margin: 0;
+    }
+
+    .download-btn {
+        width: 100%;
+        padding: 1rem 2rem;
+        background: linear-gradient(135deg, #EF4444, #DC2626);
+        color: white;
+        border: none;
+        border-radius: 12px;
+        font-size: 1.125rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.75rem;
+        text-decoration: none;
+    }
+
+    .download-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(239, 68, 68, 0.3);
+    }
+
+    .download-btn i {
+        font-size: 1.25rem;
+    }
+
+    .footer-actions {
+        display: flex;
+        gap: 1rem;
+        margin-top: 2rem;
+    }
+
+    .action-btn {
+        flex: 1;
+        padding: 1rem;
+        border: 2px solid #e5e7eb;
+        background: white;
+        border-radius: 12px;
+        font-size: 1rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        text-decoration: none;
+        color: #6b7280;
+    }
+
+    .action-btn:hover {
+        border-color: #EF4444;
+        color: #EF4444;
+        background: #fef2f2;
+    }
+
+    .badge-blood-type {
+        display: inline-block;
+        padding: 0.5rem 1rem;
+        background: linear-gradient(135deg, #EF4444, #DC2626);
+        color: white;
+        border-radius: 8px;
+        font-size: 1.5rem;
+        font-weight: 700;
+        margin-top: 0.5rem;
+    }
+
+    @media print {
+        .download-btn,
+        .footer-actions,
+        .action-btn {
+            display: none !important;
+        }
+        
+        .attestation-container {
+            margin: 0;
+            padding: 0;
+        }
+        
+        .attestation-card {
+            box-shadow: none;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="attestation-container">
+    <div class="attestation-card">
+        <!-- En-tête -->
+        <div class="attestation-header">
+            <div class="header-logo">
+                <i class="fas fa-heartbeat"></i>
+            </div>
+            <h1 class="header-title">Don Sang Plus</h1>
+            <p class="header-subtitle">Attestation de Don de Sang</p>
+        </div>
+
+        <!-- Corps de l'attestation -->
+        <div class="attestation-body">
+            <h2 class="section-title">Attestation de Don</h2>
+            <p style="text-align: center; color: #6b7280; margin-bottom: 3rem; font-size: 0.9375rem;">
+                Générez et téléchargez votre attestation officielle de don.
+            </p>
+
+            <!-- Informations du don -->
+            <div class="info-grid">
+                <div class="info-item">
+                    <div class="info-label">Nom du Donneur</div>
+                    <div class="info-value">{{ donor.get_full_name }}</div>
+                </div>
+
+                <div class="info-item">
+                    <div class="info-label">Groupe Sanguin</div>
+                    <div class="info-value highlight">
+                        {{ donor.blood_type|default:"O+" }}
+                        <span class="badge-blood-type">{{ donor.blood_type|default:"O+" }}</span>
+                    </div>
+                </div>
+
+                <div class="info-item">
+                    <div class="info-label">Date du Don</div>
+                    <div class="info-value">{{ response.response_date|date:"d F Y" }}</div>
+                </div>
+
+                <div class="info-item">
+                    <div class="info-label">ID du Don</div>
+                    <div class="info-value">{{ donation_id }}</div>
+                </div>
+
+                <div class="info-item" style="grid-column: 1 / -1;">
+                    <div class="info-label">Institution de Santé</div>
+                    <div class="info-value">{{ hospital.hospital_name }}</div>
+                </div>
+            </div>
+
+            <!-- Message de remerciement -->
+            <div class="thank-you-section">
+                <p class="thank-you-text">
+                    Merci pour votre généreuse contribution. Cette attestation peut être présentée dans les institutions de santé comme preuve de votre don.
+                </p>
+            </div>
+
+            <!-- Bouton de téléchargement -->
+            <button onclick="window.print()" class="download-btn">
+                <i class="fas fa-download"></i>
+                Générer et Télécharger le PDF
+            </button>
+
+            <!-- Actions additionnelles -->
+            <div class="footer-actions">
+                <a href="{% if user.user_type == 'donor' %}{% url 'donations:donor_dashboard' %}{% else %}{% url 'donations:hospital_dashboard' %}{% endif %}" class="action-btn">
+                    <i class="fas fa-home"></i>
+                    Accueil
+                </a>
+                <a href="{% if user.user_type == 'donor' %}{% url 'donations:donor_history' %}{% else %}{% url 'donations:hospital_history' %}{% endif %}" class="action-btn">
+                    <i class="fas fa-history"></i>
+                    Historique
+                </a>
+                <button onclick="window.location.href='mailto:?subject=Mon%20Attestation%20de%20Don&body=Voir%20mon%20attestation'" class="action-btn">
+                    <i class="fas fa-share-alt"></i>
+                    Partager
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ma Disponibilité - Don Sang Plus</title>
+    {% load static %}
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="{% static 'css/modern-design.css' %}">
+</head>
+<body>
+    <!-- Sidebar -->
+    <div class="modern-sidebar">
+        <!-- Logo -->
+        <div class="sidebar-logo">
+            <div class="sidebar-logo-icon">
+                <i class="fas fa-heart-pulse"></i>
+            </div>
+            <div class="sidebar-logo-text">Don Sang Plus</div>
+        </div>
+
+        <!-- Navigation -->
+        <nav class="sidebar-nav">
+            <a href="{% url 'donations:donor_dashboard' %}" class="sidebar-nav-item">
+                <i class="fas fa-home sidebar-nav-icon"></i>
+                Dashboard
+            </a>
+            <a href="{% url 'donations:donor_dashboard' %}#requests-section" class="sidebar-nav-item">
+                <i class="fas fa-heart sidebar-nav-icon"></i>
+                Demandes
+            </a>
+            <a href="{% url 'donations:donor_messages' %}" class="sidebar-nav-item">
+                <i class="fas fa-envelope sidebar-nav-icon"></i>
+                Messages
+            </a>
+            <a href="{% url 'donations:donor_history' %}" class="sidebar-nav-item">
+                <i class="fas fa-history sidebar-nav-icon"></i>
+                Historique
+            </a>
+            <a href="{% url 'donations:update_availability' %}" class="sidebar-nav-item active">
+                <i class="fas fa-calendar-check sidebar-nav-icon"></i>
+                Disponibilité
+            </a>
+            <a href="{% url 'donations:edit_profile' %}" class="sidebar-nav-item">
+                <i class="fas fa-user-edit sidebar-nav-icon"></i>
+                Profil
+            </a>
+        </nav>
+
+        <!-- Sidebar Footer -->
+        <div class="sidebar-footer">
+            <a href="{% url 'accounts:logout' %}" class="sidebar-nav-item" style="color: var(--danger-red);">
+                <i class="fas fa-sign-out-alt sidebar-nav-icon"></i>
+                Déconnexion
+            </a>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="modern-main-content">
+        <!-- Top Bar -->
+        <div class="modern-topbar">
+            <div>
+                <div class="topbar-title">Ma Disponibilité</div>
+                <div class="topbar-subtitle">Gérez votre disponibilité pour le don de sang</div>
+            </div>
+            <div class="topbar-actions">
+                <a href="{% url 'donations:donor_dashboard' %}" class="modern-btn-secondary">
+                    <i class="fas fa-arrow-left"></i>
+                    Retour
+                </a>
+            </div>
+        </div>
+
+        <!-- Content Area -->
+        <div class="modern-content-area">
+            <div class="row justify-content-center">
+                <div class="col-lg-10">
+                    <!-- Status Banner -->
+                    {% if availability %}
+                    <div class="card-modern mb-4" style="border-left: 5px solid {% if availability.is_available %}var(--success-green){% else %}var(--danger-red){% endif %};">
+                        <div class="card-modern-body">
+                            <div class="row align-items-center">
+                                <div class="col-auto">
+                                    <div class="status-icon-large" style="background: {% if availability.is_available %}linear-gradient(135deg, #10B981, #059669){% else %}linear-gradient(135deg, #EF4444, #DC2626){% endif %};">
+                                        <i class="fas fa-{% if availability.is_available %}check{% else %}times{% endif %}" style="font-size: 32px; color: white;"></i>
+                                    </div>
+                                </div>
+                                <div class="col">
+                                    <h3 class="mb-1" style="color: {% if availability.is_available %}var(--success-green){% else %}var(--danger-red){% endif %}; font-weight: 800;">
+                                        Statut : {% if availability.is_available %}DISPONIBLE{% else %}INDISPONIBLE{% endif %}
+                                    </h3>
+                                    {% if availability.next_available_date %}
+                                    <p class="mb-0" style="color: var(--text-gray);">
+                                        <i class="fas fa-calendar-alt"></i>
+                                        Prochaine disponibilité : <strong>{{ availability.next_available_date|date:"d/m/Y" }}</strong>
+                                    </p>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    <!-- Info Card -->
+                    <div class="alert-modern info mb-4">
+                        <div style="display: flex; align-items: start; gap: 16px;">
+                            <div style="font-size: 28px; color: var(--primary-blue);">
+                                <i class="fas fa-info-circle"></i>
+                            </div>
+                            <div>
+                                <h6 style="font-weight: 700; margin-bottom: 12px; color: var(--dark-text);">À savoir :</h6>
+                                <ul style="margin: 0; padding-left: 20px;">
+                                    <li style="margin-bottom: 6px;">Vous devez attendre au moins <strong>3 mois</strong> entre deux dons</li>
+                                    <li style="margin-bottom: 6px;">Votre disponibilité sera visible par les hôpitaux</li>
+                                    <li>Vous recevrez des notifications pour les demandes compatibles</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Form Card -->
+                    <div class="card-modern">
+                        <div class="card-modern-header">
+                            <h3 class="carte-titre-moderne">
+                                <i class="fas fa-edit"></i>
+                                Mettre à jour ma disponibilité
+                            </h3>
+                        </div>
+                        <div class="card-modern-body">
+                            <form method="post" action="{% url 'donations:update_availability' %}">
+                                {% csrf_token %}
+                                
+                                <!-- Switch de disponibilité -->
+                                <div class="mb-4">
+                                    <label class="form-label-moderne">
+                                        <i class="fas fa-toggle-on"></i>
+                                        Statut de disponibilité
+                                    </label>
+                                    <div class="switch-container-moderne">
+                                        <div class="form-check form-switch" style="font-size: 1.2rem;">
+                                            <input class="form-check-input switch-moderne" 
+                                                   type="checkbox" 
+                                                   id="is_available" 
+                                                   name="is_available" 
+                                                   {% if availability.is_available %}checked{% endif %}
+                                                   style="width: 60px; height: 30px; cursor: pointer;">
+                                            <label class="form-check-label" for="is_available" style="font-weight: 600; margin-left: 12px;">
+                                                Je suis disponible pour faire un don de sang
+                                            </label>
+                                        </div>
+                                        <small class="text-muted" style="display: block; margin-top: 8px;">
+                                            <i class="fas fa-info-circle"></i>
+                                            Cochez cette case si vous êtes disponible et prêt à donner du sang
+                                        </small>
+                                    </div>
+                                </div>
+
+                                <!-- Date de disponibilité -->
+                                <div class="mb-4">
+                                    <label for="next_available_date" class="form-label-moderne">
+                                        <i class="fas fa-calendar-alt"></i>
+                                        Prochaine date de disponibilité (optionnel)
+                                    </label>
+                                    <input type="date" 
+                                           class="form-control-moderne" 
+                                           id="next_available_date" 
+                                           name="next_available_date" 
+                                           value="{% if availability.next_available_date %}{{ availability.next_available_date|date:'Y-m-d' }}{% endif %}">
+                                    <small class="text-muted" style="display: block; margin-top: 8px;">
+                                        <i class="fas fa-info-circle"></i>
+                                        Si vous êtes temporairement indisponible, indiquez quand vous serez à nouveau disponible
+                                    </small>
+                                </div>
+
+                                <!-- Notes -->
+                                <div class="mb-4">
+                                    <label for="notes" class="form-label-moderne">
+                                        <i class="fas fa-sticky-note"></i>
+                                        Notes / Remarques (optionnel)
+                                    </label>
+                                    <textarea class="form-control-moderne" 
+                                              id="notes" 
+                                              name="notes" 
+                                              rows="4" 
+                                              placeholder="Précisions sur votre disponibilité, contraintes horaires, etc.">{{ availability.notes|default:"" }}</textarea>
+                                    <small class="text-muted" style="display: block; margin-top: 8px;">
+                                        <i class="fas fa-info-circle"></i>
+                                        Ces notes sont visibles uniquement par vous et les administrateurs
+                                    </small>
+                                </div>
+
+                                <!-- Warning Box -->
+                                <div class="alert-modern warning mb-4">
+                                    <div style="display: flex; align-items: start; gap: 16px;">
+                                        <div style="font-size: 28px; color: var(--warning-orange);">
+                                            <i class="fas fa-exclamation-triangle"></i>
+                                        </div>
+                                        <div>
+                                            <h6 style="font-weight: 700; margin-bottom: 8px; color: #92400E;">Rappel important :</h6>
+                                            <p style="margin: 0; color: #92400E;">
+                                                Après un don effectué, vous serez automatiquement marqué comme <strong>indisponible pour 3 mois</strong> pour respecter le délai légal entre deux dons.
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Buttons -->
+                                <div class="form-actions-moderne">
+                                    <button type="submit" class="modern-btn-primary">
+                                        <i class="fas fa-save"></i>
+                                        Mettre à jour ma disponibilité
+                                    </button>
+                                    <a href="{% url 'donations:donor_dashboard' %}" class="modern-btn-secondary">
+                                        <i class="fas fa-times"></i>
+                                        Annuler
+                                    </a>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <style>
+        .status-icon-large {
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .switch-container-moderne {
+            background: var(--secondary-gray);
+            padding: 20px;
+            border-radius: 12px;
+            border: 2px solid var(--border-color);
+        }
+
+        .switch-moderne:checked {
+            background-color: var(--success-green) !important;
+            border-color: var(--success-green) !important;
+        }
+
+        .form-label-moderne {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 700;
+            color: var(--dark-text);
+            margin-bottom: 12px;
+            font-size: 15px;
+        }
+
+        .form-label-moderne i {
+            color: var(--primary-red);
+            font-size: 18px;
+        }
+
+        .form-control-moderne {
+            width: 100%;
+            padding: 14px 16px;
+            border: 2px solid var(--border-color);
+            border-radius: 12px;
+            font-size: 15px;
+            transition: all 0.3s ease;
+            font-family: inherit;
+        }
+
+        .form-control-moderne:focus {
+            outline: none;
+            border-color: var(--primary-red);
+            box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.1);
+        }
+
+        textarea.form-control-moderne {
+            resize: vertical;
+        }
+
+        .form-actions-moderne {
+            display: flex;
+            gap: 16px;
+            padding-top: 24px;
+            border-top: 2px solid var(--border-color);
+        }
+
+        .form-actions-moderne button,
+        .form-actions-moderne a {
+            flex: 1;
+        }
+
+        .alert-modern {
+            padding: 20px;
+            border-radius: 12px;
+            border-left: 4px solid;
+        }
+
+        .alert-modern.info {
+            background: #EFF6FF;
+            border-left-color: var(--primary-blue);
+            color: #1E3A8A;
+        }
+
+        .alert-modern.warning {
+            background: #FEF3C7;
+            border-left-color: var(--warning-orange);
+        }
+
+        @media (max-width: 768px) {
+            .form-actions-moderne {
+                flex-direction: column;
+            }
+        }
+    </style>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

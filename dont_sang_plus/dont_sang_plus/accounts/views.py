@@ -46,14 +46,14 @@ def custom_login(request):
             if user.user_type == 'donor':
                 messages.success(request, f"🩸 Bienvenue {user.get_full_name()} !")
                 print("DEBUG: Redirection vers donor dashboard")
-                return redirect('/donations/donor-dashboard/')
+                return redirect('donations:donor_dashboard')
             elif user.user_type == 'hospital':
                 messages.success(request, f"🏥 Bienvenue {user.hospital_name} !")
                 print("DEBUG: Redirection vers hospital dashboard")
-                return redirect('/donations/hospital-dashboard/')
+                return redirect('donations:hospital_dashboard')
             else:
                 print("DEBUG: Redirection vers home")
-                return redirect('/')
+                return redirect('home')
         else:
             print("DEBUG: Échec de l'authentification")
             messages.error(request, "❌ Nom d'utilisateur ou mot de passe incorrect.")
@@ -65,7 +65,7 @@ def custom_logout(request):
     """Vue personnalisée pour la déconnexion"""
     logout(request)
     messages.success(request, "👋 Vous avez été déconnecté avec succès.")
-    return redirect('/accounts/login/')
+    return redirect('accounts:login')
 
 def donor_signup(request):
     """Vue pour l'inscription des donneurs"""
@@ -110,7 +110,7 @@ def donor_signup(request):
                         f"✅ Compte créé avec succès ! Bienvenue {user.get_full_name()}. "
                         "Vous pouvez maintenant vous connecter."
                     )
-                    return redirect('/accounts/login/')
+                    return redirect('accounts:login')
             except Exception as e:
                 print(f"Erreur lors de la création du compte donneur: {e}")
                 messages.error(request, "❌ Erreur lors de la création du compte. Veuillez réessayer.")
@@ -202,7 +202,7 @@ def hospital_signup(request):
                         "Votre compte sera activé après vérification par notre équipe. "
                         "Vous recevrez un email de confirmation dans les 24-48h."
                     )
-                    return redirect('/accounts/login/')
+                    return redirect('accounts:login')
             except Exception as e:
                 print(f"Erreur lors de la création du compte hôpital: {e}")
                 messages.error(request, "❌ Erreur lors de la création du compte. Veuillez réessayer.")
@@ -223,11 +223,11 @@ def hospital_signup(request):
 def dashboard(request):
     """Redirection automatique selon le type d'utilisateur"""
     if request.user.user_type == 'donor':
-        return redirect('/donations/donor-dashboard/')
+        return redirect('donations:donor_dashboard')
     elif request.user.user_type == 'hospital':
-        return redirect('/donations/hospital-dashboard/')
+        return redirect('donations:hospital_dashboard')
     else:
-        return redirect('/')
+        return redirect('home')
 
 def is_admin(user):
     """Vérification si l'utilisateur est admin"""
@@ -304,10 +304,10 @@ def quick_validate_hospital(request, user_id):
 def LogoutView(request):
     """Vue de déconnexion alternative"""
     logout(request)
-    return redirect('/')
+    return redirect('home')
 
 def logout_default_user(request):
     """Déconnexion utilisateur par défaut"""
     if request.user.is_authenticated:
         logout(request)
-    return redirect('/accounts/login/')
+    return redirect('accounts:login')

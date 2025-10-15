@@ -1,463 +1,626 @@
-{% extends 'base.html' %}
-{% load static %}
-
-{% block title %}Dashboard Donneur - Don Sang Plus{% endblock %}
-
-{% block content %}
-<div class="container-fluid mt-4">
-    <!-- En-tête avec info compatibilité -->
-    <div class="row mb-4">
-        <div class="col-12">
-            <div class="card bg-light">
-                <div class="card-body">
-                    <div class="row align-items-center">
-                        <div class="col-md-6">
-                            <h4 class="mb-1">
-                                👋 Bonjour {{ user.get_full_name|default:user.username }}
-                            </h4>
-                            <p class="text-muted mb-0">
-                                <i class="fas fa-tint me-2"></i>
-                                Votre groupe sanguin : <strong class="badge bg-danger">{{ donor_blood_type }}</strong>
-                            </p>
-                        </div>
-                        <div class="col-md-3">
-                            <!-- ✅ INFOS DE COMPATIBILITÉ -->
-                            <div class="mb-2">
-                                <small class="text-muted">Vous pouvez donner aux groupes :</small><br>
-                                {% for blood_type in can_give_to %}
-                                    <span class="badge bg-success me-1">{{ blood_type }}</span>
-                                {% endfor %}
-                            </div>
-                        </div>
-                        <div class="col-md-3 text-end">
-                            <!-- ✅ BOUTON MODIFIER PROFIL AJOUTÉ -->
-                            <a href="/donations/edit-profile/" class="btn btn-outline-primary btn-sm">
-                                <i class="fas fa-user-edit me-2"></i>
-                                Modifier mon profil
-                            </a>
-                        </div>
-                    </div>
-                </div>
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Donneur - Don Sang Plus</title>
+    {% load static %}
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="{% static 'css/modern-design.css' %}">
+</head>
+<body>
+    <!-- Sidebar -->
+    <div class="modern-sidebar">
+        <!-- Logo -->
+        <div class="sidebar-logo">
+            <div class="sidebar-logo-icon">
+                <i class="fas fa-heart-pulse"></i>
             </div>
+            <div class="sidebar-logo-text">Don Sang Plus</div>
+        </div>
+
+        <!-- Navigation -->
+        <nav class="sidebar-nav">
+            <a href="{% url 'donations:donor_dashboard' %}" class="sidebar-nav-item active">
+                <i class="fas fa-home sidebar-nav-icon"></i>
+                Dashboard
+            </a>
+            <a href="#requests-section" class="sidebar-nav-item">
+                <i class="fas fa-heart sidebar-nav-icon"></i>
+                Demandes
+            </a>
+            <a href="{% url 'donations:donor_messages' %}" class="sidebar-nav-item">
+                <i class="fas fa-envelope sidebar-nav-icon"></i>
+                Messages
+                {% if new_messages and new_messages.count %}
+                <span class="notification-badge">{{ new_messages.count }}</span>
+                {% endif %}
+            </a>
+            <a href="{% url 'donations:donor_history' %}" class="sidebar-nav-item">
+                <i class="fas fa-history sidebar-nav-icon"></i>
+                Historique
+            </a>
+            <a href="{% url 'donations:update_availability' %}" class="sidebar-nav-item">
+                <i class="fas fa-calendar-check sidebar-nav-icon"></i>
+                Disponibilité
+            </a>
+            <a href="{% url 'donations:edit_profile' %}" class="sidebar-nav-item">
+                <i class="fas fa-user-edit sidebar-nav-icon"></i>
+                Profil
+            </a>
+        </nav>
+
+        <!-- Sidebar Footer -->
+        <div class="sidebar-footer">
+            <a href="{% url 'accounts:logout' %}" class="sidebar-nav-item" style="color: var(--danger-red);">
+                <i class="fas fa-sign-out-alt sidebar-nav-icon"></i>
+                Déconnexion
+            </a>
         </div>
     </div>
 
-    <!-- Messages non lus -->
-    {% if new_messages and new_messages.count %}
-    <div class="alert alert-info">
-        <strong>🔔 Vous avez {{ new_messages.count }} nouveau(x) message(s) !</strong>
-        <ul class="mb-0">
-            {% for msg in new_messages %}
-            <li>
-                <a href="/donations/chat/{{ msg.donation_response.id }}/">
-                    Message de {{ msg.sender.get_full_name }} ({{ msg.timestamp|date:"d/m/Y H:i" }})
-                </a>
-            </li>
-            {% endfor %}
-        </ul>
-    </div>
-    {% endif %}
-
-    <!-- Messages Django -->
-    {% if messages %}
-        {% for message in messages %}
-            <div class="alert alert-{{ message.tags }} alert-dismissible fade show">
-                {{ message }}
-                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-            </div>
-        {% endfor %}
-    {% endif %}
-
-    <!-- Statistiques -->
-    <div class="row mb-4">
-        <div class="col-md-3">
-            <div class="card text-center border-primary">
-                <div class="card-body">
-                    <i class="fas fa-heart fa-2x text-primary mb-2"></i>
-                    <h5 class="card-title">{{ total_compatible }}</h5>
-                    <p class="card-text text-muted">Demandes compatibles</p>
+    <!-- Main Content -->
+    <div class="modern-main-content">
+        <!-- Top Bar -->
+        <div class="modern-topbar">
+            <div>
+                <div class="topbar-title">Dashboard Donneur</div>
+                <div class="topbar-subtitle">
+                    Groupe sanguin : <span style="color: var(--primary-red); font-weight: 700;">{{ donor_blood_type }}</span>
                 </div>
             </div>
-        </div>
-        <div class="col-md-3">
-            <div class="card text-center border-info">
-                <div class="card-body">
-                    <i class="fas fa-reply fa-2x text-info mb-2"></i>
-                    <h5 class="card-title">{{ total_responses }}</h5>
-                    <p class="card-text text-muted">Mes réponses</p>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-3">
-            <div class="card text-center border-success">
-                <div class="card-body">
-                    <i class="fas fa-check-circle fa-2x text-success mb-2"></i>
-                    <h5 class="card-title">{{ accepted_responses }}</h5>
-                    <p class="card-text text-muted">Réponses acceptées</p>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-3">
-            <div class="card text-center border-warning">
-                <div class="card-body">
-                    <i class="fas fa-gift fa-2x text-warning mb-2"></i>
-                    <h5 class="card-title">{{ completed_donations_count }}</h5>
-                    <p class="card-text text-muted">Dons effectués</p>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Demandes compatibles -->
-    <div class="row">
-        <div class="col-md-8">
-            <div class="card">
-                <div class="card-header bg-primary text-white">
-                    <h5 class="mb-0">
-                        <i class="fas fa-heart me-2"></i>
-                        Demandes compatibles avec votre groupe {{ donor_blood_type }}
-                    </h5>
-                </div>
-                <div class="card-body">
-                    {% if matching_requests %}
-                        {% for request in matching_requests %}
-                            <div class="card mb-3 border-left-{{ request.urgency }}">
-                                <div class="card-body">
-                                    <div class="row align-items-center">
-                                        <div class="col-md-8">
-                                            <h6 class="card-title mb-1">
-                                                🏥 {{ request.hospital.hospital_name }}
-                                                <!-- ✅ AFFICHE LA COMPATIBILITÉ -->
-                                                <span class="badge bg-success ms-2">
-                                                    {{ donor_blood_type }} → {{ request.blood_type }}
-                                                </span>
-                                            </h6>
-                                            <p class="card-text">
-                                                <i class="fas fa-tint text-danger me-1"></i>
-                                                <strong>{{ request.blood_type }}</strong> - 
-                                                {{ request.quantity }} poche(s)
-                                                
-                                                <span class="ms-3">
-                                                    <i class="fas fa-clock text-warning me-1"></i>
-                                                    {% if request.urgency == 'immediate' %}
-                                                        🔴 Urgent
-                                                    {% elif request.urgency == '24h' %}
-                                                        🟠 24h
-                                                    {% else %}
-                                                        🟢 Planifié
-                                                    {% endif %}
-                                                </span>
-                                            </p>
-                                            <small class="text-muted">
-                                                <i class="fas fa-map-marker-alt me-1"></i>
-                                                {{ request.city }} • 
-                                                <i class="fas fa-calendar me-1"></i>
-                                                Limite : {{ request.deadline|date:"d/m/Y à H:i" }}
-                                            </small>
-                                            {% if request.description %}
-                                            <p class="text-muted mt-2 mb-0">
-                                                <small><i class="fas fa-info-circle me-1"></i>{{ request.description|truncatewords:15 }}</small>
-                                            </p>
-                                            {% endif %}
-                                        </div>
-                                        <div class="col-md-4 text-end">
-                                            {% if can_respond_to_requests %}
-                                                <!-- ✅ BOUTON RÉPONDRE AVEC DATA ATTRIBUTES (SÉCURISÉ) -->
-                                                <button class="btn btn-primary btn-sm mb-2 response-btn" 
-                                                        data-request-id="{{ request.id }}" 
-                                                        data-hospital-name="{{ request.hospital.hospital_name }}" 
-                                                        data-blood-type="{{ request.blood_type }}">
-                                                    <i class="fas fa-hand-holding-heart me-2"></i>
-                                                    Répondre
-                                                </button>
-                                                <!-- ✅ BOUTON VOIR DÉTAILS -->
-                                                <a href="/donations/request/{{ request.id }}/" class="btn btn-outline-info btn-sm d-block">
-                                                    <i class="fas fa-info-circle me-2"></i>
-                                                    Détails
-                                                </a>
-                                            {% else %}
-                                                <button class="btn btn-secondary btn-sm" disabled 
-                                                        title="Vous ne pouvez pas répondre avant {{ availability.next_available_date }}">
-                                                    🔒 Bloqué
-                                                </button>
-                                            {% endif %}
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        {% endfor %}
-                    {% else %}
-                        <div class="text-center py-4">
-                            <i class="fas fa-heart-broken fa-3x text-muted mb-3"></i>
-                            <h6 class="text-muted">Aucune demande compatible disponible</h6>
-                            <p class="text-muted">
-                                Les demandes pour les groupes compatibles avec {{ donor_blood_type }} 
-                                ({{ can_give_to|join:", " }}) apparaîtront ici.
-                            </p>
-                        </div>
-                    {% endif %}
-                </div>
-            </div>
-        </div>
-
-        <!-- Sidebar -->
-        <div class="col-md-4">
-            <!-- Carte de disponibilité -->
-            <div class="card mb-4">
-                <div class="card-header bg-info text-white">
-                    <h6 class="mb-0">
-                        <i class="fas fa-clock me-2"></i>
-                        Ma disponibilité
-                    </h6>
-                </div>
-                <div class="card-body text-center">
-                    {% if availability.is_available %}
-                    <div class="text-success mb-2">
-                       <i class="fas fa-check-circle fa-3x"></i>
-                       <h6>Disponible pour donner</h6>
-                    </div>
-                   {% else %}
-                   <div class="text-warning mb-2">
-                       <i class="fas fa-clock fa-3x"></i>
-                       <h6>Indisponible pour le moment</h6>
-                   </div>
-                   {% endif %}
-
-                   {% if availability.next_available_date %}
-                   <p>Prochaine disponibilité: <strong>{{ availability.next_available_date }}</strong></p>
-                   {% endif %}
-
-                   {% if availability.notes %}
-                   <div class="alert alert-light mt-3">
-                      <small>📝 <strong>Note:</strong> {{ availability.notes }}</small>
-                   </div>
-                  {% endif %}
-
-                  {% if can_update_availability %}
-                      <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#availabilityModal">
-                         ⚙️ Modifier ma disponibilité
-                      </button>
-                  {% else %}
-                      <button class="btn btn-secondary btn-sm" disabled 
-                              title="Vous ne pouvez pas modifier votre disponibilité avant {{ availability.next_available_date }}">
-                         🔒 Modification bloquée
-                      </button>
-                      <small class="text-muted d-block mt-2">
-                         Disponible le {{ availability.next_available_date|date:"d/m/Y" }}
-                      </small>
-                 {% endif %}
-               </div>
-            </div>
-
-            <!-- Mes dernières réponses -->
-            <div class="card">
-                <div class="card-header bg-success text-white">
-                    <h6 class="mb-0">
-                        <i class="fas fa-reply me-2"></i>
-                        Mes dernières réponses
-                    </h6>
-                </div>
-                <div class="card-body">
-                    {% if my_responses %}
-                        {% for response in my_responses|slice:":5" %}
-                            <div class="d-flex justify-content-between align-items-center mb-2">
-                                <div>
-                                    <small class="fw-bold">{{ response.blood_request.hospital.hospital_name }}</small><br>
-                                    <small class="text-muted">
-                                        {{ response.blood_request.blood_type }} - {{ response.response_date|date:"d/m" }}
-                                        <!-- ✅ COMPATIBILITÉ DANS LA SIDEBAR -->
-                                        <span class="badge bg-light text-dark">{{ donor_blood_type }}→{{ response.blood_request.blood_type }}</span>
-                                    </small>
-                                </div>
-                                <div class="text-end">
-                                    <span class="badge bg-{% if response.status == 'completed' %}success{% elif response.status == 'accepted' %}primary{% elif response.status == 'rejected' %}danger{% else %}secondary{% endif %} d-block mb-1">
-                                        {{ response.get_status_display }}
-                                    </span>
-                                    <!-- ✅ BOUTON DISCUTER AJOUTÉ -->
-                                    <a href="/donations/chat/{{ response.id }}/" class="btn btn-outline-primary btn-xs">
-                                        💬 Discuter
-                                    </a>
-                                </div>
-                            </div>
-                            <hr class="my-2">
-                        {% endfor %}
-                        <a href="/donations/my-responses/" class="btn btn-sm btn-outline-success">
-                            Voir toutes mes réponses
-                        </a>
-                    {% else %}
-                        <p class="text-muted text-center">Aucune réponse encore</p>
-                    {% endif %}
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- ✅ MODAL POUR RÉPONDRE RAPIDEMENT -->
-<div class="modal fade" id="responseModal" tabindex="-1">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header bg-primary text-white">
-                <h5 class="modal-title">💌 Répondre à la demande</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-            <form id="responseForm" method="post">
-                {% csrf_token %}
-                <div class="modal-body">
-                    <div class="alert alert-info mb-3">
-                        <div id="request-info"></div>
-                    </div>
-                    
-                    <div class="mb-3">
-                        <label for="message" class="form-label fw-bold">
-                            <i class="fas fa-comment me-2"></i>
-                            Message à l'hôpital (optionnel)
-                        </label>
-                        <textarea class="form-control" 
-                                  id="message" 
-                                  name="message" 
-                                  rows="4" 
-                                  placeholder="Votre message à l'équipe médicale..."></textarea>
-                        <div class="form-text">
-                            Ex: "Je suis disponible demain matin", "Contacter moi au 07 XX XX XX XX", etc.
-                        </div>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">❌ Annuler</button>
-                    <button type="submit" class="btn btn-primary">
-                        <i class="fas fa-paper-plane me-2"></i>
-                        Envoyer ma réponse
+            <div class="topbar-actions">
+                <!-- Notifications Dropdown -->
+                <div class="dropdown" style="position: relative;">
+                    <button class="topbar-notification" id="notificationDropdown" onclick="toggleNotifications()" style="background: none; border: none; cursor: pointer;">
+                        <i class="fas fa-bell"></i>
+                        {% if new_messages and new_messages.count %}
+                        <span class="notification-badge">{{ new_messages.count }}</span>
+                        {% endif %}
                     </button>
-                </div>
-            </form>
-        </div>
-    </div>
-</div>
-
-<!-- Modal de disponibilité -->
-<div class="modal fade" id="availabilityModal" tabindex="-1">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <div class="modal-header bg-info text-white">
-                <h5 class="modal-title">⚙️ Gestion de ma disponibilité</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-            <form id="availabilityForm" method="post" action="/donations/update-availability/">
-                {% csrf_token %}
-                <div class="modal-body">
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <div class="form-check form-switch">
-                                    <input class="form-check-input" type="checkbox" name="is_available" id="is_available" {% if availability.is_available %}checked{% endif %}>
-                                    <label class="form-check-label" for="is_available">
-                                        <strong>Je suis disponible pour donner du sang</strong>
-                                    </label>
-                                </div>
-                            </div>
-                            
-                            <div class="mb-3">
-                                <label for="next_available_date" class="form-label">
-                                    <strong>📅 Prochaine disponibilité</strong>
-                                </label>
-                                <input type="date" class="form-control" id="next_available_date" name="next_available_date" value="{{ availability.next_available_date|date:'Y-m-d' }}">
-                                <div class="form-text">Laissez vide si vous êtes disponible maintenant</div>
-                            </div>
+                    
+                    <div id="notificationPanel" class="notification-dropdown" style="display: none;">
+                        <div class="notification-dropdown-header">
+                            <h5 style="margin: 0; font-size: 16px; font-weight: 700;">Notifications</h5>
+                            <span class="badge-modern {% if new_messages.count %}danger{% else %}secondary{% endif %}" style="font-size: 11px;">
+                                {{ new_messages.count|default:0 }} non lue(s)
+                            </span>
                         </div>
                         
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label for="notes" class="form-label">
-                                    <strong>📝 Notes personnelles</strong>
-                                </label>
-                                <textarea class="form-control" id="notes" name="notes" rows="4" placeholder="Raison de l'indisponibilité, contraintes horaires, informations importantes...">{{ availability.notes }}</textarea>
-                            </div>
+                        <div class="notification-dropdown-body">
+                            {% if new_messages and new_messages.count %}
+                                {% for msg in new_messages|slice:":5" %}
+                                <a href="{% url 'donations:chat_with_donor' msg.donation_response.id %}" class="notification-item-dropdown">
+                                    <div class="notification-avatar">
+                                        {{ msg.sender.first_name.0|default:"H" }}
+                                    </div>
+                                    <div class="notification-content">
+                                        <div class="notification-title">{{ msg.sender.get_full_name }}</div>
+                                        <div class="notification-text">{{ msg.message|truncatewords:8 }}</div>
+                                        <div class="notification-time">
+                                            <i class="far fa-clock"></i> {{ msg.timestamp|timesince }}
+                                        </div>
+                                    </div>
+                                </a>
+                                {% endfor %}
+                                
+                                <a href="{% url 'donations:donor_messages' %}" class="notification-footer-link">
+                                    Voir tous les messages <i class="fas fa-arrow-right"></i>
+                                </a>
+                            {% else %}
+                                <div class="notification-empty">
+                                    <i class="fas fa-check-circle"></i>
+                                    <div>Aucune nouvelle notification</div>
+                                </div>
+                            {% endif %}
                         </div>
                     </div>
-                    
-                    <div class="alert alert-info">
-                        <small>💡 <strong>Conseil:</strong> Maintenez votre disponibilité à jour pour aider les hôpitaux à vous contacter au bon moment.</small>
+                </div>
+                
+                <div class="topbar-user">
+                    <div class="user-avatar">
+                        {{ user.first_name.0|default:"U" }}{{ user.last_name.0|default:"" }}
+                    </div>
+                    <div class="user-info">
+                        <div class="user-name">{{ user.get_full_name|default:user.username }}</div>
+                        <div class="user-role">Donneur ({{ donor_blood_type }})</div>
                     </div>
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">❌ Annuler</button>
-                    <button type="submit" class="btn btn-primary">💾 Enregistrer les modifications</button>
+            </div>
+        </div>
+
+        <!-- Content -->
+        <div class="container-modern">
+            <!-- Messages Django -->
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert-modern {% if message.tags == 'error' %}danger{% else %}{{ message.tags }}{% endif %}">
+                        <div class="alert-modern-icon">
+                            <i class="fas fa-{% if message.tags == 'error' %}exclamation-circle{% elif message.tags == 'success' %}check-circle{% else %}info-circle{% endif %}"></i>
+                        </div>
+                        <div class="alert-modern-content">{{ message }}</div>
+                    </div>
+                {% endfor %}
+            {% endif %}
+
+            <!-- Messages non lus -->
+            {% if new_messages and new_messages.count %}
+            <div class="alert-modern info">
+                <div class="alert-modern-icon">
+                    <i class="fas fa-envelope"></i>
                 </div>
-            </form>
+                <div class="alert-modern-content">
+                    <div class="alert-modern-title">Vous avez {{ new_messages.count }} nouveau(x) message(s)</div>
+                    {% for msg in new_messages|slice:":3" %}
+                        <div>
+                            <a href="{% url 'donations:chat_with_donor' msg.donation_response.id %}" style="color: var(--info-blue); text-decoration: none;">
+                                💬 Message de {{ msg.sender.get_full_name }} - {{ msg.timestamp|date:"d/m/Y H:i" }}
+                            </a>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Stats Cards -->
+            <div class="stats-grid">
+                <div class="stat-card red">
+                    <div class="stat-card-header">
+                        <div>
+                            <div class="stat-card-title">Demandes Compatibles</div>
+                        </div>
+                        <div class="stat-card-icon">
+                            <i class="fas fa-heartbeat"></i>
+                        </div>
+                    </div>
+                    <div class="stat-card-value">{{ total_compatible }}</div>
+                    <div class="stat-card-change positive">
+                        <i class="fas fa-arrow-up"></i>
+                        Actives actuellement
+                    </div>
+                </div>
+
+                <div class="stat-card blue">
+                    <div class="stat-card-header">
+                        <div>
+                            <div class="stat-card-title">Mes Réponses</div>
+                        </div>
+                        <div class="stat-card-icon">
+                            <i class="fas fa-reply"></i>
+                        </div>
+                    </div>
+                    <div class="stat-card-value">{{ total_responses }}</div>
+                    <div class="stat-card-change">
+                        Total de réponses envoyées
+                    </div>
+                </div>
+
+                <div class="stat-card green">
+                    <div class="stat-card-header">
+                        <div>
+                            <div class="stat-card-title">Réponses Acceptées</div>
+                        </div>
+                        <div class="stat-card-icon">
+                            <i class="fas fa-check-circle"></i>
+                        </div>
+                    </div>
+                    <div class="stat-card-value">{{ accepted_responses }}</div>
+                    <div class="stat-card-change positive">
+                        <i class="fas fa-check"></i>
+                        Confirmées
+                    </div>
+                </div>
+
+                <div class="stat-card yellow">
+                    <div class="stat-card-header">
+                        <div>
+                            <div class="stat-card-title">Dons Effectués</div>
+                        </div>
+                        <div class="stat-card-icon">
+                            <i class="fas fa-trophy"></i>
+                        </div>
+                    </div>
+                    <div class="stat-card-value">{{ completed_donations_count }}</div>
+                    <div class="stat-card-change">
+                        <i class="fas fa-gift"></i>
+                        Vies sauvées
+                    </div>
+                </div>
+            </div>
+
+            <!-- Info compatibilité -->
+            <div class="card-modern" style="background: linear-gradient(135deg, var(--primary-red-light) 0%, white 100%);">
+                <div class="card-modern-header">
+                    <h3 class="card-modern-title">
+                        <i class="fas fa-info-circle"></i>
+                        Compatibilité de votre groupe {{ donor_blood_type }}
+                    </h3>
+                </div>
+                <div class="card-modern-body">
+                    <p style="color: var(--text-gray); margin-bottom: 16px;">
+                        En tant que donneur {{ donor_blood_type }}, vous pouvez aider les personnes ayant besoin des groupes suivants :
+                    </p>
+                    <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                        {% for blood_type in can_give_to %}
+                            <span class="badge-modern success">
+                                <i class="fas fa-check"></i>
+                                {{ blood_type }}
+                            </span>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Demandes compatibles -->
+            <div class="modern-table-container" id="requests-section">
+                <div class="table-header">
+                    <div>
+                        <h3 class="table-title">
+                            <i class="fas fa-heart"></i>
+                            Demandes Urgentes Compatibles
+                        </h3>
+                        <p style="color: var(--text-gray); font-size: 14px; margin-top: 4px;">
+                            {{ total_compatible }} demande(s) compatible(s) avec votre groupe sanguin
+                        </p>
+                    </div>
+                </div>
+
+                {% if matching_requests %}
+                    <table class="modern-table">
+                        <thead>
+                            <tr>
+                                <th>Hôpital</th>
+                                <th>Groupe Sanguin</th>
+                                <th>Quantité</th>
+                                <th>Urgence</th>
+                                <th>Date</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for request in matching_requests %}
+                            <tr>
+                                <td>
+                                    <div style="display: flex; align-items: center; gap: 12px;">
+                                        <div style="width: 40px; height: 40px; background: var(--secondary-gray); border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                                            <i class="fas fa-hospital" style="color: var(--primary-red);"></i>
+                                        </div>
+                                        <div>
+                                            <div style="font-weight: 600;">{{ request.hospital.hospital_name }}</div>
+                                            <div style="font-size: 12px; color: var(--text-gray);">{{ request.hospital.city|default:"Ville" }}</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <span class="badge-modern danger" style="font-size: 14px;">
+                                        {{ request.blood_type }}
+                                    </span>
+                                    <span class="badge-modern success" style="font-size: 11px; margin-left: 4px;">
+                                        {{ donor_blood_type }} → {{ request.blood_type }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <strong>{{ request.quantity }}</strong> poche(s)
+                                </td>
+                                <td>
+                                    {% if request.urgency == 'immediate' %}
+                                        <span class="badge-modern danger">
+                                            <i class="fas fa-exclamation-circle"></i>
+                                            Urgent
+                                        </span>
+                                    {% elif request.urgency == '24h' %}
+                                        <span class="badge-modern warning">
+                                            <i class="fas fa-clock"></i>
+                                            24h
+                                        </span>
+                                    {% else %}
+                                        <span class="badge-modern info">
+                                            <i class="fas fa-calendar"></i>
+                                            Planifié
+                                        </span>
+                                    {% endif %}
+                                </td>
+                                <td>{{ request.created_at|date:"d/m/Y" }}</td>
+                                <td>
+                                    <div style="display: flex; gap: 8px;">
+                                        <a href="{% url 'donations:quick_donate' request.id %}" class="btn-modern btn-modern-primary btn-modern-sm" title="Je veux donner mon sang">
+                                            <i class="fas fa-heart"></i>
+                                            Je veux donner
+                                        </a>
+                                        <a href="{% url 'donations:request_detail' request.id %}" class="btn-modern btn-modern-secondary btn-modern-sm" title="Voir les détails">
+                                            <i class="fas fa-eye"></i>
+                                            Détails
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                {% else %}
+                    <div style="text-align: center; padding: 48px; color: var(--text-gray);">
+                        <i class="fas fa-heart" style="font-size: 48px; color: var(--border-gray); margin-bottom: 16px;"></i>
+                        <p style="font-size: 16px; font-weight: 600;">Aucune demande compatible pour le moment</p>
+                        <p style="font-size: 14px;">Nous vous notifierons dès qu'une nouvelle demande sera disponible.</p>
+                    </div>
+                {% endif %}
+            </div>
+
+            <!-- Mes réponses -->
+            <div class="modern-table-container" id="history-section">
+                <div class="table-header">
+                    <h3 class="table-title">
+                        <i class="fas fa-history"></i>
+                        Mes Réponses aux Demandes
+                    </h3>
+                </div>
+
+                {% if my_responses %}
+                    <table class="modern-table">
+                        <thead>
+                            <tr>
+                                <th>Hôpital</th>
+                                <th>Groupe</th>
+                                <th>Date de réponse</th>
+                                <th>Statut</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for response in my_responses %}
+                            <tr>
+                                <td>
+                                    <div style="font-weight: 600;">{{ response.blood_request.hospital.hospital_name }}</div>
+                                </td>
+                                <td>
+                                    <span class="badge-modern danger">{{ response.blood_request.blood_type }}</span>
+                                </td>
+                                <td>{{ response.created_at|date:"d/m/Y H:i" }}</td>
+                                <td>
+                                    {% if response.status == 'accepted' %}
+                                        <span class="badge-modern success">
+                                            <i class="fas fa-check"></i>
+                                            Accepté
+                                        </span>
+                                    {% elif response.status == 'pending' %}
+                                        <span class="badge-modern warning">
+                                            <i class="fas fa-clock"></i>
+                                            En attente
+                                        </span>
+                                    {% elif response.status == 'completed' %}
+                                        <span class="badge-modern completed">
+                                            <i class="fas fa-check-double"></i>
+                                            Complété
+                                        </span>
+                                    {% else %}
+                                        <span class="badge-modern closed">
+                                            <i class="fas fa-times"></i>
+                                            Refusé
+                                        </span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                                        <a href="{% url 'donations:response_detail' response.id %}" class="btn-modern btn-modern-secondary btn-modern-sm">
+                                            <i class="fas fa-eye"></i>
+                                            Détails
+                                        </a>
+                                        {% if response.status == 'completed' %}
+                                            <a href="{% url 'donations:donation_attestation' response.id %}" class="btn-modern btn-modern-primary btn-modern-sm">
+                                                <i class="fas fa-certificate"></i>
+                                                Attestation
+                                            </a>
+                                        {% endif %}
+                                        {% if response.status == 'accepted' or response.status == 'pending' %}
+                                            <a href="{% url 'donations:donor_messages' %}" class="btn-modern btn-modern-outline btn-modern-sm">
+                                                <i class="fas fa-comment"></i>
+                                                Chat
+                                            </a>
+                                        {% endif %}
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                {% else %}
+                    <div style="text-align: center; padding: 48px; color: var(--text-gray);">
+                        <i class="fas fa-inbox" style="font-size: 48px; color: var(--border-gray); margin-bottom: 16px;"></i>
+                        <p style="font-size: 16px; font-weight: 600;">Aucune réponse envoyée</p>
+                        <p style="font-size: 14px;">Consultez les demandes compatibles ci-dessus pour commencer à aider.</p>
+                    </div>
+                {% endif %}
+            </div>
         </div>
     </div>
-</div>
 
-<style>
-.border-left-immediate { border-left: 4px solid #dc3545 !important; }
-.border-left-24h { border-left: 4px solid #fd7e14 !important; }
-.border-left-planned { border-left: 4px solid #198754 !important; }
-
-.card:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-    transition: all 0.3s ease;
-}
-
-.badge {
-    font-size: 0.75em;
-}
-
-.btn-xs {
-    padding: 0.25rem 0.5rem;
-    font-size: 0.75rem;
-}
-</style>
-
-<!-- ✅ SCRIPTS JAVASCRIPT CORRIGÉS AVEC DATA ATTRIBUTES -->
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    // ✅ GESTION DES BOUTONS DE RÉPONSE AVEC DATA ATTRIBUTES
-    document.querySelectorAll('.response-btn').forEach(button => {
-        button.addEventListener('click', function() {
-            const requestId = this.dataset.requestId;
-            const hospitalName = this.dataset.hospitalName;
-            const bloodType = this.dataset.bloodType;
-            openResponseModal(requestId, hospitalName, bloodType);
-        });
-    });
-
-    // ✅ GESTION DU FORMULAIRE DE RÉPONSE
-    const form = document.getElementById('responseForm');
-    if (form) {
-        form.addEventListener('submit', function(e) {
-            const submitBtn = this.querySelector('button[type="submit"]');
-            if (submitBtn) {
-                submitBtn.disabled = true;
-                submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Envoi...';
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <style>
+        /* Notification Dropdown Styles */
+        .notification-dropdown {
+            position: absolute;
+            top: calc(100% + 10px);
+            right: 0;
+            width: 380px;
+            max-height: 500px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+            overflow: hidden;
+            z-index: 1000;
+            animation: slideDown 0.3s ease;
+        }
+        
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .notification-dropdown-header {
+            padding: 16px 20px;
+            border-bottom: 1px solid #E5E7EB;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: var(--secondary-gray);
+        }
+        
+        .notification-dropdown-body {
+            max-height: 420px;
+            overflow-y: auto;
+        }
+        
+        .notification-item-dropdown {
+            display: flex;
+            padding: 16px 20px;
+            border-bottom: 1px solid #F3F4F6;
+            text-decoration: none;
+            transition: background 0.2s ease;
+            gap: 12px;
+        }
+        
+        .notification-item-dropdown:hover {
+            background: var(--secondary-gray);
+        }
+        
+        .notification-avatar {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--info-blue), #3B82F6);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 700;
+            flex-shrink: 0;
+        }
+        
+        .notification-content {
+            flex: 1;
+            min-width: 0;
+        }
+        
+        .notification-title {
+            font-weight: 600;
+            color: var(--text-dark);
+            font-size: 14px;
+            margin-bottom: 4px;
+        }
+        
+        .notification-text {
+            color: var(--text-gray);
+            font-size: 13px;
+            line-height: 1.4;
+            margin-bottom: 6px;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+        
+        .notification-time {
+            color: var(--text-gray);
+            font-size: 12px;
+        }
+        
+        .notification-footer-link {
+            display: block;
+            padding: 14px 20px;
+            text-align: center;
+            color: var(--primary-red);
+            font-weight: 600;
+            font-size: 14px;
+            text-decoration: none;
+            border-top: 1px solid #E5E7EB;
+            background: var(--secondary-gray);
+        }
+        
+        .notification-footer-link:hover {
+            background: #E5E7EB;
+        }
+        
+        .notification-empty {
+            text-align: center;
+            padding: 48px 20px;
+            color: var(--text-gray);
+        }
+        
+        .notification-empty i {
+            font-size: 48px;
+            color: var(--success-green);
+            margin-bottom: 12px;
+        }
+        
+        .notification-empty div {
+            font-size: 14px;
+        }
+    </style>
+    
+    <script>
+        // Toggle Notifications Dropdown
+        function toggleNotifications() {
+            const panel = document.getElementById('notificationPanel');
+            if (panel.style.display === 'none') {
+                panel.style.display = 'block';
+            } else {
+                panel.style.display = 'none';
+            }
+        }
+        
+        // Close dropdown when clicking outside
+        document.addEventListener('click', function(event) {
+            const dropdown = document.querySelector('.dropdown');
+            const button = document.getElementById('notificationDropdown');
+            const panel = document.getElementById('notificationPanel');
+            
+            if (dropdown && !dropdown.contains(event.target)) {
+                if (panel) {
+                    panel.style.display = 'none';
+                }
             }
         });
-    }
-});
+        
+        // Smooth scroll pour la navigation
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+            });
+        });
 
-// ✅ FONCTION POUR OUVRIR LE MODAL DE RÉPONSE (SÉCURISÉE)
-function openResponseModal(requestId, hospitalName, bloodType) {
-    const modal = new bootstrap.Modal(document.getElementById('responseModal'));
-    const form = document.getElementById('responseForm');
-    const requestInfo = document.getElementById('request-info');
-    
-    // Mettre à jour l'action du formulaire
-    form.action = '/donations/respond/' + requestId + '/';
-    
-    // Récupérer le groupe sanguin du donneur
-    const donorBloodType = '{{ donor_blood_type|escapejs }}';
-    
-    // Mettre à jour les informations de la demande (sécurisé)
-    requestInfo.innerHTML = 
-        '<strong>🏥 Hôpital:</strong> ' + hospitalName + '<br>' +
-        '<strong>🩸 Groupe sanguin:</strong> <span class="badge bg-danger">' + bloodType + '</span><br>' +
-        '<strong>🤝 Compatibilité:</strong> <span class="badge bg-success">' + donorBloodType + ' → ' + bloodType + '</span>';
-    
-    // Vider le message
-    document.getElementById('message').value = '';
-    
-    modal.show();
-}
-</script>
-{% endblock %}
+        // Highlight active section
+        const sections = document.querySelectorAll('[id$="-section"]');
+        const navItems = document.querySelectorAll('.sidebar-nav-item');
+
+        window.addEventListener('scroll', () => {
+            let current = '';
+            sections.forEach(section => {
+                const sectionTop = section.offsetTop;
+                if (pageYOffset >= sectionTop - 200) {
+                    current = section.getAttribute('id');
+                }
+            });
+
+            navItems.forEach(item => {
+                item.classList.remove('active');
+                if (item.getAttribute('href') === `#${current}`) {
+                    item.classList.add('active');
+                }
+            });
+        });
+    </script>
+</body>
+</html>

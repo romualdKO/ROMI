@@ -44,9 +44,15 @@ INSTALLED_APPS = [
     'widget_tweaks',
 ]
 # Ajouter ces configurations
-LOGIN_REDIRECT_URL = 'dashboard'
+# LOGIN_REDIRECT_URL = 'dashboard'  # Désactivé - la redirection est gérée dans custom_login
 LOGOUT_REDIRECT_URL = 'home'
 AUTH_USER_MODEL = 'accounts.CustomUser'
+
+# Backend d'authentification personnalisé pour utiliser l'email
+AUTHENTICATION_BACKENDS = [
+    'accounts.backends.EmailBackend',  # Notre backend personnalisé
+    'django.contrib.auth.backends.ModelBackend',  # Backend par défaut (fallback)
+]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -82,16 +88,25 @@ WSGI_APPLICATION = 'dont_sang_plus.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
+# Using SQLite for development (PostgreSQL config commented out)
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': config('DB_NAME'),
-        'USER': config('DB_USER'),
-        'PASSWORD': config('DB_PASSWORD'),
-        'HOST': config('DB_HOST', default='localhost'),
-        'PORT': config('DB_PORT', default='5432'),
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
     }
 }
+
+# PostgreSQL configuration (uncomment to use PostgreSQL)
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.postgresql',
+#         'NAME': config('DB_NAME'),
+#         'USER': config('DB_USER'),
+#         'PASSWORD': config('DB_PASSWORD'),
+#         'HOST': config('DB_HOST', default='localhost'),
+#         'PORT': config('DB_PORT', default='5432'),
+#     }
+# }
 
 
 # Password validation

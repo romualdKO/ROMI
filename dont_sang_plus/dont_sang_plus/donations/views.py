@@ -10,6 +10,7 @@ from django.urls import reverse
 from django.db.models import Q
 
 from .models import BloodRequest, DonorAvailability, DonationResponse, ChatMessage, Donation
+from accounts.models import CustomUser
 from .forms import BloodRequestForm, UserProfileForm
 
 User = get_user_model()
@@ -150,12 +151,16 @@ def hospital_dashboard(request):
             deadline__lt=timezone.now()
         ).delete()
 
-        # Demandes actives
-        blood_requests = BloodRequest.objects.filter(
-            hospital=request.user,
-            is_fulfilled=False,
-            deadline__gte=timezone.now()
+        # ✅ TOUTES LES DEMANDES (pas seulement actives, pour correspondre à l'historique)
+        all_requests = BloodRequest.objects.filter(
+            hospital=request.user
         ).order_by('-created_at')
+        
+        # Demandes actives (pour l'affichage dans le tableau)
+        blood_requests = all_requests.filter(
+            status__in=['pending', 'approved'],
+            deadline__gte=timezone.now()
+        )
 
         # Toutes les réponses pour cet hôpital
         responses = DonationResponse.objects.filter(
@@ -180,23 +185,41 @@ def hospital_dashboard(request):
             'sender', 'donation_response', 'donation_response__blood_request'
         )
 
-        # Statistiques
-        fulfilled_requests = blood_requests.filter(is_fulfilled=True).count()
-        completed_responses = responses.filter(status='completed').count()
+        # ✅ STATISTIQUES IDENTIQUES À L'HISTORIQUE (utilise le champ status)
+        open_count = all_requests.filter(status__in=['pending', 'approved']).count()
+        completed_count = all_requests.filter(status='completed').count()
+        cancelled_count = all_requests.filter(status__in=['cancelled', 'rejected']).count()
+        
+        # Réponses acceptées ou complétées (même logique que l'historique)
+        accepted_and_completed_responses = responses.filter(status__in=['accepted', 'completed'])
+        total_donations = accepted_and_completed_responses.count()
+        
+        # Ancien système (pour compatibilité si nécessaire)
         pending_responses = responses.filter(status='pending').count()
-        accepted_responses = responses.filter(status='accepted').count()
+        
+        # ✅ COMPTEUR DE MESSAGES NON LUS (pour l'icône de notification)
+        unread_messages_count = new_messages.count()
 
         context = {
             'blood_requests': blood_requests,
             'responses': responses,
-            'fulfilled_requests': fulfilled_requests,
-            'completed_responses': completed_responses,
+            # ✅ NOUVELLES STATS ALIGNÉES AVEC L'HISTORIQUE
+            'stats': {
+                'open': open_count,  # En cours
+                'completed': completed_count,  # Complétées
+                'closed': cancelled_count,  # Annulées/Rejetées
+                'total_donations': total_donations,  # Dons reçus (accepted + completed)
+            },
+            # Ancien système (garder pour compatibilité)
+            'fulfilled_requests': completed_count,
+            'completed_responses': total_donations,  # ✅ Maintenant = dons reçus
             'pending_responses': pending_responses,
-            'accepted_responses': accepted_responses,
+            'accepted_responses': accepted_and_completed_responses.count(),
             'new_messages': new_messages,
+            'unread_messages_count': unread_messages_count,  # ✅ POUR L'ICÔNE DE NOTIFICATION
             'unread_counts': unread_counts,  # ✅ COMPTEURS PAR DEMANDE
-            'total_requests': blood_requests.count(),
-            'active_requests': blood_requests.filter(is_fulfilled=False).count(),
+            'total_requests': all_requests.count(),
+            'active_requests': open_count,  # ✅ = En cours
             'urgent_requests': blood_requests.filter(urgency__in=['immediate', '24h']).count(),
             'now': timezone.now(),  # ✅ POUR LES COMPARAISONS DE DATE
         }
@@ -206,11 +229,20 @@ def hospital_dashboard(request):
         context = {
             'blood_requests': [],
             'responses': [],
+            # ✅ NOUVELLES STATS
+            'stats': {
+                'open': 0,
+                'completed': 0,
+                'closed': 0,
+                'total_donations': 0,
+            },
+            # Ancien système
             'fulfilled_requests': 0,
             'completed_responses': 0,
             'pending_responses': 0,
             'accepted_responses': 0,
             'new_messages': [],
+            'unread_messages_count': 0,
             'unread_counts': {},
             'total_requests': 0,
             'active_requests': 0,
@@ -240,13 +272,24 @@ def create_blood_request(request):
                     
                 blood_request.save()
                 
+                # 🔔 NOTIFICATION AUTOMATIQUE: Trouver les donneurs compatibles
+                compatible_donors = CustomUser.objects.filter(
+                    user_type='donor',
+                    blood_type=blood_request.blood_type,
+                    is_active=True
+                ).exclude(id=request.user.id)
+                
+                # Notifier chaque donneur compatible
+                notification_count = compatible_donors.count()
+                
                 messages.success(request, 
                     f'✅ Demande de sang créée avec succès! '
                     f'Groupe: {blood_request.blood_type}, '
                     f'Quantité: {blood_request.quantity} poche(s), '
-                    f'Urgence: {blood_request.get_urgency_display()}')
+                    f'Urgence: {blood_request.get_urgency_display()}. '
+                    f'📢 {notification_count} donneur(s) compatible(s) notifié(s)!')
                 
-                return redirect('/donations/hospital-dashboard/')
+                return redirect('donations:hospital_dashboard')
             except Exception as e:
                 print(f"Erreur création demande: {e}")
                 messages.error(request, "❌ Erreur lors de la création de la demande.")
@@ -306,6 +349,20 @@ def edit_blood_request(request, request_id):
 def respond_to_request(request, request_id):
     """Vue pour répondre à une demande de sang avec vérification de compatibilité"""
     try:
+        # Vérifier que l'utilisateur est authentifié et est un donneur
+        if not request.user.is_authenticated:
+            messages.error(request, "❌ Vous devez être connecté pour répondre.")
+            return redirect('accounts:login')
+        
+        if request.user.user_type != 'donor':
+            messages.error(request, "❌ Seuls les donneurs peuvent répondre aux demandes.")
+            return redirect('donations:dashboard')
+        
+        # Vérifier que l'utilisateur a un groupe sanguin
+        if not request.user.blood_type:
+            messages.error(request, "❌ Veuillez d'abord définir votre groupe sanguin dans votre profil.")
+            return redirect('donations:edit_profile')
+        
         blood_request = get_object_or_404(BloodRequest, id=request_id, is_fulfilled=False)
         
         # Vérifications de base
@@ -340,11 +397,11 @@ def respond_to_request(request, request_id):
         if request.method == 'POST':
             message = request.POST.get('message', '').strip()
             
-            # Créer la réponse
+            # Créer la réponse avec statut 'accepted' automatiquement
             DonationResponse.objects.create(
                 blood_request=blood_request,
                 donor=request.user,
-                status='pending',
+                status='accepted',  # ✅ CHANGÉ: accepté automatiquement quand le donneur répond
                 message=message,
                 response_date=timezone.now()
             )
@@ -369,8 +426,11 @@ def respond_to_request(request, request_id):
         return render(request, 'donations/respond_to_request.html', context)
         
     except Exception as e:
-        print(f"Erreur respond_to_request: {e}")
-        messages.error(request, "❌ Erreur lors de la réponse à la demande.")
+        import traceback
+        error_details = traceback.format_exc()
+        print(f"❌ ERREUR respond_to_request: {e}")
+        print(f"📋 DÉTAILS: {error_details}")
+        messages.error(request, f"❌ Erreur lors de la réponse à la demande: {str(e)}")
         return redirect('/donations/donor-dashboard/')
 
 # ... Reste des vues inchangées ...
@@ -439,7 +499,7 @@ def chat_with_donor(request, response_id):
         
         if request.user != donation_response.blood_request.hospital and request.user != donation_response.donor:
             messages.error(request, "❌ Accès non autorisé.")
-            return redirect('/donations/dashboard/')
+            return redirect('donations:dashboard')
         
         if request.method == 'POST':
             message_text = request.POST.get('message', '').strip()
@@ -450,7 +510,7 @@ def chat_with_donor(request, response_id):
                     message=message_text,
                     is_read=False
                 )
-                return redirect(f'/donations/chat/{response_id}/')
+                return redirect('donations:chat_with_donor', response_id=response_id)
         
         chat_messages = ChatMessage.objects.filter(donation_response=donation_response).order_by('timestamp')
         
@@ -461,8 +521,8 @@ def chat_with_donor(request, response_id):
             chat_messages.filter(sender=donation_response.donor, is_read=False).update(is_read=True)
         
         context = {
-            'donation_response': donation_response,
-            'messages': chat_messages,
+            'response': donation_response,
+            'messages_list': chat_messages,
             'other_user': donation_response.donor if request.user.user_type == 'hospital' else donation_response.blood_request.hospital,
         }
         return render(request, 'donations/chat.html', context)
@@ -470,7 +530,7 @@ def chat_with_donor(request, response_id):
     except Exception as e:
         print(f"Erreur chat_with_donor: {e}")
         messages.error(request, "❌ Erreur lors du chargement du chat.")
-        return redirect('/donations/dashboard/')
+        return redirect('donations:dashboard')
 
 # ... garder toutes les importations existantes ...
 
@@ -490,15 +550,27 @@ def update_response_status(request, response_id, status):
             response.status = 'accepted'
             response.save()
             
-            # ✅ CRÉER UN MESSAGE AUTOMATIQUE DANS LE CHAT
+            # 🎫 GÉNÉRATION AUTOMATIQUE DE L'ATTESTATION
+            donation_id = f"DS{response.id:06d}"
+            attestation_url = request.build_absolute_uri(
+                reverse('donations:donation_attestation', args=[response.id])
+            )
+            
+            # ✅ CRÉER UN MESSAGE AUTOMATIQUE DANS LE CHAT AVEC LIEN ATTESTATION
             ChatMessage.objects.create(
                 donation_response=response,
                 sender=request.user,
-                message=f"🎉 Excellente nouvelle ! Votre candidature a été acceptée pour le don de sang {response.blood_request.blood_type}. Nous vous contacterons bientôt pour organiser le rendez-vous. Merci pour votre générosité !",
+                message=f"🎉 Excellente nouvelle ! Votre candidature a été acceptée pour le don de sang {response.blood_request.blood_type}. "
+                        f"📄 Votre attestation a été générée (ID: {donation_id}). "
+                        f"Rendez-vous sur la page Messages pour télécharger votre attestation et venir effectuer le don à l'hôpital {response.blood_request.hospital.hospital_name}. "
+                        f"Merci pour votre générosité !",
                 is_read=False
             )
             
-            messages.success(request, f"✅ Donneur {response.donor.get_full_name()} accepté ! Un message automatique lui a été envoyé.")
+            messages.success(request, 
+                f"✅ Donneur {response.donor.get_full_name()} accepté ! "
+                f"📄 Attestation générée automatiquement (ID: {donation_id}). "
+                f"Un message avec le lien a été envoyé au donneur.")
             
         elif status == 'rejected':
             response.status = 'rejected'
@@ -729,18 +801,42 @@ def response_detail(request, response_id):
     except Exception as e:
         print(f"Erreur response_detail: {e}")
         messages.error(request, "❌ Erreur lors du chargement des détails.")
-        return redirect('/donations/dashboard/')
+        return redirect('donations:dashboard')
 
 @login_required
 def request_detail(request, request_id):
     """Vue pour les détails d'une demande"""
     try:
+        # Vérifier que l'utilisateur est authentifié
+        if not request.user.is_authenticated:
+            messages.error(request, "❌ Vous devez être connecté pour voir les détails.")
+            return redirect('accounts:login')
+        
         blood_request = get_object_or_404(BloodRequest, id=request_id)
-        return render(request, 'donations/request_detail.html', {'blood_request': blood_request})
+        
+        # Vérifier si l'utilisateur a déjà répondu
+        user_response = None
+        if request.user.user_type == 'donor':
+            try:
+                user_response = DonationResponse.objects.get(
+                    blood_request=blood_request,
+                    donor=request.user
+                )
+            except DonationResponse.DoesNotExist:
+                pass
+        
+        context = {
+            'blood_request': blood_request,
+            'user_response': user_response,
+        }
+        return render(request, 'donations/request_detail.html', context)
     except Exception as e:
-        print(f"Erreur request_detail: {e}")
-        messages.error(request, "❌ Erreur lors du chargement des détails.")
-        return redirect('/donations/dashboard/')
+        import traceback
+        error_details = traceback.format_exc()
+        print(f"❌ ERREUR request_detail: {e}")
+        print(f"📋 DÉTAILS: {error_details}")
+        messages.error(request, f"❌ Erreur lors du chargement des détails: {str(e)}")
+        return redirect('donations:dashboard')
 
 # ... garder toutes les importations et vues existantes jusqu'à edit_profile ...
 
@@ -753,7 +849,7 @@ def update_availability(request):
     try:
         if request.user.user_type != 'donor':
             messages.error(request, "❌ Accès réservé aux donneurs.")
-            return redirect('/donations/dashboard/')
+            return redirect('donations:dashboard')
         
         # Récupérer ou créer l'objet disponibilité
         availability, created = DonorAvailability.objects.get_or_create(donor=request.user)
@@ -809,3 +905,361 @@ def update_availability(request):
 # (Elle est maintenant intégrée dans update_availability)
 
 # ... garder toutes les autres vues existantes inchangées ...
+
+@login_required
+@user_passes_test(is_donor)
+def donor_messages(request):
+    """Vue pour la page messagerie du donneur - Interface moderne"""
+    from django.db.models import Count, Q, Max
+    
+    # Récupérer toutes les réponses du donneur
+    responses = DonationResponse.objects.filter(
+        donor=request.user
+    ).select_related('blood_request__hospital').prefetch_related('chatmessage_set').order_by('-response_date')
+    
+    # Construire la liste des conversations
+    conversations = []
+    for response in responses:
+        # Compter messages non lus de l'hôpital
+        unread_count = response.chatmessage_set.filter(
+            sender__user_type='hospital',
+            is_read=False
+        ).count()
+        
+        # Dernier message
+        last_message = response.chatmessage_set.order_by('-timestamp').first()
+        
+        conversations.append({
+            'response': response,
+            'blood_request': response.blood_request,
+            'hospital': response.blood_request.hospital,
+            'last_message': last_message,
+            'unread_count': unread_count
+        })
+    
+    # Trier par dernier message (plus récent en premier)
+    conversations.sort(key=lambda x: x['last_message'].timestamp if x['last_message'] else x['response'].response_date, reverse=True)
+    
+    # Gérer la conversation active
+    active_response_id = request.GET.get('response')
+    active_response = None
+    chat_messages = []
+    
+    if active_response_id:
+        try:
+            active_response = DonationResponse.objects.select_related('blood_request__hospital').get(
+                id=active_response_id,
+                donor=request.user
+            )
+            chat_messages = ChatMessage.objects.filter(
+                donation_response=active_response
+            ).select_related('sender').order_by('timestamp')
+            
+            # Marquer les messages de l'hôpital comme lus
+            ChatMessage.objects.filter(
+                donation_response=active_response,
+                sender__user_type='hospital',
+                is_read=False
+            ).update(is_read=True)
+            
+        except DonationResponse.DoesNotExist:
+            pass
+    elif conversations:
+        # Par défaut, sélectionner la première conversation
+        active_response = conversations[0]['response']
+        chat_messages = ChatMessage.objects.filter(
+            donation_response=active_response
+        ).select_related('sender').order_by('timestamp')
+        
+        # Marquer comme lus
+        ChatMessage.objects.filter(
+            donation_response=active_response,
+            sender__user_type='hospital',
+            is_read=False
+        ).update(is_read=True)
+    
+    # Traiter l'envoi de message
+    if request.method == 'POST' and active_response:
+        message_text = request.POST.get('message', '').strip()
+        if message_text:
+            ChatMessage.objects.create(
+                donation_response=active_response,
+                sender=request.user,
+                message=message_text
+            )
+            messages.success(request, '✅ Message envoyé')
+            return redirect(f'{request.path}?response={active_response.id}')
+    
+    context = {
+        'conversations': conversations,
+        'active_response': active_response,
+        'active_response_id': active_response.id if active_response else None,
+        'messages': chat_messages,
+    }
+    return render(request, 'donations/donor_messages.html', context)
+
+@login_required
+@user_passes_test(is_hospital)
+def hospital_messages(request):
+    """Vue pour la page messagerie de l'hôpital - Interface moderne"""
+    # Récupérer toutes les demandes de sang de l'hôpital
+    blood_requests = BloodRequest.objects.filter(
+        hospital=request.user
+    ).prefetch_related('donationresponse_set__chatmessage_set', 'donationresponse_set__donor').order_by('-deadline')
+    
+    # Construire la liste des conversations
+    conversations = []
+    for blood_request in blood_requests:
+        for response in blood_request.donationresponse_set.all():
+            # Compter messages non lus du donneur
+            unread_count = response.chatmessage_set.filter(
+                sender__user_type='donor',
+                is_read=False
+            ).count()
+            
+            # Dernier message
+            last_message = response.chatmessage_set.order_by('-timestamp').first()
+            
+            conversations.append({
+                'response': response,
+                'blood_request': blood_request,
+                'donor': response.donor,
+                'last_message': last_message,
+                'unread_count': unread_count
+            })
+    
+    # Trier par dernier message (plus récent en premier)
+    conversations.sort(key=lambda x: x['last_message'].timestamp if x['last_message'] else x['response'].response_date, reverse=True)
+    
+    # Gérer la conversation active
+    active_response_id = request.GET.get('response')
+    active_response = None
+    chat_messages = []
+    
+    if active_response_id:
+        try:
+            active_response = DonationResponse.objects.select_related('blood_request', 'donor').get(
+                id=active_response_id,
+                blood_request__hospital=request.user
+            )
+            chat_messages = ChatMessage.objects.filter(
+                donation_response=active_response
+            ).select_related('sender').order_by('timestamp')
+            
+            # Marquer les messages du donneur comme lus
+            ChatMessage.objects.filter(
+                donation_response=active_response,
+                sender__user_type='donor',
+                is_read=False
+            ).update(is_read=True)
+            
+        except DonationResponse.DoesNotExist:
+            pass
+    elif conversations:
+        # Par défaut, sélectionner la première conversation
+        active_response = conversations[0]['response']
+        chat_messages = ChatMessage.objects.filter(
+            donation_response=active_response
+        ).select_related('sender').order_by('timestamp')
+        
+        # Marquer comme lus
+        ChatMessage.objects.filter(
+            donation_response=active_response,
+            sender__user_type='donor',
+            is_read=False
+        ).update(is_read=True)
+    
+    # Traiter l'envoi de message
+    if request.method == 'POST' and active_response:
+        message_text = request.POST.get('message', '').strip()
+        if message_text:
+            ChatMessage.objects.create(
+                donation_response=active_response,
+                sender=request.user,
+                message=message_text
+            )
+            messages.success(request, '✅ Message envoyé')
+            return redirect(f'{request.path}?response={active_response.id}')
+    
+    context = {
+        'conversations': conversations,
+        'active_response': active_response,
+        'active_response_id': active_response.id if active_response else None,
+        'messages': chat_messages,
+    }
+    return render(request, 'donations/hospital_messages.html', context)
+
+@login_required
+@user_passes_test(is_donor)
+def donor_history(request):
+    """Vue pour l'historique du donneur"""
+    # Toutes les réponses du donneur (complétées, annulées, etc.)
+    all_responses = DonationResponse.objects.filter(
+        donor=request.user
+    ).select_related('blood_request__hospital').order_by('-response_date')
+    
+    # Statistiques
+    completed_count = all_responses.filter(status='completed').count()
+    cancelled_count = all_responses.filter(status='cancelled').count()
+    pending_count = all_responses.filter(status='pending').count()
+    accepted_count = all_responses.filter(status='accepted').count()
+    
+    # Donations réellement effectuées
+    completed_donations = Donation.objects.filter(
+        donor=request.user
+    ).select_related('blood_request__hospital').order_by('-donation_date')
+    
+    context = {
+        'all_responses': all_responses,
+        'completed_donations': completed_donations,
+        'stats': {
+            'total': all_responses.count(),
+            'completed': completed_count,
+            'cancelled': cancelled_count,
+            'pending': pending_count,
+            'accepted': accepted_count,
+        }
+    }
+    return render(request, 'donations/donor_history.html', context)
+
+@login_required
+@user_passes_test(is_hospital)
+def hospital_history(request):
+    """Vue pour l'historique de l'hôpital"""
+    # Toutes les demandes de sang de l'hôpital
+    all_requests = BloodRequest.objects.filter(
+        hospital=request.user
+    ).prefetch_related('donationresponse_set__donor').order_by('-deadline')
+    
+    # ✅ UTILISER DonationResponse AU LIEU DE Donation
+    # Toutes les réponses reçues (tous statuts confondus)
+    all_responses = DonationResponse.objects.filter(
+        blood_request__hospital=request.user
+    ).select_related('donor', 'blood_request').order_by('-response_date')
+    
+    # ✅ Statistiques basées sur le champ STATUS (pas juste is_fulfilled)
+    open_count = all_requests.filter(status__in=['pending', 'approved']).count()  # En attente ou approuvé
+    completed_count = all_requests.filter(status='completed').count()  # Vraiment complétées
+    cancelled_count = all_requests.filter(status__in=['cancelled', 'rejected']).count()  # Annulées ou rejetées
+    
+    # ✅ DONS REÇUS = Toutes les réponses acceptées ou complétées (pas rejected/pending)
+    accepted_and_completed_responses = all_responses.filter(status__in=['accepted', 'completed'])
+    total_donations = accepted_and_completed_responses.count()
+    
+    context = {
+        'requests': all_requests,
+        'received_donations': accepted_and_completed_responses,  # ✅ Seulement les réponses acceptées/complétées
+        'stats': {
+            'total': all_requests.count(),
+            'open': open_count,
+            'closed': cancelled_count,  # ✅ Demandes fermées (annulées/rejetées)
+            'completed': completed_count,  # ✅ Demandes vraiment complétées
+            'total_donations': total_donations,  # ✅ Réponses acceptées + complétées
+        }
+    }
+    return render(request, 'donations/hospital_history.html', context)
+
+@login_required
+@user_passes_test(is_hospital)
+def update_request_status(request, request_id, new_status):
+    """Vue pour mettre à jour le statut d'une demande de sang"""
+    try:
+        blood_request = BloodRequest.objects.get(id=request_id, hospital=request.user)
+        
+        # Vérifier que le statut est valide
+        valid_statuses = dict(BloodRequest.STATUS_CHOICES).keys()
+        if new_status not in valid_statuses:
+            messages.error(request, "❌ Statut invalide")
+            return redirect('donations:hospital_dashboard')
+        
+        # Mettre à jour le statut
+        old_status = blood_request.get_status_display()
+        blood_request.status = new_status
+        
+        # Si le statut est "completed", marquer comme fulfilled
+        if new_status == 'completed':
+            blood_request.is_fulfilled = True
+        
+        blood_request.save()
+        
+        status_display = dict(BloodRequest.STATUS_CHOICES)[new_status]
+        messages.success(request, f"✅ Statut mis à jour: {old_status} → {status_display}")
+        
+    except BloodRequest.DoesNotExist:
+        messages.error(request, "❌ Demande introuvable")
+    except Exception as e:
+        messages.error(request, f"❌ Erreur: {str(e)}")
+    
+    return redirect('donations:hospital_dashboard')
+
+
+@login_required
+def donation_attestation(request, response_id):
+    """Vue pour afficher/télécharger l'attestation de don"""
+    try:
+        response = get_object_or_404(DonationResponse, id=response_id)
+        
+        # Vérifier que l'utilisateur a accès
+        if request.user != response.donor and request.user != response.blood_request.hospital:
+            messages.error(request, "❌ Accès non autorisé.")
+            return redirect('donations:dashboard')
+        
+        context = {
+            'response': response,
+            'donor': response.donor,
+            'blood_request': response.blood_request,
+            'hospital': response.blood_request.hospital,
+            'donation_id': f"DS{response.id:06d}",  # Format: DS000001
+        }
+        
+        return render(request, 'donations/donation_attestation.html', context)
+        
+    except Exception as e:
+        print(f"Erreur donation_attestation: {e}")
+        messages.error(request, "❌ Erreur lors du chargement de l'attestation.")
+        return redirect('donations:dashboard')
+
+
+@login_required
+@user_passes_test(is_donor)
+def quick_donate(request, request_id):
+    """Vue pour répondre rapidement 'Je veux donner' en un clic"""
+    try:
+        blood_request = get_object_or_404(BloodRequest, id=request_id)
+        
+        # Vérifier la disponibilité du donneur
+        availability, created = DonorAvailability.objects.get_or_create(donor=request.user)
+        if availability.next_available_date and availability.next_available_date > timezone.now().date():
+            messages.error(request, f"❌ Vous ne pouvez pas donner avant le {availability.next_available_date.strftime('%d/%m/%Y')}.")
+            return redirect('donations:donor_dashboard')
+        
+        # Vérifier si déjà répondu
+        existing_response = DonationResponse.objects.filter(
+            blood_request=blood_request, 
+            donor=request.user
+        ).first()
+        
+        if existing_response:
+            messages.warning(request, "⚠️ Vous avez déjà répondu à cette demande.")
+            return redirect('donations:donor_dashboard')
+        
+        # Créer la réponse automatiquement avec statut 'accepted'
+        response = DonationResponse.objects.create(
+            blood_request=blood_request,
+            donor=request.user,
+            status='accepted',  # ✅ CHANGÉ: accepté automatiquement
+            message=f"Je souhaite donner mon sang ({request.user.blood_type}) pour votre demande urgente.",
+            response_date=timezone.now()
+        )
+        
+        messages.success(request, 
+            f"✅ Votre réponse a été acceptée par {blood_request.hospital.hospital_name}! "
+            f"Rendez-vous dans Messages pour discuter des détails.")
+        
+        # Rediriger vers la page des messages pour qu'ils puissent discuter
+        return redirect('donations:donor_messages')
+        
+    except Exception as e:
+        print(f"Erreur quick_donate: {e}")
+        messages.error(request, "❌ Erreur lors de l'envoi de votre réponse.")
+        return redirect('donations:donor_dashboard')

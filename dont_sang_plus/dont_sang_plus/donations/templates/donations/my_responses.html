@@ -1,0 +1,173 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Mes Réponses - Don Sang Plus{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/modern-design.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="dashboard-container">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <div class="logo">
+                <i class="fas fa-heartbeat"></i>
+                <span>Don Sang Plus</span>
+            </div>
+        </div>
+        
+        <nav class="sidebar-nav">
+            <a href="{% url 'donations:donor_dashboard' %}" class="nav-item">
+                <i class="fas fa-home"></i>
+                <span>Tableau de bord</span>
+            </a>
+            <a href="{% url 'donations:donor_dashboard' %}" class="nav-item">
+                <i class="fas fa-list"></i>
+                <span>Demandes</span>
+            </a>
+            <a href="{% url 'donations:my_responses' %}" class="nav-item active">
+                <i class="fas fa-hand-holding-heart"></i>
+                <span>Mes Réponses</span>
+            </a>
+            <a href="{% url 'donations:donor_messages' %}" class="nav-item">
+                <i class="fas fa-comments"></i>
+                <span>Messages</span>
+            </a>
+            <a href="{% url 'donations:edit_profile' %}" class="nav-item">
+                <i class="fas fa-user"></i>
+                <span>Profil</span>
+            </a>
+        </nav>
+        
+        <div class="sidebar-footer">
+            <a href="{% url 'accounts:logout' %}" class="nav-item text-danger">
+                <i class="fas fa-sign-out-alt"></i>
+                <span>Déconnexion</span>
+            </a>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Topbar -->
+        <div class="topbar">
+            <div class="topbar-left">
+                <h1 class="page-title">Mes Réponses aux Demandes</h1>
+            </div>
+            <div class="topbar-right">
+                <a href="{% url 'donations:donor_dashboard' %}" class="btn-modern btn-modern-secondary">
+                    <i class="fas fa-arrow-left"></i> Retour
+                </a>
+            </div>
+        </div>
+
+        <!-- Content Area -->
+        <div class="content-area">
+            {% if responses %}
+                <div class="row">
+                    {% for response in responses %}
+                    <div class="col-md-6 mb-4">
+                        <div class="modern-card">
+                            <div class="card-header">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <h3 class="card-title mb-0">
+                                        <i class="fas fa-hospital"></i>
+                                        {{ response.blood_request.hospital.hospital_name }}
+                                    </h3>
+                                    {% if response.status == 'pending' %}
+                                        <span class="badge badge-warning">En attente</span>
+                                    {% elif response.status == 'accepted' %}
+                                        <span class="badge badge-success">Accepté</span>
+                                    {% elif response.status == 'completed' %}
+                                        <span class="badge badge-info">Complété</span>
+                                    {% elif response.status == 'rejected' %}
+                                        <span class="badge badge-danger">Refusé</span>
+                                    {% else %}
+                                        <span class="badge badge-secondary">{{ response.get_status_display }}</span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="card-body">
+                                <div class="mb-3">
+                                    <div class="row">
+                                        <div class="col-6">
+                                            <small class="text-muted">Groupe sanguin</small>
+                                            <div><strong>{{ response.blood_request.blood_type }}</strong></div>
+                                        </div>
+                                        <div class="col-6">
+                                            <small class="text-muted">Quantité</small>
+                                            <div><strong>{{ response.blood_request.quantity }} poche(s)</strong></div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <small class="text-muted">Urgence</small>
+                                    <div>
+                                        {% if response.blood_request.urgency == 'immediate' %}
+                                            <span class="badge badge-danger">🔴 Immédiat</span>
+                                        {% elif response.blood_request.urgency == '24h' %}
+                                            <span class="badge badge-warning">🟠 Dans les 24h</span>
+                                        {% else %}
+                                            <span class="badge badge-info">🟢 Planifié</span>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <small class="text-muted">Date limite</small>
+                                    <div><strong>{{ response.blood_request.deadline|date:"d/m/Y à H:i" }}</strong></div>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <small class="text-muted">Ville</small>
+                                    <div>{{ response.blood_request.city }}</div>
+                                </div>
+                                
+                                {% if response.message %}
+                                <div class="mb-3">
+                                    <small class="text-muted">Votre message</small>
+                                    <div class="p-2 bg-light rounded">{{ response.message }}</div>
+                                </div>
+                                {% endif %}
+                                
+                                <div class="mb-3">
+                                    <small class="text-muted">Date de votre réponse</small>
+                                    <div>{{ response.response_date|date:"d/m/Y à H:i" }}</div>
+                                </div>
+                            </div>
+                            <div class="card-footer">
+                                <div class="d-flex gap-2">
+                                    <a href="{% url 'donations:chat_with_donor' response.id %}" class="btn-modern btn-modern-primary btn-modern-sm flex-fill">
+                                        <i class="fas fa-comments"></i> Discussion
+                                    </a>
+                                    <a href="{% url 'donations:request_detail' response.blood_request.id %}" class="btn-modern btn-modern-secondary btn-modern-sm flex-fill">
+                                        <i class="fas fa-info-circle"></i> Détails
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="modern-card">
+                    <div class="card-body text-center py-5">
+                        <i class="fas fa-hand-holding-heart fa-4x text-muted mb-3"></i>
+                        <h4>Aucune réponse pour le moment</h4>
+                        <p class="text-muted mb-4">
+                            Vous n'avez pas encore répondu à des demandes de sang.<br>
+                            Consultez les demandes compatibles sur votre tableau de bord.
+                        </p>
+                        <a href="{% url 'donations:donor_dashboard' %}" class="btn-modern btn-modern-primary">
+                            <i class="fas fa-search"></i> Voir les demandes
+                        </a>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+    </main>
+</div>
+{% endblock %}

@@ -1,242 +1,397 @@
-{% extends 'base.html' %}
-{% load static %}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Modifier mon profil - Don Sang Plus</title>
+    {% load static %}
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="{% static 'css/modern-design.css' %}">
+</head>
+<body>
+    <!-- Sidebar -->
+    <div class="modern-sidebar">
+        <div class="sidebar-logo">
+            <div class="sidebar-logo-icon">
+                <i class="fas fa-heart-pulse"></i>
+            </div>
+            <div class="sidebar-logo-text">Don Sang Plus</div>
+        </div>
 
-{% block title %}Modifier mon profil - Don Sang Plus{% endblock %}
+        <nav class="sidebar-nav">
+            {% if user.user_type == 'donor' %}
+            <a href="{% url 'donations:donor_dashboard' %}" class="sidebar-nav-item">
+                <i class="fas fa-home sidebar-nav-icon"></i>
+                Dashboard
+            </a>
+            <a href="{% url 'donations:donor_dashboard' %}#requests" class="sidebar-nav-item">
+                <i class="fas fa-heart sidebar-nav-icon"></i>
+                Demandes
+            </a>
+            <a href="{% url 'donations:donor_messages' %}" class="sidebar-nav-item">
+                <i class="fas fa-envelope sidebar-nav-icon"></i>
+                Messages
+            </a>
+            <a href="{% url 'donations:donor_history' %}" class="sidebar-nav-item">
+                <i class="fas fa-history sidebar-nav-icon"></i>
+                Historique
+            </a>
+            {% else %}
+            <a href="{% url 'donations:hospital_dashboard' %}" class="sidebar-nav-item">
+                <i class="fas fa-home sidebar-nav-icon"></i>
+                Dashboard
+            </a>
+            <a href="{% url 'donations:hospital_dashboard' %}#requests" class="sidebar-nav-item">
+                <i class="fas fa-clipboard-list sidebar-nav-icon"></i>
+                Demandes
+            </a>
+            <a href="{% url 'donations:hospital_messages' %}" class="sidebar-nav-item">
+                <i class="fas fa-envelope sidebar-nav-icon"></i>
+                Messages
+            </a>
+            <a href="{% url 'donations:hospital_history' %}" class="sidebar-nav-item">
+                <i class="fas fa-history sidebar-nav-icon"></i>
+                Historique
+            </a>
+            {% endif %}
+            <a href="{% url 'donations:edit_profile' %}" class="sidebar-nav-item active">
+                <i class="fas fa-user-edit sidebar-nav-icon"></i>
+                Profil
+            </a>
+        </nav>
 
-{% block content %}
-<div class="container mt-4">
-    <div class="row justify-content-center">
-        <div class="col-md-10">
-            <div class="card shadow">
-                <div class="card-header bg-primary text-white">
-                    <h4 class="mb-0">
-                        <i class="fas fa-user-edit me-2"></i>
-                        Modifier mon profil
-                    </h4>
+        <div class="sidebar-footer">
+            <a href="/accounts/logout/" class="sidebar-nav-item" style="color: var(--danger-red);">
+                <i class="fas fa-sign-out-alt sidebar-nav-icon"></i>
+                Déconnexion
+            </a>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="modern-main-content">
+        <!-- Top Bar -->
+        <div class="modern-topbar">
+            <div>
+                <div class="topbar-title">
+                    <i class="fas fa-user-edit"></i> Modifier mon profil
                 </div>
-                <div class="card-body">
-                    <!-- Messages -->
-                    {% if messages %}
-                        {% for message in messages %}
-                            <div class="alert alert-{{ message.tags }} alert-dismissible fade show">
-                                {{ message }}
-                                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                            </div>
-                        {% endfor %}
-                    {% endif %}
+                <div class="topbar-subtitle">Mettez à jour vos informations personnelles</div>
+            </div>
+            <div class="topbar-actions">
+                <a href="{% if user.user_type == 'donor' %}/donations/donor-dashboard/{% else %}/donations/hospital-dashboard/{% endif %}" class="btn-modern-secondary">
+                    <i class="fas fa-arrow-left"></i> Retour
+                </a>
+            </div>
+        </div>
 
-                    <!-- ✅ CORRIGE L'ACTION DU FORMULAIRE -->
-                    <form method="post" enctype="multipart/form-data" action="/donations/edit-profile/">
-                        {% csrf_token %}
-                        
-                        <div class="row">
-                            <!-- Photo de profil -->
-                            <div class="col-md-4 text-center mb-4">
-                                <div class="mb-3">
+        <!-- Content -->
+        <div class="container-modern">
+            <!-- Messages -->
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert-modern {% if message.tags == 'error' %}danger{% else %}{{ message.tags }}{% endif %}">
+                        <div class="alert-modern-icon">
+                            <i class="fas fa-{% if message.tags == 'error' %}exclamation-circle{% elif message.tags == 'success' %}check-circle{% else %}info-circle{% endif %}"></i>
+                        </div>
+                        <div class="alert-modern-content">{{ message }}</div>
+                    </div>
+                {% endfor %}
+            {% endif %}
+
+            <!-- Profile Form -->
+            <form method="post" enctype="multipart/form-data" action="/donations/edit-profile/">
+                {% csrf_token %}
+                
+                <!-- Profile Picture Section -->
+                <div class="card-modern" style="margin-bottom: 24px;">
+                    <div class="card-modern-header">
+                        <h3 class="card-modern-title">
+                            <i class="fas fa-camera"></i>
+                            Photo de profil
+                        </h3>
+                    </div>
+                    <div class="card-modern-body">
+                        <div class="row align-items-center">
+                            <div class="col-md-3 text-center">
+                                <div id="profile-preview" style="margin-bottom: 16px;">
                                     {% if user.profile_picture %}
                                         <img src="{{ user.profile_picture.url }}" 
                                              alt="Photo de profil" 
-                                             class="rounded-circle border border-3 border-primary" 
-                                             width="150" height="150" 
-                                             style="object-fit: cover;">
+                                             id="current-photo"
+                                             style="width: 150px; height: 150px; border-radius: 50%; object-fit: cover; border: 4px solid var(--primary-red); box-shadow: 0 4px 15px rgba(239, 68, 68, 0.2);">
                                     {% else %}
-                                        <div class="rounded-circle bg-primary d-inline-flex align-items-center justify-content-center border border-3" 
-                                             style="width: 150px; height: 150px;">
-                                            <span class="text-white fs-1">
-                                                {{ user.get_full_name|first|upper|default:"?" }}
-                                            </span>
+                                        <div id="current-photo" style="width: 150px; height: 150px; border-radius: 50%; background: linear-gradient(135deg, var(--primary-red), #DC2626); display: inline-flex; align-items: center; justify-content: center; color: white; font-size: 48px; font-weight: 700; border: 4px solid white; box-shadow: 0 4px 15px rgba(239, 68, 68, 0.2);">
+                                            {{ user.first_name.0|default:"U" }}{{ user.last_name.0|default:"" }}
                                         </div>
                                     {% endif %}
                                 </div>
-                                <div class="mb-3">
-                                    <label for="id_profile_picture" class="form-label fw-bold">
-                                        <i class="fas fa-camera me-2"></i>
-                                        Changer la photo
+                            </div>
+                            <div class="col-md-9">
+                                <h5 style="color: var(--text-dark); margin-bottom: 12px; font-weight: 600;">
+                                    Changer votre photo de profil
+                                </h5>
+                                <p style="color: var(--text-gray); margin-bottom: 16px; font-size: 14px;">
+                                    Formats acceptés: JPG, PNG, GIF. Taille maximale: 2 MB.
+                                </p>
+                                <div class="form-input-modern">
+                                    <label for="id_profile_picture" class="form-label-modern">
+                                        <i class="fas fa-image"></i> Sélectionner une photo
                                     </label>
                                     <input type="file" 
                                            class="form-control" 
                                            id="id_profile_picture" 
                                            name="profile_picture" 
-                                           accept="image/*">
-                                    <div class="form-text">JPG, PNG, GIF (max 5MB)</div>
+                                           accept="image/*"
+                                           onchange="previewImage(this)">
                                 </div>
                             </div>
-                            
-                            <!-- Informations personnelles -->
-                            <div class="col-md-8">
-                                <div class="row">
-                                    <div class="col-md-6 mb-3">
-                                        <label for="id_first_name" class="form-label fw-bold">
-                                            <i class="fas fa-user me-2"></i>Prénom *
-                                        </label>
-                                        <input type="text" 
-                                               class="form-control" 
-                                               id="id_first_name" 
-                                               name="first_name" 
-                                               value="{{ form.first_name.value|default:user.first_name }}"
-                                               required>
-                                    </div>
-                                    <div class="col-md-6 mb-3">
-                                        <label for="id_last_name" class="form-label fw-bold">
-                                            <i class="fas fa-user me-2"></i>Nom *
-                                        </label>
-                                        <input type="text" 
-                                               class="form-control" 
-                                               id="id_last_name" 
-                                               name="last_name" 
-                                               value="{{ form.last_name.value|default:user.last_name }}"
-                                               required>
-                                    </div>
-                                </div>
-                                
-                                <div class="row">
-                                    <div class="col-md-6 mb-3">
-                                        <label for="id_email" class="form-label fw-bold">
-                                            <i class="fas fa-envelope me-2"></i>Email *
-                                        </label>
-                                        <input type="email" 
-                                               class="form-control" 
-                                               id="id_email" 
-                                               name="email" 
-                                               value="{{ form.email.value|default:user.email }}"
-                                               required>
-                                    </div>
-                                    <div class="col-md-6 mb-3">
-                                        <label for="id_phone" class="form-label fw-bold">
-                                            <i class="fas fa-phone me-2"></i>Téléphone *
-                                        </label>
-                                        <input type="tel" 
-                                               class="form-control" 
-                                               id="id_phone" 
-                                               name="phone" 
-                                               value="{{ form.phone.value|default:user.phone }}"
-                                               placeholder="+225 XX XX XX XX XX"
-                                               required>
-                                    </div>
-                                </div>
-                                
-                                {% if user.user_type == 'donor' %}
-                                <div class="row">
-                                    <div class="col-md-6 mb-3">
-                                        <label for="id_blood_type" class="form-label fw-bold">
-                                            <i class="fas fa-tint me-2 text-danger"></i>Groupe sanguin *
-                                        </label>
-                                        <select class="form-select" id="id_blood_type" name="blood_type" required>
-                                            <option value="">Sélectionnez votre groupe...</option>
-                                            <option value="A+" {% if user.blood_type == 'A+' %}selected{% endif %}>A+</option>
-                                            <option value="A-" {% if user.blood_type == 'A-' %}selected{% endif %}>A-</option>
-                                            <option value="B+" {% if user.blood_type == 'B+' %}selected{% endif %}>B+</option>
-                                            <option value="B-" {% if user.blood_type == 'B-' %}selected{% endif %}>B-</option>
-                                            <option value="AB+" {% if user.blood_type == 'AB+' %}selected{% endif %}>AB+</option>
-                                            <option value="AB-" {% if user.blood_type == 'AB-' %}selected{% endif %}>AB-</option>
-                                            <option value="O+" {% if user.blood_type == 'O+' %}selected{% endif %}>O+</option>
-                                            <option value="O-" {% if user.blood_type == 'O-' %}selected{% endif %}>O-</option>
-                                        </select>
-                                    </div>
-                                    <div class="col-md-6 mb-3">
-                                        <label for="id_birth_date" class="form-label fw-bold">
-                                            <i class="fas fa-birthday-cake me-2"></i>Date de naissance *
-                                        </label>
-                                        <input type="date" 
-                                               class="form-control" 
-                                               id="id_birth_date" 
-                                               name="birth_date" 
-                                               value="{{ user.birth_date|date:'Y-m-d' }}"
-                                               required>
-                                    </div>
-                                </div>
-                                {% endif %}
-                            </div>
                         </div>
-                        
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <label for="id_city" class="form-label fw-bold">
-                                    <i class="fas fa-map-marker-alt me-2"></i>Ville *
-                                </label>
-                                <input type="text" 
-                                       class="form-control" 
-                                       id="id_city" 
-                                       name="city" 
-                                       value="{{ form.city.value|default:user.city }}"
-                                       required>
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <label for="id_address" class="form-label fw-bold">
-                                    <i class="fas fa-home me-2"></i>Adresse
-                                </label>
-                                <textarea class="form-control" 
-                                          id="id_address" 
-                                          name="address" 
-                                          rows="2"
-                                          placeholder="Votre adresse complète...">{{ form.address.value|default:user.address }}</textarea>
-                            </div>
-                        </div>
-                        
-                        {% if user.user_type == 'donor' %}
-                        <div class="mb-3">
-                            <label for="id_medical_history" class="form-label fw-bold">
-                                <i class="fas fa-notes-medical me-2"></i>Antécédents médicaux
-                            </label>
-                            <textarea class="form-control" 
-                                      id="id_medical_history" 
-                                      name="medical_history" 
-                                      rows="4" 
-                                      placeholder="Allergies, conditions médicales, traitements en cours, dernière donation...">{{ form.medical_history.value|default:user.medical_history }}</textarea>
-                            <div class="form-text">
-                                <i class="fas fa-shield-alt me-1"></i>
-                                Informations confidentielles importantes pour votre sécurité et celle des receveurs
-                            </div>
-                        </div>
-                        {% endif %}
-                        
-                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
-                            <!-- ✅ CORRIGE LES LIENS DE RETOUR SELON LE TYPE D'UTILISATEUR -->
-                            {% if user.user_type == 'donor' %}
-                                <a href="/donations/donor-dashboard/" class="btn btn-outline-secondary me-md-2">
-                                    <i class="fas fa-arrow-left me-2"></i>
-                                    Retour au tableau de bord
-                                </a>
-                            {% else %}
-                                <a href="/donations/hospital-dashboard/" class="btn btn-outline-secondary me-md-2">
-                                    <i class="fas fa-arrow-left me-2"></i>
-                                    Retour au tableau de bord
-                                </a>
-                            {% endif %}
-                            <button type="submit" class="btn btn-primary btn-lg">
-                                <i class="fas fa-save me-2"></i>
-                                Enregistrer les modifications
-                            </button>
-                        </div>
-                    </form>
+                    </div>
                 </div>
-            </div>
+
+                <!-- Personal Information -->
+                <div class="card-modern" style="margin-bottom: 24px;">
+                    <div class="card-modern-header">
+                        <h3 class="card-modern-title">
+                            <i class="fas fa-user"></i>
+                            Informations personnelles
+                        </h3>
+                    </div>
+                    <div class="card-modern-body">
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <div class="form-input-modern">
+                                    <label for="id_first_name" class="form-label-modern required">
+                                        <i class="fas fa-user"></i> Prénom
+                                    </label>
+                                    <input type="text" 
+                                           class="form-control" 
+                                           id="id_first_name" 
+                                           name="first_name" 
+                                           value="{{ user.first_name }}" 
+                                           required>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-input-modern">
+                                    <label for="id_last_name" class="form-label-modern required">
+                                        <i class="fas fa-user"></i> Nom
+                                    </label>
+                                    <input type="text" 
+                                           class="form-control" 
+                                           id="id_last_name" 
+                                           name="last_name" 
+                                           value="{{ user.last_name }}" 
+                                           required>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-input-modern">
+                                    <label for="id_email" class="form-label-modern required">
+                                        <i class="fas fa-envelope"></i> Email
+                                    </label>
+                                    <input type="email" 
+                                           class="form-control" 
+                                           id="id_email" 
+                                           name="email" 
+                                           value="{{ user.email }}" 
+                                           required>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-input-modern">
+                                    <label for="id_phone" class="form-label-modern required">
+                                        <i class="fas fa-phone"></i> Téléphone
+                                    </label>
+                                    <input type="tel" 
+                                           class="form-control" 
+                                           id="id_phone" 
+                                           name="phone" 
+                                           value="{{ user.phone }}" 
+                                           required>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                {% if user.user_type == 'donor' %}
+                <!-- Donor Specific Information -->
+                <div class="card-modern" style="margin-bottom: 24px;">
+                    <div class="card-modern-header">
+                        <h3 class="card-modern-title">
+                            <i class="fas fa-tint"></i>
+                            Informations donneur
+                        </h3>
+                    </div>
+                    <div class="card-modern-body">
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <div class="form-input-modern">
+                                    <label for="id_blood_type" class="form-label-modern required">
+                                        <i class="fas fa-tint"></i> Groupe sanguin
+                                    </label>
+                                    <select class="form-control" id="id_blood_type" name="blood_type" required>
+                                        <option value="">Sélectionner...</option>
+                                        <option value="A+" {% if user.blood_type == 'A+' %}selected{% endif %}>A+</option>
+                                        <option value="A-" {% if user.blood_type == 'A-' %}selected{% endif %}>A-</option>
+                                        <option value="B+" {% if user.blood_type == 'B+' %}selected{% endif %}>B+</option>
+                                        <option value="B-" {% if user.blood_type == 'B-' %}selected{% endif %}>B-</option>
+                                        <option value="AB+" {% if user.blood_type == 'AB+' %}selected{% endif %}>AB+</option>
+                                        <option value="AB-" {% if user.blood_type == 'AB-' %}selected{% endif %}>AB-</option>
+                                        <option value="O+" {% if user.blood_type == 'O+' %}selected{% endif %}>O+</option>
+                                        <option value="O-" {% if user.blood_type == 'O-' %}selected{% endif %}>O-</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-input-modern">
+                                    <label for="id_birth_date" class="form-label-modern">
+                                        <i class="fas fa-calendar"></i> Date de naissance
+                                    </label>
+                                    <input type="date" 
+                                           class="form-control" 
+                                           id="id_birth_date" 
+                                           name="birth_date" 
+                                           value="{{ user.birth_date|date:'Y-m-d' }}">
+                                </div>
+                            </div>
+                            <div class="col-12">
+                                <div class="form-input-modern">
+                                    <label for="id_address" class="form-label-modern">
+                                        <i class="fas fa-map-marker-alt"></i> Adresse
+                                    </label>
+                                    <input type="text" 
+                                           class="form-control" 
+                                           id="id_address" 
+                                           name="address" 
+                                           value="{{ user.address }}">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-input-modern">
+                                    <label for="id_city" class="form-label-modern">
+                                        <i class="fas fa-city"></i> Ville
+                                    </label>
+                                    <input type="text" 
+                                           class="form-control" 
+                                           id="id_city" 
+                                           name="city" 
+                                           value="{{ user.city }}">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+
+                {% if user.user_type == 'hospital' %}
+                <!-- Hospital Specific Information -->
+                <div class="card-modern" style="margin-bottom: 24px;">
+                    <div class="card-modern-header">
+                        <h3 class="card-modern-title">
+                            <i class="fas fa-hospital"></i>
+                            Informations établissement
+                        </h3>
+                    </div>
+                    <div class="card-modern-body">
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <div class="form-input-modern">
+                                    <label for="id_hospital_name" class="form-label-modern required">
+                                        <i class="fas fa-hospital-alt"></i> Nom de l'établissement
+                                    </label>
+                                    <input type="text" 
+                                           class="form-control" 
+                                           id="id_hospital_name" 
+                                           name="hospital_name" 
+                                           value="{{ user.hospital_name }}" 
+                                           required>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-input-modern">
+                                    <label for="id_hospital_type" class="form-label-modern">
+                                        <i class="fas fa-building"></i> Type
+                                    </label>
+                                    <select class="form-control" id="id_hospital_type" name="hospital_type">
+                                        <option value="">Sélectionner...</option>
+                                        <option value="public" {% if user.hospital_type == 'public' %}selected{% endif %}>Public</option>
+                                        <option value="private" {% if user.hospital_type == 'private' %}selected{% endif %}>Privé</option>
+                                        <option value="clinic" {% if user.hospital_type == 'clinic' %}selected{% endif %}>Clinique</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-12">
+                                <div class="form-input-modern">
+                                    <label for="id_address" class="form-label-modern required">
+                                        <i class="fas fa-map-marker-alt"></i> Adresse
+                                    </label>
+                                    <input type="text" 
+                                           class="form-control" 
+                                           id="id_address" 
+                                           name="address" 
+                                           value="{{ user.address }}" 
+                                           required>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-input-modern">
+                                    <label for="id_city" class="form-label-modern required">
+                                        <i class="fas fa-city"></i> Ville
+                                    </label>
+                                    <input type="text" 
+                                           class="form-control" 
+                                           id="id_city" 
+                                           name="city" 
+                                           value="{{ user.city }}" 
+                                           required>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+
+                <!-- Action Buttons -->
+                <div class="d-flex gap-3 justify-content-end">
+                    <a href="{% if user.user_type == 'donor' %}/donations/donor-dashboard/{% else %}/donations/hospital-dashboard/{% endif %}" 
+                       class="btn-modern-secondary">
+                        <i class="fas fa-times"></i> Annuler
+                    </a>
+                    <button type="submit" class="btn-modern-primary">
+                        <i class="fas fa-save"></i> Enregistrer les modifications
+                    </button>
+                </div>
+            </form>
         </div>
     </div>
-</div>
-{% endblock %}
 
-{% block extra_css %}
-<style>
-    .form-control:focus, .form-select:focus {
-        border-color: #0d6efd;
-        box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
-    }
-    
-    .form-control, .form-select {
-        padding: 12px;
-        border-radius: 8px;
-        border: 2px solid #e9ecef;
-        transition: all 0.3s ease;
-    }
-    
-    .card {
-        border: none;
-        border-radius: 15px;
-    }
-    
-    .card-header {
-        border-radius: 15px 15px 0 0 !important;
-    }
-</style>
-{% endblock %}
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        function previewImage(input) {
+            const preview = document.getElementById('current-photo');
+            
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                
+                reader.onload = function(e) {
+                    if (preview.tagName === 'IMG') {
+                        preview.src = e.target.result;
+                    } else {
+                        const newImg = document.createElement('img');
+                        newImg.src = e.target.result;
+                        newImg.id = 'current-photo';
+                        newImg.style.cssText = 'width: 150px; height: 150px; border-radius: 50%; object-fit: cover; border: 4px solid var(--primary-red); box-shadow: 0 4px 15px rgba(239, 68, 68, 0.2);';
+                        preview.parentNode.replaceChild(newImg, preview);
+                    }
+                };
+                
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+    </script>
+</body>
+</html>
