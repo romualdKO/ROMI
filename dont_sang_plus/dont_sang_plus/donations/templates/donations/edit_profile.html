@@ -37,6 +37,14 @@
                 <i class="fas fa-history sidebar-nav-icon"></i>
                 Historique
             </a>
+            <a href="{% url 'donations:my_rewards' %}" class="sidebar-nav-item">
+                <i class="fas fa-trophy sidebar-nav-icon"></i>
+                Mes Avantages
+            </a>
+            <a href="{% url 'donations:update_availability' %}" class="sidebar-nav-item">
+                <i class="fas fa-calendar-check sidebar-nav-icon"></i>
+                Disponibilité
+            </a>
             {% else %}
             <a href="{% url 'donations:hospital_dashboard' %}" class="sidebar-nav-item">
                 <i class="fas fa-home sidebar-nav-icon"></i>
@@ -80,7 +88,7 @@
                 <div class="topbar-subtitle">Mettez à jour vos informations personnelles</div>
             </div>
             <div class="topbar-actions">
-                <a href="{% if user.user_type == 'donor' %}/donations/donor-dashboard/{% else %}/donations/hospital-dashboard/{% endif %}" class="btn-modern-secondary">
+                <a href="{% if user.user_type == 'donor' %}/donations/donor-dashboard/{% else %}/donations/hospital-dashboard/{% endif %}" class="btn-modern btn-modern-secondary" style="display: inline-flex; align-items: center; gap: 8px; padding: 10px 20px; font-weight: 600; transition: all 0.3s ease;">
                     <i class="fas fa-arrow-left"></i> Retour
                 </a>
             </div>
@@ -358,10 +366,10 @@
                 <!-- Action Buttons -->
                 <div class="d-flex gap-3 justify-content-end">
                     <a href="{% if user.user_type == 'donor' %}/donations/donor-dashboard/{% else %}/donations/hospital-dashboard/{% endif %}" 
-                       class="btn-modern-secondary">
+                       class="btn-modern btn-modern-secondary">
                         <i class="fas fa-times"></i> Annuler
                     </a>
-                    <button type="submit" class="btn-modern-primary">
+                    <button type="submit" class="btn-modern btn-modern-primary">
                         <i class="fas fa-save"></i> Enregistrer les modifications
                     </button>
                 </div>

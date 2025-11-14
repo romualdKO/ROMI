@@ -1,6 +1,6 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required, user_passes_test
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
 from django.contrib import messages
@@ -9,7 +9,7 @@ from django.contrib.auth import get_user_model
 from django.urls import reverse
 from django.db.models import Q
 
-from .models import BloodRequest, DonorAvailability, DonationResponse, ChatMessage, Donation
+from .models import BloodRequest, DonorAvailability, DonationResponse, ChatMessage, Donation, DonorRanking, HospitalBenefit, DonorVoucher
 from accounts.models import CustomUser
 from .forms import BloodRequestForm, UserProfileForm
 
@@ -52,24 +52,25 @@ def donor_dashboard(request):
 
         # Mes réponses
         my_responses = DonationResponse.objects.filter(donor=request.user).select_related('blood_request', 'blood_request__hospital')
+        # ✅ CORRIGÉ: Seulement les dons vraiment COMPLÉTÉS physiquement
         completed_donations = [d for d in my_responses if d.status == 'completed']
-        active_responses = [d for d in my_responses if d.status != 'completed']
+        active_responses = [d for d in my_responses if d.status in ['pending', 'accepted']]  # En cours
         
-        # Donations complétées
+        # Donations complétées = SEULEMENT status='completed'
         donations = DonationResponse.objects.filter(
-            donor=request.user, status__in=['accepted', 'completed']
+            donor=request.user, status='completed'
         ).select_related('blood_request', 'blood_request__hospital')
         
         # Disponibilité du donneur
         availability, created = DonorAvailability.objects.get_or_create(donor=request.user)
         
-        # Vérifier si le donneur peut modifier sa disponibilité ou répondre aux demandes
-        can_update_availability = True
-        can_respond_to_requests = True
+        # ✅ DÉBLOCAGE AUTOMATIQUE si la date est passée
+        availability.auto_unlock()
+        availability.refresh_from_db()
         
-        if availability.next_available_date and availability.next_available_date > timezone.now().date():
-            can_update_availability = False
-            can_respond_to_requests = False
+        # ✅ UTILISER LA MÉTHODE is_currently_available() pour une logique cohérente
+        can_respond_to_requests = availability.is_currently_available()
+        can_update_availability = can_respond_to_requests  # Même logique
         
         # Messages non lus reçus par le donneur
         new_messages = ChatMessage.objects.filter(
@@ -378,10 +379,17 @@ def respond_to_request(request, request_id):
                 f"ne peut pas donner au groupe {blood_request.blood_type}.")
             return redirect('/donations/donor-dashboard/')
         
-        # Vérifier la disponibilité du donneur
+        # ✅ VÉRIFICATION STRICTE DE LA DISPONIBILITÉ DU DONNEUR
         availability, created = DonorAvailability.objects.get_or_create(donor=request.user)
-        if availability.next_available_date and availability.next_available_date > timezone.now().date():
-            messages.error(request, f"❌ Vous ne pouvez pas répondre aux demandes avant le {availability.next_available_date.strftime('%d/%m/%Y')}.")
+        
+        # ✅ DÉBLOCAGE AUTOMATIQUE + VÉRIFICATION avec is_currently_available()
+        availability, created = DonorAvailability.objects.get_or_create(donor=request.user)
+        availability.auto_unlock()
+        availability.refresh_from_db()
+        
+        if not availability.is_currently_available():
+            lock_reason = availability.get_lock_reason()
+            messages.error(request, f"🩸 {lock_reason}")
             return redirect('/donations/donor-dashboard/')
         
         # Vérifier si l'utilisateur a déjà répondu
@@ -446,12 +454,30 @@ def update_availability(request):
         
         donor_availability, created = DonorAvailability.objects.get_or_create(donor=request.user)
         
-        # Vérifier si le donneur peut modifier sa disponibilité
+        # ✅ VÉRIFIER SI LE VERROUILLAGE VIENT D'UN DON COMPLÉTÉ
+        from datetime import timedelta
+        last_completed = DonationResponse.objects.filter(
+            donor=request.user, status='completed'
+        ).order_by('-response_date').first()
+        
+        if last_completed:
+            lock_until = last_completed.response_date.date() + timedelta(days=90)
+            if lock_until > timezone.now().date():
+                days_remaining = (lock_until - timezone.now().date()).days
+                return render(request, 'donations/availability_updated.html', {
+                    'success': False,
+                    'message': f"🔒 Vous ne pouvez pas modifier votre disponibilité avant le {lock_until.strftime('%d/%m/%Y')} "
+                               f"suite à votre dernier don ({days_remaining} jour{'s' if days_remaining > 1 else ''} restant{'s' if days_remaining > 1 else ''})."
+                })
+        
+        # Vérifier aussi si le donneur a une date de disponibilité manuelle dans le futur
         if donor_availability.next_available_date and donor_availability.next_available_date > timezone.now().date():
-            return render(request, 'donations/availability_updated.html', {
-                'success': False,
-                'message': f"Vous ne pouvez pas modifier votre disponibilité avant le {donor_availability.next_available_date.strftime('%d/%m/%Y')}."
-            })
+            # Seulement bloquer si ce n'est pas lié à un don (cas rare)
+            if not last_completed or (last_completed.response_date.date() + timedelta(days=90)) != donor_availability.next_available_date:
+                return render(request, 'donations/availability_updated.html', {
+                    'success': False,
+                    'message': f"Vous ne pouvez pas modifier votre disponibilité avant le {donor_availability.next_available_date.strftime('%d/%m/%Y')}."
+                })
         
         is_available = request.POST.get('is_available') == 'on'
         next_available_date = request.POST.get('next_available_date') or None
@@ -596,6 +622,42 @@ def update_response_status(request, response_id, status):
             availability.next_available_date = timezone.now().date() + timezone.timedelta(days=90)
             availability.notes = f"🩸 Don effectué le {timezone.now().strftime('%d/%m/%Y')} à {response.blood_request.hospital.hospital_name}. Pour votre santé, vous ne pouvez pas donner à nouveau avant 3 mois."
             availability.save()
+            
+            # ✅ METTRE À JOUR LE CLASSEMENT DU DONNEUR
+            from .models import DonorRanking, DonorVoucher
+            import random
+            import string
+            
+            ranking, created = DonorRanking.objects.get_or_create(donor=response.donor)
+            ranking.total_donations += 1
+            ranking.last_donation_date = timezone.now().date()
+            ranking.points += 100  # 100 points par don
+            old_tier = ranking.current_tier
+            ranking.update_tier()
+            
+            # Si changement de tier, créer un bon de réduction
+            if old_tier != ranking.current_tier:
+                # Générer un code unique
+                voucher_code = ''.join(random.choices(string.ascii_uppercase + string.digits, k=8))
+                valid_until = timezone.now().date() + timezone.timedelta(days=365)  # Valable 1 an
+                
+                voucher = DonorVoucher.objects.create(
+                    donor=response.donor,
+                    hospital=request.user,
+                    voucher_code=voucher_code,
+                    discount_percentage=ranking.get_discount_rate(),
+                    valid_until=valid_until
+                )
+                
+                # Message de félicitation pour le nouveau niveau
+                ChatMessage.objects.create(
+                    donation_response=response,
+                    sender=request.user,
+                    message=f"🎊 FÉLICITATIONS ! Vous avez atteint le niveau {ranking.get_current_tier_display().upper()} ! "
+                           f"Vous bénéficiez maintenant d'une réduction de {ranking.get_discount_rate()}% sur vos soins. "
+                           f"Votre bon de réduction (code: {voucher_code}) est disponible dans 'Mes Avantages'.",
+                    is_read=False
+                )
             
             # ✅ MESSAGE DE FÉLICITATIONS
             ChatMessage.objects.create(
@@ -1093,31 +1155,29 @@ def hospital_messages(request):
 @user_passes_test(is_donor)
 def donor_history(request):
     """Vue pour l'historique du donneur"""
-    # Toutes les réponses du donneur (complétées, annulées, etc.)
+    # ✅ Toutes les réponses du donneur (complétées, annulées, etc.)
     all_responses = DonationResponse.objects.filter(
         donor=request.user
     ).select_related('blood_request__hospital').order_by('-response_date')
     
-    # Statistiques
-    completed_count = all_responses.filter(status='completed').count()
-    cancelled_count = all_responses.filter(status='cancelled').count()
-    pending_count = all_responses.filter(status='pending').count()
-    accepted_count = all_responses.filter(status='accepted').count()
+    # ✅ STATISTIQUES CORRECTES: Seulement les dons vraiment COMPLÉTÉS
+    completed_count = all_responses.filter(status='completed').count()  # ✅ CORRIGÉ: Seulement 'completed'
+    accepted_count = all_responses.filter(status='accepted').count()  # Acceptés mais pas encore donnés
+    pending_count = all_responses.filter(status='pending').count()  # En attente de validation
+    rejected_count = all_responses.filter(status__in=['rejected', 'cancelled']).count()  # Rejetés/Annulés
     
-    # Donations réellement effectuées
-    completed_donations = Donation.objects.filter(
-        donor=request.user
-    ).select_related('blood_request__hospital').order_by('-donation_date')
+    # ✅ Donations effectuées = SEULEMENT les complétées physiquement
+    completed_donations = all_responses.filter(status='completed')
     
     context = {
         'all_responses': all_responses,
         'completed_donations': completed_donations,
         'stats': {
             'total': all_responses.count(),
-            'completed': completed_count,
-            'cancelled': cancelled_count,
-            'pending': pending_count,
-            'accepted': accepted_count,
+            'completed': completed_count,  # ✅ CORRIGÉ: Seulement completed
+            'accepted': accepted_count,  # Acceptés (en attente de don physique)
+            'pending': pending_count,  # En attente
+            'cancelled': rejected_count,  # Annulés/Rejetés
         }
     }
     return render(request, 'donations/donor_history.html', context)
@@ -1126,10 +1186,17 @@ def donor_history(request):
 @user_passes_test(is_hospital)
 def hospital_history(request):
     """Vue pour l'historique de l'hôpital"""
-    # Toutes les demandes de sang de l'hôpital
+    # Toutes les demandes de sang de l'hôpital avec annotation du nombre de donneurs acceptés/complétés
+    from django.db.models import Count, Q
+    
     all_requests = BloodRequest.objects.filter(
         hospital=request.user
-    ).prefetch_related('donationresponse_set__donor').order_by('-deadline')
+    ).prefetch_related('donationresponse_set__donor').annotate(
+        accepted_donors_count=Count(
+            'donationresponse',
+            filter=Q(donationresponse__status__in=['accepted', 'completed'])
+        )
+    ).order_by('-deadline')
     
     # ✅ UTILISER DonationResponse AU LIEU DE Donation
     # Toutes les réponses reçues (tous statuts confondus)
@@ -1176,18 +1243,75 @@ def update_request_status(request, request_id, new_status):
         old_status = blood_request.get_status_display()
         blood_request.status = new_status
         
-        # Si le statut est "completed", marquer comme fulfilled
+        # ✅ Si le statut est "completed", marquer comme fulfilled ET mettre à jour les réponses
         if new_status == 'completed':
             blood_request.is_fulfilled = True
+            
+            # ✅ METTRE À JOUR TOUTES LES RÉPONSES ACCEPTÉES POUR CETTE DEMANDE
+            accepted_responses = DonationResponse.objects.filter(
+                blood_request=blood_request,
+                status='accepted'  # Seulement celles acceptées
+            )
+            
+            for response in accepted_responses:
+                # Marquer la réponse comme complétée
+                response.status = 'completed'
+                response.save()
+                
+                # Verrouiller le donneur pour 90 jours
+                availability, _ = DonorAvailability.objects.get_or_create(donor=response.donor)
+                availability.is_available = False
+                availability.next_available_date = timezone.now().date() + timezone.timedelta(days=90)
+                availability.notes = f"🩸 Don effectué le {timezone.now().strftime('%d/%m/%Y')} à {blood_request.hospital.hospital_name}. Pour votre santé, vous ne pouvez pas donner à nouveau avant 3 mois."
+                availability.save()
+                
+                # Mettre à jour le classement du donneur
+                ranking, created = DonorRanking.objects.get_or_create(donor=response.donor)
+                ranking.total_donations += 1
+                ranking.last_donation_date = timezone.now().date()
+                ranking.points += 100
+                old_tier = ranking.current_tier
+                ranking.update_tier()
+                ranking.save()
+                
+                # Si changement de niveau, créer un bon de réduction
+                if old_tier != ranking.current_tier:
+                    import random, string
+                    voucher_code = ''.join(random.choices(string.ascii_uppercase + string.digits, k=8))
+                    valid_until = timezone.now().date() + timezone.timedelta(days=365)
+                    
+                    DonorVoucher.objects.create(
+                        donor=response.donor,
+                        hospital=request.user,
+                        voucher_code=voucher_code,
+                        discount_percentage=ranking.get_discount_rate(),
+                        valid_until=valid_until
+                    )
+                    
+                    # Message de félicitation
+                    ChatMessage.objects.create(
+                        donation_response=response,
+                        sender=request.user,
+                        message=f"🎊 FÉLICITATIONS ! Vous avez atteint le niveau {ranking.get_current_tier_display().upper()} ! "
+                               f"Vous bénéficiez maintenant d'une réduction de {ranking.get_discount_rate()}% sur vos soins. "
+                               f"Votre bon de réduction (code: {voucher_code}) est disponible dans 'Mes Avantages'.",
+                        is_read=False
+                    )
+            
+            if accepted_responses.exists():
+                messages.success(request, 
+                    f"✅ {accepted_responses.count()} don(s) marqué(s) comme complété(s). "
+                    f"Les donneurs ont été verrouillés pour 90 jours.")
         
         blood_request.save()
         
         status_display = dict(BloodRequest.STATUS_CHOICES)[new_status]
-        messages.success(request, f"✅ Statut mis à jour: {old_status} → {status_display}")
+        messages.success(request, f"✅ Statut de la demande mis à jour: {old_status} → {status_display}")
         
     except BloodRequest.DoesNotExist:
         messages.error(request, "❌ Demande introuvable")
     except Exception as e:
+        print(f"Erreur update_request_status: {e}")
         messages.error(request, f"❌ Erreur: {str(e)}")
     
     return redirect('donations:hospital_dashboard')
@@ -1227,10 +1351,17 @@ def quick_donate(request, request_id):
     try:
         blood_request = get_object_or_404(BloodRequest, id=request_id)
         
-        # Vérifier la disponibilité du donneur
+        # ✅ VÉRIFICATION STRICTE DE LA DISPONIBILITÉ DU DONNEUR
         availability, created = DonorAvailability.objects.get_or_create(donor=request.user)
-        if availability.next_available_date and availability.next_available_date > timezone.now().date():
-            messages.error(request, f"❌ Vous ne pouvez pas donner avant le {availability.next_available_date.strftime('%d/%m/%Y')}.")
+        
+        # ✅ DÉBLOCAGE AUTOMATIQUE + VÉRIFICATION avec is_currently_available()
+        availability, created = DonorAvailability.objects.get_or_create(donor=request.user)
+        availability.auto_unlock()
+        availability.refresh_from_db()
+        
+        if not availability.is_currently_available():
+            lock_reason = availability.get_lock_reason()
+            messages.error(request, f"🩸 {lock_reason}")
             return redirect('donations:donor_dashboard')
         
         # Vérifier si déjà répondu
@@ -1263,3 +1394,502 @@ def quick_donate(request, request_id):
         print(f"Erreur quick_donate: {e}")
         messages.error(request, "❌ Erreur lors de l'envoi de votre réponse.")
         return redirect('donations:donor_dashboard')
+
+
+# ========================================
+# SYSTÈME DE RÉCOMPENSES ET AVANTAGES
+# ========================================
+
+@login_required
+def my_rewards(request):
+    """Page des avantages et récompenses du donneur"""
+    try:
+        if request.user.user_type != 'donor':
+            messages.error(request, "❌ Cette page est réservée aux donneurs.")
+            return redirect('donations:dashboard')
+        
+        from .models import DonorRanking, HospitalBenefit, DonorVoucher
+        
+        # Récupérer ou créer le classement du donneur
+        ranking, created = DonorRanking.objects.get_or_create(donor=request.user)
+        
+        # Calculer les dons complétés
+        completed_donations = DonationResponse.objects.filter(
+            donor=request.user,
+            status__in=['accepted', 'completed']
+        ).count()
+        
+        # Mettre à jour le classement si nécessaire
+        if ranking.total_donations != completed_donations:
+            ranking.total_donations = completed_donations
+            ranking.update_tier()
+        
+        # Récupérer tous les avantages disponibles (par tier)
+        all_benefits = HospitalBenefit.objects.filter(is_active=True).order_by('hospital', '-discount_percentage')
+        
+        # Filtrer les avantages accessibles selon le tier du donneur
+        tier_order = ['standard', 'bronze', 'silver', 'gold', 'platinum']
+        current_tier_index = tier_order.index(ranking.current_tier)
+        
+        accessible_benefits = []
+        locked_benefits = []
+        
+        for benefit in all_benefits:
+            benefit_tier_index = tier_order.index(benefit.minimum_tier)
+            if benefit_tier_index <= current_tier_index:
+                accessible_benefits.append(benefit)
+            else:
+                locked_benefits.append(benefit)
+        
+        # Récupérer les bons du donneur
+        vouchers = DonorVoucher.objects.filter(donor=request.user).order_by('-created_at')
+        
+        # Calculer combien de dons il reste pour le prochain niveau
+        next_tier_donations = {
+            'standard': 2,
+            'bronze': 5,
+            'silver': 10,
+            'gold': 20,
+            'platinum': None
+        }
+        
+        donations_to_next_tier = None
+        next_tier_name = None
+        if ranking.current_tier != 'platinum':
+            current_index = tier_order.index(ranking.current_tier)
+            next_tier_name = tier_order[current_index + 1]
+            donations_to_next_tier = next_tier_donations[ranking.current_tier] - completed_donations
+        
+        context = {
+            'ranking': ranking,
+            'completed_donations': completed_donations,
+            'accessible_benefits': accessible_benefits,
+            'locked_benefits': locked_benefits,
+            'vouchers': vouchers,
+            'discount_rate': ranking.get_discount_rate(),
+            'donations_to_next_tier': donations_to_next_tier,
+            'next_tier_name': next_tier_name,
+        }
+        
+        return render(request, 'donations/my_rewards.html', context)
+        
+    except Exception as e:
+        print(f"Erreur my_rewards: {e}")
+        messages.error(request, "❌ Erreur lors du chargement des avantages.")
+        return redirect('donations:donor_dashboard')
+
+
+@login_required
+def manage_donor_rankings(request):
+    """Page de gestion des classements de donneurs (pour les hôpitaux)"""
+    try:
+        if request.user.user_type != 'hospital':
+            messages.error(request, "❌ Cette page est réservée aux hôpitaux.")
+            return redirect('donations:dashboard')
+        
+        from .models import DonorRanking
+        
+        # Récupérer tous les donneurs ayant fait au moins un don à cet hôpital
+        hospital_donors = DonationResponse.objects.filter(
+            blood_request__hospital=request.user,
+            status__in=['accepted', 'completed']
+        ).values_list('donor', flat=True).distinct()
+        
+        # Récupérer les classements de ces donneurs
+        rankings = DonorRanking.objects.filter(donor__in=hospital_donors).select_related('donor')
+        
+        context = {
+            'rankings': rankings,
+        }
+        
+        return render(request, 'donations/manage_donor_rankings.html', context)
+        
+    except Exception as e:
+        print(f"Erreur manage_donor_rankings: {e}")
+        messages.error(request, "❌ Erreur lors du chargement des classements.")
+        return redirect('donations:hospital_dashboard')
+
+
+@login_required
+def download_voucher_pdf(request, voucher_id):
+    """Générer et télécharger un bon de réduction en PDF"""
+    try:
+        from .models import DonorVoucher
+        from django.http import HttpResponse
+        from reportlab.lib.pagesizes import letter, A4
+        from reportlab.pdfgen import canvas
+        from reportlab.lib.units import cm
+        import io
+        
+        voucher = get_object_or_404(DonorVoucher, id=voucher_id, donor=request.user)
+        
+        # Créer le PDF en mémoire
+        buffer = io.BytesIO()
+        p = canvas.Canvas(buffer, pagesize=A4)
+        width, height = A4
+        
+        # En-tête
+        p.setFont("Helvetica-Bold", 24)
+        p.drawCentredString(width/2, height - 3*cm, "BON DE RÉDUCTION")
+        
+        p.setFont("Helvetica", 12)
+        p.drawCentredString(width/2, height - 4*cm, "Don Sang Plus - Système de Récompenses")
+        
+        # Ligne horizontale
+        p.line(3*cm, height - 4.5*cm, width - 3*cm, height - 4.5*cm)
+        
+        # Informations du donneur
+        y = height - 6*cm
+        p.setFont("Helvetica-Bold", 14)
+        p.drawString(3*cm, y, f"Donneur: {request.user.get_full_name()}")
+        
+        y -= 1*cm
+        p.setFont("Helvetica", 12)
+        p.drawString(3*cm, y, f"Groupe sanguin: {request.user.blood_type}")
+        
+        y -= 0.8*cm
+        ranking = request.user.ranking
+        p.drawString(3*cm, y, f"Niveau: {ranking.get_current_tier_display()} ({ranking.total_donations} dons)")
+        
+        # Code du bon
+        y -= 2*cm
+        p.setFont("Helvetica-Bold", 18)
+        p.setFillColorRGB(0.93, 0.27, 0.27)  # Rouge
+        p.drawCentredString(width/2, y, f"CODE: {voucher.voucher_code}")
+        
+        # Détails du bon
+        y -= 1.5*cm
+        p.setFillColorRGB(0, 0, 0)  # Noir
+        p.setFont("Helvetica-Bold", 16)
+        p.drawCentredString(width/2, y, f"RÉDUCTION: {voucher.discount_percentage}%")
+        
+        y -= 1.5*cm
+        p.setFont("Helvetica", 12)
+        p.drawString(3*cm, y, f"Hôpital: {voucher.hospital.hospital_name}")
+        
+        y -= 0.8*cm
+        p.drawString(3*cm, y, f"Valable jusqu'au: {voucher.valid_until.strftime('%d/%m/%Y')}")
+        
+        y -= 0.8*cm
+        status = "✓ Utilisé" if voucher.is_used else "✓ Valide"
+        p.drawString(3*cm, y, f"Statut: {status}")
+        
+        # Instructions
+        y -= 2*cm
+        p.setFont("Helvetica-Bold", 12)
+        p.drawString(3*cm, y, "INSTRUCTIONS:")
+        
+        y -= 0.7*cm
+        p.setFont("Helvetica", 10)
+        instructions = [
+            "1. Présentez ce bon lors de votre consultation à l'hôpital mentionné ci-dessus",
+            "2. Le bon doit être accompagné d'une pièce d'identité valide",
+            "3. La réduction s'applique sur les frais de consultation et soins",
+            "4. Non cumulable avec d'autres offres promotionnelles",
+            "5. Valable uniquement dans l'établissement émetteur"
+        ]
+        
+        for instruction in instructions:
+            p.drawString(3.5*cm, y, instruction)
+            y -= 0.6*cm
+        
+        # Pied de page
+        p.setFont("Helvetica-Oblique", 9)
+        p.drawCentredString(width/2, 2*cm, "Merci pour votre générosité ! Chaque don de sang sauve des vies.")
+        p.drawCentredString(width/2, 1.5*cm, f"Généré le {timezone.now().strftime('%d/%m/%Y à %H:%M')}")
+        
+        # Finaliser le PDF
+        p.showPage()
+        p.save()
+        
+        # Préparer la réponse HTTP
+        buffer.seek(0)
+        response = HttpResponse(buffer, content_type='application/pdf')
+        response['Content-Disposition'] = f'attachment; filename="bon_reduction_{voucher.voucher_code}.pdf"'
+        
+        return response
+        
+    except ImportError:
+        messages.error(request, "❌ La bibliothèque reportlab n'est pas installée. Contactez l'administrateur.")
+        return redirect('donations:my_rewards')
+    except Exception as e:
+        print(f"Erreur download_voucher_pdf: {e}")
+        messages.error(request, "❌ Erreur lors de la génération du PDF.")
+        return redirect('donations:my_rewards')
+
+
+@login_required
+def download_benefit_pdf(request, benefit_id):
+    """Télécharger un certificat de bénéfice en PDF"""
+    if request.user.user_type != 'donor':
+        messages.error(request, "❌ Accès réservé aux donneurs.")
+        return redirect('donations:donor_dashboard')
+    
+    try:
+        from reportlab.lib.pagesizes import A4
+        from reportlab.pdfgen import canvas
+        from reportlab.lib.units import cm
+        from io import BytesIO
+        
+        # Récupérer le bénéfice
+        benefit = get_object_or_404(HospitalBenefit, id=benefit_id, is_active=True)
+        
+        # Vérifier que le donneur a accès à ce bénéfice
+        ranking = DonorRanking.objects.get(donor=request.user)
+        tier_order = ['standard', 'bronze', 'silver', 'gold', 'platinum']
+        current_tier_index = tier_order.index(ranking.current_tier)
+        benefit_tier_index = tier_order.index(benefit.minimum_tier)
+        
+        if benefit_tier_index > current_tier_index:
+            messages.error(request, "❌ Vous n'avez pas accès à ce bénéfice.")
+            return redirect('donations:my_rewards')
+        
+        # Créer le PDF
+        buffer = BytesIO()
+        p = canvas.Canvas(buffer, pagesize=A4)
+        width, height = A4
+        
+        # En-tête
+        p.setFillColorRGB(0.93, 0.27, 0.27)  # Rouge
+        p.rect(0, height - 3*cm, width, 3*cm, fill=True, stroke=False)
+        
+        p.setFillColorRGB(1, 1, 1)  # Blanc
+        p.setFont("Helvetica-Bold", 24)
+        p.drawCentredString(width/2, height - 2*cm, "CERTIFICAT DE BÉNÉFICE")
+        
+        # Informations du donneur
+        y = height - 5*cm
+        p.setFillColorRGB(0, 0, 0)  # Noir
+        p.setFont("Helvetica-Bold", 14)
+        p.drawString(3*cm, y, "DONNEUR")
+        
+        y -= 1*cm
+        p.setFont("Helvetica", 12)
+        p.drawString(3*cm, y, f"Nom: {request.user.get_full_name()}")
+        
+        y -= 0.8*cm
+        p.drawString(3*cm, y, f"Groupe sanguin: {request.user.blood_type}")
+        
+        y -= 0.8*cm
+        p.drawString(3*cm, y, f"Niveau: {ranking.get_current_tier_display()} ({ranking.total_donations} dons)")
+        
+        # Détails du bénéfice
+        y -= 2*cm
+        p.setFont("Helvetica-Bold", 14)
+        p.drawString(3*cm, y, "BÉNÉFICE")
+        
+        y -= 1*cm
+        p.setFont("Helvetica-Bold", 16)
+        p.setFillColorRGB(0.93, 0.27, 0.27)  # Rouge
+        p.drawString(3*cm, y, benefit.title)
+        
+        y -= 1.2*cm
+        p.setFillColorRGB(0, 0, 0)  # Noir
+        p.setFont("Helvetica", 11)
+        # Découper la description en lignes
+        description_lines = []
+        words = benefit.description.split()
+        current_line = ""
+        for word in words:
+            if len(current_line + word) < 70:
+                current_line += word + " "
+            else:
+                description_lines.append(current_line.strip())
+                current_line = word + " "
+        if current_line:
+            description_lines.append(current_line.strip())
+        
+        for line in description_lines:
+            p.drawString(3*cm, y, line)
+            y -= 0.6*cm
+        
+        # Réduction
+        y -= 1*cm
+        p.setFont("Helvetica-Bold", 18)
+        p.setFillColorRGB(0.13, 0.55, 0.13)  # Vert
+        p.drawCentredString(width/2, y, f"RÉDUCTION: {benefit.discount_percentage}%")
+        
+        # Hôpital
+        y -= 1.5*cm
+        p.setFillColorRGB(0, 0, 0)  # Noir
+        p.setFont("Helvetica", 12)
+        p.drawString(3*cm, y, f"🏥 Établissement: {benefit.hospital.hospital_name}")
+        
+        y -= 0.8*cm
+        p.drawString(3*cm, y, f"📍 Ville: {benefit.hospital.city}")
+        
+        y -= 0.8*cm
+        p.drawString(3*cm, y, f"📱 Téléphone: {benefit.hospital.phone}")
+        
+        # Instructions
+        y -= 2*cm
+        p.setFont("Helvetica-Bold", 12)
+        p.drawString(3*cm, y, "COMMENT UTILISER CE BÉNÉFICE:")
+        
+        y -= 0.8*cm
+        p.setFont("Helvetica", 10)
+        instructions = [
+            "1. Présentez ce certificat lors de votre visite à l'hôpital",
+            "2. Munissez-vous d'une pièce d'identité valide",
+            "3. Mentionnez votre statut de donneur de sang régulier",
+            "4. La réduction s'applique selon les termes de l'établissement",
+            "5. Conservez ce document pour vos futures visites"
+        ]
+        
+        for instruction in instructions:
+            p.drawString(3.5*cm, y, instruction)
+            y -= 0.6*cm
+        
+        # Cadre de validité
+        y -= 1*cm
+        p.setStrokeColorRGB(0.93, 0.27, 0.27)
+        p.setLineWidth(2)
+        p.rect(3*cm, y - 2*cm, width - 6*cm, 2*cm, fill=False, stroke=True)
+        
+        p.setFillColorRGB(0, 0, 0)
+        p.setFont("Helvetica-Bold", 11)
+        p.drawCentredString(width/2, y - 0.8*cm, f"✓ Niveau minimum requis: {benefit.get_minimum_tier_display()}")
+        p.setFont("Helvetica", 10)
+        p.drawCentredString(width/2, y - 1.4*cm, "Ce certificat est valable tant que vous maintenez votre niveau de donneur")
+        
+        # Pied de page
+        p.setFont("Helvetica-Oblique", 9)
+        p.setFillColorRGB(0.5, 0.5, 0.5)
+        p.drawCentredString(width/2, 2.5*cm, "🩸 Merci pour votre engagement ! Chaque don de sang sauve des vies.")
+        p.drawCentredString(width/2, 2*cm, f"Certificat généré le {timezone.now().strftime('%d/%m/%Y à %H:%M')}")
+        p.drawCentredString(width/2, 1.5*cm, f"Don Sang Plus - {benefit.hospital.hospital_name}")
+        
+        # Finaliser le PDF
+        p.showPage()
+        p.save()
+        
+        # Préparer la réponse HTTP
+        buffer.seek(0)
+        response = HttpResponse(buffer, content_type='application/pdf')
+        filename = f"benefice_{benefit.hospital.hospital_name.replace(' ', '_')}_{benefit.id}.pdf"
+        response['Content-Disposition'] = f'attachment; filename="{filename}"'
+        
+        return response
+        
+    except DonorRanking.DoesNotExist:
+        messages.error(request, "❌ Vous devez d'abord effectuer un don pour accéder aux bénéfices.")
+        return redirect('donations:my_rewards')
+    except ImportError:
+        messages.error(request, "❌ La bibliothèque reportlab n'est pas installée. Contactez l'administrateur.")
+        return redirect('donations:my_rewards')
+    except Exception as e:
+        print(f"Erreur download_benefit_pdf: {e}")
+        messages.error(request, "❌ Erreur lors de la génération du PDF.")
+        return redirect('donations:my_rewards')
+
+
+@login_required
+@user_passes_test(is_hospital)
+def view_donor_profile(request, donor_id):
+    """Vue pour afficher le profil détaillé d'un donneur"""
+    try:
+        donor = get_object_or_404(User, id=donor_id, user_type='donor')
+        ranking, _ = DonorRanking.objects.get_or_create(donor=donor)
+        availability, _ = DonorAvailability.objects.get_or_create(donor=donor)
+        
+        # Historique des dons de ce donneur pour cet hôpital
+        donations_to_hospital = DonationResponse.objects.filter(
+            donor=donor,
+            blood_request__hospital=request.user,
+            status='completed'
+        ).select_related('blood_request').order_by('-response_date')
+        
+        # Tous les dons complétés
+        all_completed_donations = DonationResponse.objects.filter(
+            donor=donor,
+            status='completed'
+        ).count()
+        
+        # Bons créés pour ce donneur par cet hôpital
+        vouchers = DonorVoucher.objects.filter(
+            donor=donor,
+            hospital=request.user
+        ).order_by('-created_at')
+        
+        context = {
+            'donor': donor,
+            'ranking': ranking,
+            'availability': availability,
+            'donations_to_hospital': donations_to_hospital,
+            'all_completed_donations': all_completed_donations,
+            'vouchers': vouchers,
+        }
+        
+        return render(request, 'donations/donor_profile_view.html', context)
+        
+    except Exception as e:
+        print(f"Erreur view_donor_profile: {e}")
+        messages.error(request, "❌ Erreur lors du chargement du profil.")
+        return redirect('donations:manage_donor_rankings')
+
+
+@login_required
+@user_passes_test(is_hospital)
+def create_voucher_for_donor(request, donor_id):
+    """Créer manuellement un bon de réduction pour un donneur"""
+    try:
+        donor = get_object_or_404(User, id=donor_id, user_type='donor')
+        ranking, _ = DonorRanking.objects.get_or_create(donor=donor)
+        
+        if request.method == 'POST':
+            discount_percentage = request.POST.get('discount_percentage', ranking.get_discount_rate())
+            valid_days = int(request.POST.get('valid_days', 365))
+            custom_message = request.POST.get('message', '')
+            
+            # Générer un code unique
+            import random, string
+            voucher_code = ''.join(random.choices(string.ascii_uppercase + string.digits, k=8))
+            valid_until = timezone.now().date() + timezone.timedelta(days=valid_days)
+            
+            # Créer le bon
+            voucher = DonorVoucher.objects.create(
+                donor=donor,
+                hospital=request.user,
+                voucher_code=voucher_code,
+                discount_percentage=int(discount_percentage),
+                valid_until=valid_until
+            )
+            
+            # Envoyer une notification au donneur via le chat
+            # Trouver une réponse de donation active ou la dernière
+            latest_response = DonationResponse.objects.filter(
+                donor=donor,
+                blood_request__hospital=request.user
+            ).order_by('-response_date').first()
+            
+            if latest_response:
+                message_text = custom_message if custom_message else (
+                    f"🎁 Vous avez reçu un nouveau bon de réduction de {discount_percentage}% ! "
+                    f"Code: {voucher_code}. Valable jusqu'au {valid_until.strftime('%d/%m/%Y')}. "
+                    f"Rendez-vous dans 'Mes Avantages' pour le consulter."
+                )
+                
+                ChatMessage.objects.create(
+                    donation_response=latest_response,
+                    sender=request.user,
+                    message=message_text,
+                    is_read=False
+                )
+            
+            messages.success(request, 
+                f"✅ Bon de réduction créé avec succès pour {donor.get_full_name()}. "
+                f"Code: {voucher_code}")
+            return redirect('donations:manage_donor_rankings')
+        
+        # Afficher le formulaire
+        context = {
+            'donor': donor,
+            'ranking': ranking,
+            'default_discount': ranking.get_discount_rate(),
+        }
+        return render(request, 'donations/create_voucher_form.html', context)
+        
+    except Exception as e:
+        print(f"Erreur create_voucher_for_donor: {e}")
+        messages.error(request, "❌ Erreur lors de la création du bon.")
+        return redirect('donations:manage_donor_rankings')

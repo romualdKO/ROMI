@@ -10,8 +10,16 @@
     <link rel="stylesheet" href="{% static 'css/modern-design.css' %}">
 </head>
 <body>
+    <!-- Mobile Menu Toggle -->
+    <button class="mobile-menu-toggle" onclick="toggleMobileSidebar()" aria-label="Menu">
+        <i class="fas fa-bars"></i>
+    </button>
+    
+    <!-- Sidebar Overlay (pour fermer en cliquant à l'extérieur) -->
+    <div class="sidebar-overlay" onclick="toggleMobileSidebar()"></div>
+    
     <!-- Sidebar -->
-    <div class="modern-sidebar">
+    <div class="modern-sidebar" id="mobileSidebar">
         <!-- Logo -->
         <div class="sidebar-logo">
             <div class="sidebar-logo-icon">
@@ -40,6 +48,10 @@
             <a href="{% url 'donations:donor_history' %}" class="sidebar-nav-item">
                 <i class="fas fa-history sidebar-nav-icon"></i>
                 Historique
+            </a>
+            <a href="{% url 'donations:my_rewards' %}" class="sidebar-nav-item">
+                <i class="fas fa-trophy sidebar-nav-icon"></i>
+                Mes Avantages
             </a>
             <a href="{% url 'donations:update_availability' %}" class="sidebar-nav-item">
                 <i class="fas fa-calendar-check sidebar-nav-icon"></i>
@@ -118,7 +130,7 @@
                     </div>
                 </div>
                 
-                <div class="topbar-user">
+                <a href="{% url 'donations:edit_profile' %}" class="topbar-user" style="text-decoration: none; color: inherit; transition: transform 0.2s ease;">
                     <div class="user-avatar">
                         {{ user.first_name.0|default:"U" }}{{ user.last_name.0|default:"" }}
                     </div>
@@ -126,7 +138,7 @@
                         <div class="user-name">{{ user.get_full_name|default:user.username }}</div>
                         <div class="user-role">Donneur ({{ donor_blood_type }})</div>
                     </div>
-                </div>
+                </a>
             </div>
         </div>
 
@@ -142,6 +154,25 @@
                         <div class="alert-modern-content">{{ message }}</div>
                     </div>
                 {% endfor %}
+            {% endif %}
+
+            <!-- Alerte Indisponibilité -->
+            {% if not can_respond_to_requests %}
+            <div class="alert-modern warning" style="background: #FEF3C7; border-left: 4px solid #F59E0B;">
+                <div class="alert-modern-icon" style="background: #FDE68A; color: #92400E;">
+                    <i class="fas fa-exclamation-triangle"></i>
+                </div>
+                <div class="alert-modern-content">
+                    <div class="alert-modern-title" style="color: #92400E; font-weight: 700;">🩸 Période de repos après don de sang</div>
+                    <p style="color: #92400E; margin-bottom: 0.5rem;">
+                        Pour votre santé, vous ne pouvez pas donner à nouveau avant le <strong>{{ availability.next_available_date|date:"d/m/Y" }}</strong> 
+                        (dans {{ availability.next_available_date|timeuntil }}).
+                    </p>
+                    <p style="color: #78350F; font-size: 0.9rem; margin: 0;">
+                        {{ availability.notes }}
+                    </p>
+                </div>
+            </div>
             {% endif %}
 
             <!-- Messages non lus -->
@@ -324,10 +355,17 @@
                                 <td>{{ request.created_at|date:"d/m/Y" }}</td>
                                 <td>
                                     <div style="display: flex; gap: 8px;">
+                                        {% if can_respond_to_requests %}
                                         <a href="{% url 'donations:quick_donate' request.id %}" class="btn-modern btn-modern-primary btn-modern-sm" title="Je veux donner mon sang">
                                             <i class="fas fa-heart"></i>
                                             Je veux donner
                                         </a>
+                                        {% else %}
+                                        <button disabled class="btn-modern btn-modern-sm" style="background: #9CA3AF; cursor: not-allowed; opacity: 0.6;" title="Vous ne pouvez pas donner avant le {{ availability.next_available_date|date:'d/m/Y' }}">
+                                            <i class="fas fa-heart"></i>
+                                            Indisponible
+                                        </button>
+                                        {% endif %}
                                         <a href="{% url 'donations:request_detail' request.id %}" class="btn-modern btn-modern-secondary btn-modern-sm" title="Voir les détails">
                                             <i class="fas fa-eye"></i>
                                             Détails
@@ -618,6 +656,31 @@
                 item.classList.remove('active');
                 if (item.getAttribute('href') === `#${current}`) {
                     item.classList.add('active');
+                }
+            });
+        });
+        
+        // ✅ FONCTION POUR TOGGLE LE SIDEBAR MOBILE
+        function toggleMobileSidebar() {
+            const sidebar = document.getElementById('mobileSidebar');
+            const overlay = document.querySelector('.sidebar-overlay');
+            
+            sidebar.classList.toggle('open');
+            overlay.classList.toggle('active');
+            
+            // Empêcher le scroll du body quand le menu est ouvert
+            if (sidebar.classList.contains('open')) {
+                document.body.style.overflow = 'hidden';
+            } else {
+                document.body.style.overflow = '';
+            }
+        }
+        
+        // Fermer le sidebar en cliquant sur un lien
+        document.querySelectorAll('.sidebar-nav-item').forEach(item => {
+            item.addEventListener('click', () => {
+                if (window.innerWidth <= 768) {
+                    toggleMobileSidebar();
                 }
             });
         });

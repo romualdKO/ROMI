@@ -32,16 +32,19 @@ ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='localhost,127.0.0.1').split(','
 # Application definition
 
 INSTALLED_APPS = [
+    # Vos apps en premier (priorité sur les templates Django admin)
+    'accounts',
+    'donations',
+    'hospitals',
+    'widget_tweaks',
+    
+    # Apps Django par défaut
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-     'accounts',
-    'donations',
-    'hospitals',
-    'widget_tweaks',
 ]
 # Ajouter ces configurations
 # LOGIN_REDIRECT_URL = 'dashboard'  # Désactivé - la redirection est gérée dans custom_login
@@ -88,23 +91,23 @@ WSGI_APPLICATION = 'dont_sang_plus.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
-# Using SQLite for development (PostgreSQL config commented out)
+# ✅ PostgreSQL configuration (ACTIVE)
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': config('DB_NAME'),
+        'USER': config('DB_USER'),
+        'PASSWORD': config('DB_PASSWORD'),
+        'HOST': config('DB_HOST', default='localhost'),
+        'PORT': config('DB_PORT', default='5432'),
     }
 }
 
-# PostgreSQL configuration (uncomment to use PostgreSQL)
+# SQLite configuration (désactivée - backup)
 # DATABASES = {
 #     'default': {
-#         'ENGINE': 'django.db.backends.postgresql',
-#         'NAME': config('DB_NAME'),
-#         'USER': config('DB_USER'),
-#         'PASSWORD': config('DB_PASSWORD'),
-#         'HOST': config('DB_HOST', default='localhost'),
-#         'PORT': config('DB_PORT', default='5432'),
+#         'ENGINE': 'django.db.backends.sqlite3',
+#         'NAME': BASE_DIR / 'db.sqlite3',
 #     }
 # }
 
@@ -150,7 +153,10 @@ STATICFILES_DIRS = [ BASE_DIR / "static" ]
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-
+# Session Configuration - Force logout on browser close
+SESSION_EXPIRE_AT_BROWSER_CLOSE = True
+SESSION_COOKIE_AGE = 3600  # 1 heure d'inactivité max
+SESSION_SAVE_EVERY_REQUEST = True  # Renouvelle la session à chaque requête
 
 # Ajoutez ces configurations
 MEDIA_URL = '/media/'
@@ -162,13 +168,18 @@ os.makedirs(MEDIA_ROOT, exist_ok=True)
 # ...existing code...
 
 # Email configuration pour le reset password
-# Configuration Email avec Gmail
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+# Configuration Email - Utilise les vraies emails si configuré, sinon mode console
 EMAIL_HOST = config('EMAIL_HOST', default='smtp.gmail.com')
 EMAIL_PORT = config('EMAIL_PORT', default=587, cast=int)
 EMAIL_USE_TLS = config('EMAIL_USE_TLS', default=True, cast=bool)
-EMAIL_HOST_USER = config('EMAIL_HOST_USER')
-EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD')
-DEFAULT_FROM_EMAIL = 'Don Sang Plus <{}>'.format(config('EMAIL_HOST_USER'))
-SERVER_EMAIL = config('EMAIL_HOST_USER')
-ADMIN_EMAIL = config('EMAIL_HOST_USER')
+EMAIL_HOST_USER = config('EMAIL_HOST_USER', default='')
+EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD', default='')
+DEFAULT_FROM_EMAIL = config('DEFAULT_FROM_EMAIL', default='noreply@dontsangplus.com')
+SERVER_EMAIL = config('EMAIL_HOST_USER', default='noreply@dontsangplus.com')
+ADMIN_EMAIL = config('EMAIL_HOST_USER', default='admin@dontsangplus.com')
+
+# Si EMAIL_HOST_USER est configuré, utilise SMTP, sinon mode console (développement)
+if EMAIL_HOST_USER:
+    EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+else:
+    EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'  # Affiche dans terminal

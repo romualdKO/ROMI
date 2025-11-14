@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mes Avantages & Récompenses - Don Sang Plus</title>
+    {% load static %}
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="{% static 'css/modern-design.css' %}">
+    <style>
+        .rewards-header {
+            background: linear-gradient(135deg, #EF4444, #DC2626);
+            color: white;
+            padding: 2rem;
+            border-radius: 16px;
+            margin-bottom: 2rem;
+        }
+        
+        .tier-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1.5rem;
+            border-radius: 24px;
+            font-weight: 700;
+            font-size: 1.1rem;
+            margin-top: 1rem;
+        }
+        
+        .tier-standard { background: #9CA3AF; color: white; }
+        .tier-bronze { background: linear-gradient(135deg, #CD7F32, #B87333); color: white; }
+        .tier-silver { background: linear-gradient(135deg, #C0C0C0, #A8A8A8); color: white; }
+        .tier-gold { background: linear-gradient(135deg, #FFD700, #FFC700); color: #1e293b; }
+        .tier-platinum { background: linear-gradient(135deg, #E5E4E2, #BCC6CC); color: #1e293b; }
+        
+        .progress-section {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            margin-bottom: 2rem;
+        }
+        
+        .progress-bar-custom {
+            height: 24px;
+            border-radius: 12px;
+            background: #E5E7EB;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #EF4444, #F87171);
+            transition: width 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 700;
+            font-size: 0.85rem;
+        }
+        
+        .benefit-card {
+            background: white;
+            border-radius: 16px;
+            padding: 1.5rem;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+            transition: all 0.3s ease;
+            margin-bottom: 1.5rem;
+        }
+        
+        .benefit-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+        }
+        
+        .benefit-card.locked {
+            opacity: 0.6;
+            background: #F9FAFB;
+            position: relative;
+        }
+        
+        .benefit-card.locked::after {
+            content: '🔒';
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            font-size: 1.5rem;
+        }
+        
+        .benefit-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 1rem;
+        }
+        
+        .benefit-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+        }
+        
+        .discount-badge {
+            background: linear-gradient(135deg, #10B981, #059669);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 12px;
+            font-weight: 700;
+            font-size: 1.2rem;
+        }
+        
+        .voucher-card {
+            background: linear-gradient(135deg, #FEF3C7, #FDE68A);
+            border-left: 4px solid #F59E0B;
+            padding: 1.5rem;
+            border-radius: 12px;
+            margin-bottom: 1.5rem;
+            position: relative;
+        }
+        
+        .voucher-code {
+            font-family: 'Courier New', monospace;
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: #92400E;
+            background: white;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            display: inline-block;
+            margin: 0.5rem 0;
+        }
+        
+        .voucher-status {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+        }
+        
+        .stats-mini-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+        
+        .stat-mini-card {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 1rem;
+            border-radius: 12px;
+            text-align: center;
+        }
+        
+        .stat-mini-value {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 0.25rem;
+        }
+        
+        .stat-mini-label {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+    </style>
+</head>
+<body>
+    <!-- Mobile Menu Toggle -->
+    <button class="mobile-menu-toggle" onclick="toggleMobileSidebar()" aria-label="Menu">
+        <i class="fas fa-bars"></i>
+    </button>
+    
+    <!-- Sidebar Overlay -->
+    <div class="sidebar-overlay" onclick="toggleMobileSidebar()"></div>
+    
+    <!-- Sidebar -->
+    <div class="modern-sidebar" id="mobileSidebar">
+        <div class="sidebar-logo">
+            <div class="sidebar-logo-icon">
+                <i class="fas fa-heart-pulse"></i>
+            </div>
+            <div class="sidebar-logo-text">Don Sang Plus</div>
+        </div>
+
+        <nav class="sidebar-nav">
+            <a href="{% url 'donations:donor_dashboard' %}" class="sidebar-nav-item">
+                <i class="fas fa-home sidebar-nav-icon"></i>
+                Dashboard
+            </a>
+            <a href="{% url 'donations:donor_dashboard' %}#requests-section" class="sidebar-nav-item">
+                <i class="fas fa-heart sidebar-nav-icon"></i>
+                Demandes
+            </a>
+            <a href="{% url 'donations:donor_messages' %}" class="sidebar-nav-item">
+                <i class="fas fa-envelope sidebar-nav-icon"></i>
+                Messages
+            </a>
+            <a href="{% url 'donations:donor_history' %}" class="sidebar-nav-item">
+                <i class="fas fa-history sidebar-nav-icon"></i>
+                Historique
+            </a>
+            <a href="{% url 'donations:update_availability' %}" class="sidebar-nav-item">
+                <i class="fas fa-calendar-check sidebar-nav-icon"></i>
+                Disponibilité
+            </a>
+            <a href="{% url 'donations:my_rewards' %}" class="sidebar-nav-item active">
+                <i class="fas fa-gift sidebar-nav-icon"></i>
+                Mes Avantages
+            </a>
+            <a href="{% url 'donations:edit_profile' %}" class="sidebar-nav-item">
+                <i class="fas fa-user-edit sidebar-nav-icon"></i>
+                Profil
+            </a>
+        </nav>
+
+        <div class="sidebar-footer">
+            <a href="{% url 'accounts:logout' %}" class="sidebar-nav-item" style="color: var(--danger-red);">
+                <i class="fas fa-sign-out-alt sidebar-nav-icon"></i>
+                Déconnexion
+            </a>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="modern-main-content">
+        <!-- Top Bar -->
+        <div class="modern-topbar">
+            <div>
+                <div class="topbar-title">
+                    <i class="fas fa-gift"></i> Mes Avantages & Récompenses
+                </div>
+                <div class="topbar-subtitle">Profitez de vos réductions grâce à votre générosité</div>
+            </div>
+            <div class="topbar-actions">
+               
+                
+                <a href="{% url 'donations:edit_profile' %}" class="topbar-user" style="text-decoration: none; color: inherit; transition: transform 0.2s ease;">
+                    <div class="user-avatar">
+                        {{ user.first_name.0|default:"U" }}{{ user.last_name.0|default:"" }}
+                    </div>
+                    <div class="user-info">
+                        <div class="user-name">{{ user.get_full_name|default:user.username }}</div>
+                        <div class="user-role">Donneur ({{ user.blood_type }})</div>
+                    </div>
+                </a>
+            </div>
+        </div>
+
+        <!-- Content -->
+        <div class="container-modern">
+            <!-- En-tête avec statut -->
+            <div class="rewards-header">
+                <div style="display: flex; justify-content: space-between; align-items: start; flex-wrap: wrap; gap: 2rem;">
+                    <div style="flex: 1; min-width: 300px;">
+                        <h2 style="margin-bottom: 0.5rem;">{{ user.get_full_name }}</h2>
+                        <p style="opacity: 0.9; margin-bottom: 1rem;">Donneur Généreux</p>
+                        
+                        <div class="tier-badge tier-{{ ranking.current_tier }}">
+                            {% if ranking.current_tier == 'platinum' %}
+                            <i class="fas fa-crown"></i> PLATINE
+                            {% elif ranking.current_tier == 'gold' %}
+                            <i class="fas fa-medal"></i> OR
+                            {% elif ranking.current_tier == 'silver' %}
+                            <i class="fas fa-award"></i> ARGENT
+                            {% elif ranking.current_tier == 'bronze' %}
+                            <i class="fas fa-certificate"></i> BRONZE
+                            {% else %}
+                            <i class="fas fa-star"></i> STANDARD
+                            {% endif %}
+                        </div>
+                        
+                        <div class="stats-mini-grid">
+                            <div class="stat-mini-card">
+                                <div class="stat-mini-value">{{ completed_donations }}</div>
+                                <div class="stat-mini-label">Dons effectués</div>
+                            </div>
+                            <div class="stat-mini-card">
+                                <div class="stat-mini-value">{{ discount_rate }}%</div>
+                                <div class="stat-mini-label">Réduction</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div style="text-align: right;">
+                        <img src="https://api.dicebear.com/7.x/avataaars/svg?seed={{ user.username }}" alt="Avatar" style="width: 120px; height: 120px; border-radius: 50%; border: 4px solid white; box-shadow: 0 4px 12px rgba(0,0,0,0.2);">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Progression vers le prochain niveau -->
+            {% if donations_to_next_tier %}
+            <div class="progress-section">
+                <h4 style="margin-bottom: 1rem;">
+                    <i class="fas fa-chart-line" style="color: var(--primary-red);"></i>
+                    Progression vers {{ next_tier_name|upper }}
+                </h4>
+                <p style="color: var(--text-gray); margin-bottom: 1rem;">
+                    Plus que <strong>{{ donations_to_next_tier }} don(s)</strong> pour atteindre le niveau suivant !
+                </p>
+                <div class="progress-bar-custom">
+                    <div class="progress-fill" style="width: {% widthratio completed_donations 1 100 %}%;">
+                        {{ completed_donations }} dons
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Avantages disponibles -->
+            <div style="margin-bottom: 3rem;">
+                <h3 style="margin-bottom: 1.5rem;">
+                    <i class="fas fa-check-circle" style="color: var(--success-green);"></i>
+                    Avantages Accessibles ({{ accessible_benefits|length }})
+                </h3>
+                
+                {% if accessible_benefits %}
+                <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(350px, 1fr)); gap: 1.5rem;">
+                    {% for benefit in accessible_benefits %}
+                    <div class="benefit-card">
+                        <div class="benefit-icon" style="background: linear-gradient(135deg, #EF4444, #DC2626); color: white;">
+                            <i class="fas fa-hospital"></i>
+                        </div>
+                        
+                        <div class="benefit-header">
+                            <div style="flex: 1;">
+                                <h5 style="margin-bottom: 0.5rem; color: var(--text-dark);">{{ benefit.title }}</h5>
+                                <p style="font-size: 0.9rem; color: var(--text-gray); margin-bottom: 1rem;">
+                                    {{ benefit.hospital.hospital_name }}
+                                </p>
+                            </div>
+                            <div class="discount-badge">
+                                {{ benefit.discount_percentage }}%
+                            </div>
+                        </div>
+                        
+                        <p style="color: var(--text-gray); margin-bottom: 1rem;">
+                            {{ benefit.description }}
+                        </p>
+                        
+                        <div style="display: flex; align-items: center; gap: 0.5rem; padding: 0.75rem; background: #F0FDF4; border-radius: 8px; margin-bottom: 1rem;">
+                            <i class="fas fa-check" style="color: #10B981;"></i>
+                            <span style="font-size: 0.9rem; color: #065F46; font-weight: 600;">
+                                Niveau minimum: {{ benefit.get_minimum_tier_display }}
+                            </span>
+                        </div>
+                        
+                        <a href="{% url 'donations:download_benefit_pdf' benefit.id %}" class="btn-modern btn-modern-primary" style="width: 100%; display: flex; align-items: center; justify-content: center; gap: 0.5rem; text-decoration: none;">
+                            <i class="fas fa-download"></i>
+                            Télécharger le certificat PDF
+                        </a>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div style="text-align: center; padding: 3rem; background: #F9FAFB; border-radius: 12px;">
+                    <i class="fas fa-gift" style="font-size: 3rem; color: #9CA3AF; margin-bottom: 1rem;"></i>
+                    <p style="color: var(--text-gray);">Aucun avantage accessible pour le moment</p>
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- Avantages verrouillés -->
+            {% if locked_benefits %}
+            <div style="margin-bottom: 3rem;">
+                <h3 style="margin-bottom: 1.5rem;">
+                    <i class="fas fa-lock" style="color: #9CA3AF;"></i>
+                    Avantages à Débloquer ({{ locked_benefits|length }})
+                </h3>
+                
+                <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(350px, 1fr)); gap: 1.5rem;">
+                    {% for benefit in locked_benefits %}
+                    <div class="benefit-card locked">
+                        <div class="benefit-icon" style="background: #E5E7EB; color: #6B7280;">
+                            <i class="fas fa-hospital"></i>
+                        </div>
+                        
+                        <div class="benefit-header">
+                            <div style="flex: 1;">
+                                <h5 style="margin-bottom: 0.5rem; color: var(--text-dark);">{{ benefit.title }}</h5>
+                                <p style="font-size: 0.9rem; color: var(--text-gray); margin-bottom: 1rem;">
+                                    {{ benefit.hospital.hospital_name }}
+                                </p>
+                            </div>
+                            <div class="discount-badge" style="background: #9CA3AF;">
+                                {{ benefit.discount_percentage }}%
+                            </div>
+                        </div>
+                        
+                        <p style="color: var(--text-gray); margin-bottom: 1rem;">
+                            {{ benefit.description }}
+                        </p>
+                        
+                        <div style="display: flex; align-items: center; gap: 0.5rem; padding: 0.75rem; background: #FEE2E2; border-radius: 8px;">
+                            <i class="fas fa-lock" style="color: #DC2626;"></i>
+                            <span style="font-size: 0.9rem; color: #991B1B; font-weight: 600;">
+                                Nécessite le niveau {{ benefit.get_minimum_tier_display }}
+                            </span>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Mes bons de réduction -->
+            <div>
+                <h3 style="margin-bottom: 1.5rem;">
+                    <i class="fas fa-ticket-alt" style="color: #F59E0B;"></i>
+                    Mes Bons de Réduction ({{ vouchers|length }})
+                </h3>
+                
+                {% if vouchers %}
+                    {% for voucher in vouchers %}
+                    <div class="voucher-card">
+                        <div class="voucher-status">
+                            {% if voucher.is_used %}
+                            <span class="badge-modern" style="background: #9CA3AF; color: white;">Utilisé</span>
+                            {% elif voucher.is_valid %}
+                            <span class="badge-modern" style="background: #10B981; color: white;">✓ Valide</span>
+                            {% else %}
+                            <span class="badge-modern" style="background: #EF4444; color: white;">Expiré</span>
+                            {% endif %}
+                        </div>
+                        
+                        <h5 style="margin-bottom: 0.5rem; color: #92400E;">{{ voucher.hospital.hospital_name }}</h5>
+                        <p style="color: #92400E; margin-bottom: 1rem;">Réduction de {{ voucher.discount_percentage }}%</p>
+                        
+                        <div class="voucher-code">
+                            {{ voucher.voucher_code }}
+                        </div>
+                        
+                        <p style="font-size: 0.9rem; color: #78350F; margin-top: 1rem; margin-bottom: 1rem;">
+                            <i class="fas fa-calendar"></i> Valable jusqu'au {{ voucher.valid_until|date:"d/m/Y" }}
+                        </p>
+                        
+                        {% if voucher.is_valid %}
+                        <a href="{% url 'donations:download_voucher_pdf' voucher.id %}" class="btn-modern btn-modern-primary" style="display: inline-flex; align-items: center; gap: 8px;">
+                            <i class="fas fa-download"></i>
+                            Télécharger le bon PDF
+                        </a>
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+                {% else %}
+                <div style="text-align: center; padding: 3rem; background: #FEF3C7; border-radius: 12px;">
+                    <i class="fas fa-ticket-alt" style="font-size: 3rem; color: #F59E0B; margin-bottom: 1rem;"></i>
+                    <p style="color: #92400E; font-weight: 600;">Aucun bon de réduction pour le moment</p>
+                    <p style="color: #78350F; font-size: 0.9rem;">Continuez à donner votre sang pour recevoir des bons !</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        function toggleMobileSidebar() {
+            const sidebar = document.getElementById('mobileSidebar');
+            const overlay = document.querySelector('.sidebar-overlay');
+            sidebar.classList.toggle('active');
+            overlay.classList.toggle('active');
+        }
+    </script>
+</body>
+</html>

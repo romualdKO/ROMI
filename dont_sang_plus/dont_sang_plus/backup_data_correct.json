@@ -1,0 +1,591 @@
+[
+{
+  "model": "sessions.session",
+  "pk": "d6br4wrfus48zqtkx0nn1g7v5nvfqnn3",
+  "fields": {
+    "session_data": ".eJxVy0EKwjAQheG7ZC1lJiTN1KXgOcLMZCRFrWCalXh3LXSh2--9_-Uy97Xm3uyZ5-KOzoM7_KKwXm3ZFlZ99GVtw05tON95vp32w19VudVvAoRRiTmpGoQigVBJA5IvzDbGlCIUw4uK19FkgkCGMkmBDQK49wd6tjSR:1v963C:KELwwe0scs5hI5dOICJ02D2BuLUU83W9UVCCeKlB1Jk",
+    "expire_date": "2025-10-29T18:16:38.205Z"
+  }
+},
+{
+  "model": "sessions.session",
+  "pk": "ra8n31f5no5tscan3cgcvdlxrj51pc6v",
+  "fields": {
+    "session_data": ".eJxVy0EKwjAQheG7ZC1lJiTN1KXgOcLMZCRFrWCalXh3LXSh2--9_-Uy97Xm3uyZ5-KOzoM7_KKwXm3ZFlZ99GVtw05tON95vp32w19VudVvAoRRiTmpGoQigVBJA5IvzDbGlCIUw4uK19FkgkCGMkmBDQK49wd6tjSR:1vFt1s:Jw7yO9mpJf0irgHRru-cn7iwn5I_t4ufyPQ11YRnV2k",
+    "expire_date": "2025-11-17T11:47:20.863Z"
+  }
+},
+{
+  "model": "sessions.session",
+  "pk": "x4f7rhv1x9ga3781275p32w9c9tvgnwa",
+  "fields": {
+    "session_data": ".eJxVy0EKwjAQheG7ZC1lJiTN1KXgOcLMZCRFrWCalXh3LXSh2--9_-Uy97Xm3uyZ5-KOzoM7_KKwXm3ZFlZ99GVtw05tON95vp32w19VudVvAoRRiTmpGoQigVBJA5IvzDbGlCIUw4uK19FkgkCGMkmBDQK49wd6tjSR:1vFgED:8iEXVe5vkwLlPzmwapuI-icEMSAPKTOvUISbDGUqIbA",
+    "expire_date": "2025-11-16T22:07:13.523Z"
+  }
+},
+{
+  "model": "sessions.session",
+  "pk": "zjqwlecgj8xhmh9uoq21qdx7dhxtoveb",
+  "fields": {
+    "session_data": ".eJxVy0EKwjAQheG7ZC1lJiTN1KXgOcLMZCRFrWCalXh3LXSh2--9_-Uy97Xm3uyZ5-KOzoM7_KKwXm3ZFlZ99GVtw05tON95vp32w19VudVvAoRRiTmpGoQigVBJA5IvzDbGlCIUw4uK19FkgkCGMkmBDQK49wd6tjSR:1v9fWr:IRB-jzuuaCe7CP4Auy40fZJe92W_wV7JPXYpiWRTOPQ",
+    "expire_date": "2025-10-31T08:09:37.337Z"
+  }
+},
+{
+  "model": "accounts.customuser",
+  "fields": {
+    "password": "pbkdf2_sha256$1000000$YjT84MYKTg1gRQvgK7ENkB$AwzdRnkt6qs4DwhIWKdZ8tkvLXflvDYpanX/kk8uFrk=",
+    "last_login": "2025-11-02T22:07:24.315Z",
+    "is_superuser": true,
+    "username": "admin",
+    "first_name": "KONAN N'DRI ROMUALD",
+    "last_name": "KONAN",
+    "is_staff": true,
+    "is_active": true,
+    "date_joined": "2025-08-24T23:14:32Z",
+    "email": "romualdndri9@gmail.com",
+    "user_type": "donor",
+    "city": "",
+    "phone": "",
+    "blood_type": "",
+    "birth_date": null,
+    "profile_picture": "",
+    "medical_history": "",
+    "hospital_name": "",
+    "hospital_type": "",
+    "address": "",
+    "is_verified": false,
+    "verification_status": "pending",
+    "hospital_license_number": null,
+    "verification_notes": null,
+    "verified_at": null,
+    "verified_by": null,
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "accounts.customuser",
+  "fields": {
+    "password": "pbkdf2_sha256$1000000$RE8DueLFNebxqCqdaQsiaq$vzI1lYoIw6yve9lEZKSx9vdsY6YhtK2giXjk6gJwRPY=",
+    "last_login": "2025-10-14T14:03:54.923Z",
+    "is_superuser": false,
+    "username": "tR6U",
+    "first_name": "AYA",
+    "last_name": "SOFIA",
+    "is_staff": false,
+    "is_active": true,
+    "date_joined": "2025-10-14T08:00:45.955Z",
+    "email": "yyomoyaha@gmail.com",
+    "user_type": "hospital",
+    "city": "BASSAM",
+    "phone": "2334456523",
+    "blood_type": null,
+    "birth_date": null,
+    "profile_picture": "profile_pics/2.jpg",
+    "medical_history": null,
+    "hospital_name": "SOFIACLINC",
+    "hospital_type": "private",
+    "address": "CITE FRANCE",
+    "is_verified": true,
+    "verification_status": "approved",
+    "hospital_license_number": "",
+    "verification_notes": null,
+    "verified_at": "2025-10-14T08:02:42.902Z",
+    "verified_by": [
+      "romualdndri9@gmail.com"
+    ],
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "accounts.customuser",
+  "fields": {
+    "password": "pbkdf2_sha256$1000000$qwMJ9pa5aHTdv4IM8FSMUB$3Xu4OFaqOAqlBEMnJeUjJIIJmAfvpmp2FRPCZBuN7AM=",
+    "last_login": "2025-11-03T11:47:20.845Z",
+    "is_superuser": false,
+    "username": "RO123_E",
+    "first_name": "KONAN",
+    "last_name": "ROMUALD",
+    "is_staff": false,
+    "is_active": true,
+    "date_joined": "2025-10-14T08:13:27.183Z",
+    "email": "romualdk059@gmail.com",
+    "user_type": "donor",
+    "city": "Koumassi",
+    "phone": "0102505378",
+    "blood_type": "O-",
+    "birth_date": "2018-05-08",
+    "profile_picture": "",
+    "medical_history": null,
+    "hospital_name": "",
+    "hospital_type": "",
+    "address": "",
+    "is_verified": true,
+    "verification_status": "approved",
+    "hospital_license_number": null,
+    "verification_notes": null,
+    "verified_at": null,
+    "verified_by": null,
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "donations.bloodrequest",
+  "pk": 13,
+  "fields": {
+    "hospital": [
+      "yyomoyaha@gmail.com"
+    ],
+    "blood_type": "B-",
+    "quantity": 2,
+    "urgency": "24h",
+    "status": "completed",
+    "address": "CITE FRANCE",
+    "city": "BASSAM",
+    "deadline": "2025-10-30T08:06:00Z",
+    "description": "JU",
+    "is_fulfilled": true,
+    "created_at": "2025-10-14T08:06:44.470Z",
+    "updated_at": "2025-10-14T08:25:45.601Z"
+  }
+},
+{
+  "model": "donations.donationresponse",
+  "pk": 8,
+  "fields": {
+    "donor": [
+      "romualdk059@gmail.com"
+    ],
+    "blood_request": 13,
+    "status": "accepted",
+    "response_date": "2025-10-14T08:14:32.576Z",
+    "message": "Je souhaite donner mon sang (O-) pour votre demande urgente."
+  }
+},
+{
+  "model": "donations.chatmessage",
+  "pk": 22,
+  "fields": {
+    "donation_response": 8,
+    "sender": [
+      "romualdk059@gmail.com"
+    ],
+    "message": "je veux le fait",
+    "timestamp": "2025-10-14T08:14:46.392Z",
+    "is_read": true
+  }
+},
+{
+  "model": "donations.chatmessage",
+  "pk": 23,
+  "fields": {
+    "donation_response": 8,
+    "sender": [
+      "yyomoyaha@gmail.com"
+    ],
+    "message": "OK VENEZ NOUS VOIT AU BUREAU",
+    "timestamp": "2025-10-14T08:24:53.712Z",
+    "is_read": true
+  }
+},
+{
+  "model": "donations.chatmessage",
+  "pk": 24,
+  "fields": {
+    "donation_response": 8,
+    "sender": [
+      "romualdk059@gmail.com"
+    ],
+    "message": "OK PAS DE SOUCIS",
+    "timestamp": "2025-10-14T10:29:43.673Z",
+    "is_read": true
+  }
+},
+{
+  "model": "donations.donoravailability",
+  "pk": 6,
+  "fields": {
+    "donor": [
+      "romualdndri9@gmail.com"
+    ],
+    "is_available": true,
+    "next_available_date": null,
+    "notes": ""
+  }
+},
+{
+  "model": "donations.donoravailability",
+  "pk": 8,
+  "fields": {
+    "donor": [
+      "romualdk059@gmail.com"
+    ],
+    "is_available": true,
+    "next_available_date": null,
+    "notes": ""
+  }
+},
+{
+  "model": "admin.logentry",
+  "pk": 1,
+  "fields": {
+    "action_time": "2025-08-24T23:17:27.194Z",
+    "user": [
+      "romualdndri9@gmail.com"
+    ],
+    "content_type": [
+      "accounts",
+      "customuser"
+    ],
+    "object_id": "3",
+    "object_repr": "ROMIXCLIN",
+    "action_flag": 3,
+    "change_message": ""
+  }
+},
+{
+  "model": "admin.logentry",
+  "pk": 2,
+  "fields": {
+    "action_time": "2025-08-24T23:17:27.194Z",
+    "user": [
+      "romualdndri9@gmail.com"
+    ],
+    "content_type": [
+      "accounts",
+      "customuser"
+    ],
+    "object_id": "1",
+    "object_repr": "RORO (Donneur)",
+    "action_flag": 3,
+    "change_message": ""
+  }
+},
+{
+  "model": "admin.logentry",
+  "pk": 3,
+  "fields": {
+    "action_time": "2025-08-24T23:17:27.194Z",
+    "user": [
+      "romualdndri9@gmail.com"
+    ],
+    "content_type": [
+      "accounts",
+      "customuser"
+    ],
+    "object_id": "2",
+    "object_repr": "romi_10 (Donneur)",
+    "action_flag": 3,
+    "change_message": ""
+  }
+},
+{
+  "model": "admin.logentry",
+  "pk": 4,
+  "fields": {
+    "action_time": "2025-08-25T22:51:56.985Z",
+    "user": [
+      "romualdndri9@gmail.com"
+    ],
+    "content_type": [
+      "accounts",
+      "customuser"
+    ],
+    "object_id": "6",
+    "object_repr": "romi_10 (Donneur)",
+    "action_flag": 2,
+    "change_message": "[{\"changed\": {\"fields\": [\"password\"]}}]"
+  }
+},
+{
+  "model": "admin.logentry",
+  "pk": 5,
+  "fields": {
+    "action_time": "2025-08-28T21:50:34.924Z",
+    "user": [
+      "romualdndri9@gmail.com"
+    ],
+    "content_type": [
+      "accounts",
+      "customuser"
+    ],
+    "object_id": "6",
+    "object_repr": "romi_10 (Donneur)",
+    "action_flag": 2,
+    "change_message": "[{\"changed\": {\"fields\": [\"password\"]}}]"
+  }
+},
+{
+  "model": "admin.logentry",
+  "pk": 6,
+  "fields": {
+    "action_time": "2025-09-07T15:00:20.567Z",
+    "user": [
+      "romualdndri9@gmail.com"
+    ],
+    "content_type": [
+      "accounts",
+      "customuser"
+    ],
+    "object_id": "8",
+    "object_repr": "MORELLE AMALAN - romixmarket5@gmail.com",
+    "action_flag": 3,
+    "change_message": ""
+  }
+},
+{
+  "model": "admin.logentry",
+  "pk": 7,
+  "fields": {
+    "action_time": "2025-09-07T15:50:45.829Z",
+    "user": [
+      "romualdndri9@gmail.com"
+    ],
+    "content_type": [
+      "accounts",
+      "customuser"
+    ],
+    "object_id": "9",
+    "object_repr": "HAMCLINC - romixmarket5@gmail.com",
+    "action_flag": 3,
+    "change_message": ""
+  }
+},
+{
+  "model": "admin.logentry",
+  "pk": 8,
+  "fields": {
+    "action_time": "2025-09-07T16:16:46.908Z",
+    "user": [
+      "romualdndri9@gmail.com"
+    ],
+    "content_type": [
+      "accounts",
+      "customuser"
+    ],
+    "object_id": "4",
+    "object_repr": "KONAN N'DRI ROMUALD KONAN - romualdndri9@gmail.com",
+    "action_flag": 2,
+    "change_message": "[{\"changed\": {\"fields\": [\"First name\", \"Last name\", \"Email address\"]}}]"
+  }
+},
+{
+  "model": "admin.logentry",
+  "pk": 9,
+  "fields": {
+    "action_time": "2025-09-07T16:17:20.445Z",
+    "user": [
+      "romualdndri9@gmail.com"
+    ],
+    "content_type": [
+      "accounts",
+      "customuser"
+    ],
+    "object_id": "10",
+    "object_repr": "HAMCLINC - romixmarket5@gmail.com",
+    "action_flag": 3,
+    "change_message": ""
+  }
+},
+{
+  "model": "admin.logentry",
+  "pk": 10,
+  "fields": {
+    "action_time": "2025-09-07T21:08:24.833Z",
+    "user": [
+      "romualdndri9@gmail.com"
+    ],
+    "content_type": [
+      "accounts",
+      "customuser"
+    ],
+    "object_id": "11",
+    "object_repr": "HAMCLINC - romixmarket5@gmail.com",
+    "action_flag": 3,
+    "change_message": ""
+  }
+},
+{
+  "model": "admin.logentry",
+  "pk": 11,
+  "fields": {
+    "action_time": "2025-09-07T21:21:21.923Z",
+    "user": [
+      "romualdndri9@gmail.com"
+    ],
+    "content_type": [
+      "accounts",
+      "customuser"
+    ],
+    "object_id": "12",
+    "object_repr": "HAMCLINC - romixmarket5@gmail.com",
+    "action_flag": 3,
+    "change_message": ""
+  }
+},
+{
+  "model": "admin.logentry",
+  "pk": 12,
+  "fields": {
+    "action_time": "2025-09-07T21:33:58.394Z",
+    "user": [
+      "romualdndri9@gmail.com"
+    ],
+    "content_type": [
+      "accounts",
+      "customuser"
+    ],
+    "object_id": "13",
+    "object_repr": "HAMCLINC - romixmarket5@gmail.com",
+    "action_flag": 3,
+    "change_message": ""
+  }
+},
+{
+  "model": "admin.logentry",
+  "pk": 13,
+  "fields": {
+    "action_time": "2025-09-07T23:08:17.961Z",
+    "user": [
+      "romualdndri9@gmail.com"
+    ],
+    "content_type": [
+      "accounts",
+      "customuser"
+    ],
+    "object_id": "14",
+    "object_repr": "HAMCLINC - romixmarket5@gmail.com",
+    "action_flag": 3,
+    "change_message": ""
+  }
+},
+{
+  "model": "admin.logentry",
+  "pk": 14,
+  "fields": {
+    "action_time": "2025-09-10T09:54:45.663Z",
+    "user": [
+      "romualdndri9@gmail.com"
+    ],
+    "content_type": [
+      "accounts",
+      "customuser"
+    ],
+    "object_id": "6",
+    "object_repr": "romuald konan - romualdk059@gmail.com",
+    "action_flag": 3,
+    "change_message": ""
+  }
+},
+{
+  "model": "admin.logentry",
+  "pk": 15,
+  "fields": {
+    "action_time": "2025-09-11T08:31:13.692Z",
+    "user": [
+      "romualdndri9@gmail.com"
+    ],
+    "content_type": [
+      "accounts",
+      "customuser"
+    ],
+    "object_id": "17",
+    "object_repr": "Jean Dupont - donneur@example.com",
+    "action_flag": 3,
+    "change_message": ""
+  }
+},
+{
+  "model": "admin.logentry",
+  "pk": 16,
+  "fields": {
+    "action_time": "2025-09-11T08:31:13.693Z",
+    "user": [
+      "romualdndri9@gmail.com"
+    ],
+    "content_type": [
+      "accounts",
+      "customuser"
+    ],
+    "object_id": "18",
+    "object_repr": "CHU de Cocody - hopital@example.com",
+    "action_flag": 3,
+    "change_message": ""
+  }
+},
+{
+  "model": "admin.logentry",
+  "pk": 17,
+  "fields": {
+    "action_time": "2025-10-13T21:51:51.004Z",
+    "user": [
+      "romualdndri9@gmail.com"
+    ],
+    "content_type": [
+      "accounts",
+      "customuser"
+    ],
+    "object_id": "5",
+    "object_repr": "ROMIXCLIN - romualdndri@gmail.com",
+    "action_flag": 3,
+    "change_message": ""
+  }
+},
+{
+  "model": "admin.logentry",
+  "pk": 18,
+  "fields": {
+    "action_time": "2025-10-13T21:51:51.004Z",
+    "user": [
+      "romualdndri9@gmail.com"
+    ],
+    "content_type": [
+      "accounts",
+      "customuser"
+    ],
+    "object_id": "16",
+    "object_repr": "YECINC - romixmarket5@gmail.com",
+    "action_flag": 3,
+    "change_message": ""
+  }
+},
+{
+  "model": "admin.logentry",
+  "pk": 19,
+  "fields": {
+    "action_time": "2025-10-13T21:51:51.004Z",
+    "user": [
+      "romualdndri9@gmail.com"
+    ],
+    "content_type": [
+      "accounts",
+      "customuser"
+    ],
+    "object_id": "15",
+    "object_repr": "KONAN N'DRI ROMUALD KONAN - romualdk059_15@gmail.com",
+    "action_flag": 3,
+    "change_message": ""
+  }
+},
+{
+  "model": "admin.logentry",
+  "pk": 20,
+  "fields": {
+    "action_time": "2025-10-13T21:51:51.004Z",
+    "user": [
+      "romualdndri9@gmail.com"
+    ],
+    "content_type": [
+      "accounts",
+      "customuser"
+    ],
+    "object_id": "7",
+    "object_repr": "HAMED romi10 - romualdk059@gmail.com",
+    "action_flag": 3,
+    "change_message": ""
+  }
+}
+]

@@ -1,0 +1,207 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Profil de {{ donor.get_full_name }}{% endblock %}
+
+{% block extra_css %}
+<style>
+    .profile-header {
+        background: linear-gradient(135deg, var(--primary-red), #C81E1E);
+        padding: 2rem;
+        border-radius: 16px;
+        color: white;
+        margin-bottom: 2rem;
+    }
+    
+    .tier-badge-large {
+        padding: 0.75rem 1.5rem;
+        border-radius: 16px;
+        font-weight: 700;
+        font-size: 1.1rem;
+        display: inline-block;
+        margin-top: 1rem;
+    }
+    
+    .tier-standard { background: #9CA3AF; color: white; }
+    .tier-bronze { background: linear-gradient(135deg, #CD7F32, #B87333); color: white; }
+    .tier-silver { background: linear-gradient(135deg, #C0C0C0, #A8A8A8); color: white; }
+    .tier-gold { background: linear-gradient(135deg, #FFD700, #FFC700); color: #1e293b; }
+    .tier-platinum { background: linear-gradient(135deg, #E5E4E2, #BCC6CC); color: #1e293b; }
+    
+    .stat-card {
+        background: white;
+        padding: 1.5rem;
+        border-radius: 12px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        text-align: center;
+    }
+    
+    .stat-value {
+        font-size: 2rem;
+        font-weight: 700;
+        color: var(--primary-red);
+        margin-bottom: 0.5rem;
+    }
+    
+    .stat-label {
+        color: var(--text-gray);
+        font-size: 0.9rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="modern-main-content">
+    <div class="container" style="padding: 2rem;">
+        <!-- Bouton retour -->
+        <a href="{% url 'donations:manage_donor_rankings' %}" class="btn-modern btn-modern-secondary" style="margin-bottom: 2rem; text-decoration: none;">
+            <i class="fas fa-arrow-left"></i> Retour aux classements
+        </a>
+        
+        <!-- En-tête du profil -->
+        <div class="profile-header">
+            <div style="display: flex; align-items: center; gap: 2rem;">
+                <div class="user-avatar" style="width: 100px; height: 100px; font-size: 2.5rem;">
+                    {{ donor.first_name.0 }}{{ donor.last_name.0 }}
+                </div>
+                <div style="flex: 1;">
+                    <h1 style="margin-bottom: 0.5rem;">{{ donor.get_full_name }}</h1>
+                    <p style="opacity: 0.9; margin-bottom: 0;">{{ donor.email }}</p>
+                    <div class="tier-badge-large tier-{{ ranking.current_tier }}">
+                        {% if ranking.current_tier == 'platinum' %}
+                        <i class="fas fa-crown"></i> PLATINE
+                        {% elif ranking.current_tier == 'gold' %}
+                        <i class="fas fa-medal"></i> OR
+                        {% elif ranking.current_tier == 'silver' %}
+                        <i class="fas fa-award"></i> ARGENT
+                        {% elif ranking.current_tier == 'bronze' %}
+                        <i class="fas fa-certificate"></i> BRONZE
+                        {% else %}
+                        <i class="fas fa-star"></i> STANDARD
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Statistiques -->
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
+            <div class="stat-card">
+                <div class="stat-value">{{ donor.blood_type|default:"N/A" }}</div>
+                <div class="stat-label">Groupe Sanguin</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">{{ all_completed_donations }}</div>
+                <div class="stat-label">Dons Complétés (Total)</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">{{ donations_to_hospital.count }}</div>
+                <div class="stat-label">Dons à Votre Hôpital</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">{{ ranking.points }}</div>
+                <div class="stat-label">Points Accumulés</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">{{ ranking.get_discount_rate }}%</div>
+                <div class="stat-label">Réduction Assignée</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">
+                    {% if availability.is_currently_available %}
+                    <span style="color: var(--success-green);"><i class="fas fa-check-circle"></i></span>
+                    {% else %}
+                    <span style="color: var(--danger-red);"><i class="fas fa-times-circle"></i></span>
+                    {% endif %}
+                </div>
+                <div class="stat-label">Disponibilité</div>
+            </div>
+        </div>
+        
+        <!-- Historique des dons à cet hôpital -->
+        <div class="card" style="margin-bottom: 2rem;">
+            <div class="card-header">
+                <h3><i class="fas fa-history"></i> Historique des Dons à Votre Établissement</h3>
+            </div>
+            <div class="card-body">
+                {% if donations_to_hospital %}
+                <div class="table-responsive">
+                    <table class="modern-table">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Groupe Sanguin</th>
+                                <th>Quantité</th>
+                                <th>Statut</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for donation in donations_to_hospital %}
+                            <tr>
+                                <td>{{ donation.response_date|date:"d/m/Y" }}</td>
+                                <td><span class="modern-badge badge-danger">{{ donation.blood_request.blood_type }}</span></td>
+                                <td>{{ donation.blood_request.quantity }} poche(s)</td>
+                                <td><span class="badge-modern success"><i class="fas fa-check-circle"></i> Complété</span></td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <p style="text-align: center; color: var(--text-gray); padding: 2rem;">
+                    Aucun don complété à votre établissement
+                </p>
+                {% endif %}
+            </div>
+        </div>
+        
+        <!-- Bons de réduction créés -->
+        <div class="card">
+            <div class="card-header" style="display: flex; justify-content: space-between; align-items: center;">
+                <h3><i class="fas fa-ticket-alt"></i> Bons de Réduction ({{ vouchers.count }})</h3>
+                <a href="{% url 'donations:create_voucher_for_donor' donor.id %}" class="btn-modern btn-modern-primary">
+                    <i class="fas fa-plus"></i> Créer un nouveau bon
+                </a>
+            </div>
+            <div class="card-body">
+                {% if vouchers %}
+                <div class="table-responsive">
+                    <table class="modern-table">
+                        <thead>
+                            <tr>
+                                <th>Code</th>
+                                <th>Réduction</th>
+                                <th>Valide jusqu'au</th>
+                                <th>Statut</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for voucher in vouchers %}
+                            <tr>
+                                <td><strong>{{ voucher.voucher_code }}</strong></td>
+                                <td>{{ voucher.discount_percentage }}%</td>
+                                <td>{{ voucher.valid_until|date:"d/m/Y" }}</td>
+                                <td>
+                                    {% if voucher.is_valid %}
+                                    <span class="badge-modern success"><i class="fas fa-check"></i> Valide</span>
+                                    {% elif voucher.is_used %}
+                                    <span class="badge-modern secondary"><i class="fas fa-check-double"></i> Utilisé</span>
+                                    {% else %}
+                                    <span class="badge-modern danger"><i class="fas fa-times"></i> Expiré</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <p style="text-align: center; color: var(--text-gray); padding: 2rem;">
+                    Aucun bon de réduction créé pour ce donneur
+                </p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -51,4 +51,14 @@ urlpatterns = [
     
     # Don rapide
     path('quick-donate/<int:request_id>/', views.quick_donate, name='quick_donate'),
+    
+    # Système de récompenses et avantages
+    path('my-rewards/', views.my_rewards, name='my_rewards'),
+    path('manage-donor-rankings/', views.manage_donor_rankings, name='manage_donor_rankings'),
+    path('voucher/<int:voucher_id>/download/', views.download_voucher_pdf, name='download_voucher_pdf'),
+    path('benefit/<int:benefit_id>/download/', views.download_benefit_pdf, name='download_benefit_pdf'),
+    
+    # Actions de gestion des donneurs (hôpital)
+    path('donor/<int:donor_id>/profile/', views.view_donor_profile, name='view_donor_profile'),
+    path('donor/<int:donor_id>/create-voucher/', views.create_voucher_for_donor, name='create_voucher_for_donor'),
 ]

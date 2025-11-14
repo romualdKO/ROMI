@@ -8,99 +8,61 @@
 {% endblock %}
 
 {% block content %}
-<div class="dashboard-container">
-    <!-- Sidebar -->
-    <aside class="sidebar">
-        <div class="sidebar-header">
-            <div class="logo">
-                <i class="fas fa-heartbeat"></i>
-                <span>Don Sang Plus</span>
-            </div>
+<div style="min-height: 100vh; background: var(--bg-light);">
+    <!-- Topbar sans sidebar -->
+    <div style="background: white; padding: 1.5rem 2rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08); margin-bottom: 2rem;">
+        <div style="max-width: 1200px; margin: 0 auto; display: flex; align-items: center; gap: 1rem;">
+            <a href="{% url 'donations:donor_dashboard' %}" style="color: var(--primary-red); text-decoration: none; font-size: 1.5rem;">
+                <i class="fas fa-arrow-left"></i>
+            </a>
+            <h1 style="margin: 0; font-size: 1.75rem; font-weight: 700; color: var(--text-dark);">
+                Détail de la demande de sang
+            </h1>
         </div>
-        
-        <nav class="sidebar-nav">
-            <a href="{% url 'donations:donor_dashboard' %}" class="nav-item">
-                <i class="fas fa-home"></i>
-                <span>Tableau de bord</span>
-            </a>
-            <a href="{% url 'donations:donor_dashboard' %}" class="nav-item active">
-                <i class="fas fa-list"></i>
-                <span>Demandes</span>
-            </a>
-            <a href="{% url 'donations:donor_messages' %}" class="nav-item">
-                <i class="fas fa-comments"></i>
-                <span>Messages</span>
-            </a>
-            <a href="{% url 'donations:donor_history' %}" class="nav-item">
-                <i class="fas fa-history"></i>
-                <span>Historique</span>
-            </a>
-            <a href="{% url 'donations:edit_profile' %}" class="nav-item">
-                <i class="fas fa-user"></i>
-                <span>Profil</span>
-            </a>
-        </nav>
-        
-        <div class="sidebar-footer">
-            <a href="{% url 'accounts:logout' %}" class="nav-item text-danger">
-                <i class="fas fa-sign-out-alt"></i>
-                <span>Déconnexion</span>
-            </a>
-        </div>
-    </aside>
+    </div>
 
-    <!-- Main Content -->
-    <main class="main-content">
-        <!-- Topbar -->
-        <div class="topbar">
-            <div class="topbar-left">
-                <h1 class="page-title">Détail de la demande de sang</h1>
-            </div>
-            <div class="topbar-right">
-                <a href="{% url 'donations:donor_dashboard' %}" class="btn-modern btn-modern-secondary">
-                    <i class="fas fa-arrow-left"></i> Retour
-                </a>
-            </div>
-        </div>
-
-        <!-- Content Area -->
-        <div class="content-area">
+    <!-- Content Area -->
+    <div style="max-width: 1200px; margin: 0 auto; padding: 0 2rem 2rem 2rem;">
             <!-- Request Details Card -->
             <div class="modern-card">
-                <div class="card-header">
-                    <h2 class="card-title">
+                <div class="card-header" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+                    <h2 class="card-title" style="margin: 0;">
                         <i class="fas fa-info-circle"></i>
                         Informations de la demande
                     </h2>
-                    <div class="badge-group">
+                    <div class="badge-group" style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
                         {% if blood_request.urgency == 'immediate' %}
-                            <span class="badge badge-danger">
-                                <i class="fas fa-exclamation-triangle"></i> Urgence immédiate
+                            <span class="modern-badge badge-danger">
+                                <i class="fas fa-exclamation-triangle"></i> URGENT (24H)
                             </span>
                         {% elif blood_request.urgency == '24h' %}
-                            <span class="badge badge-warning">
-                                <i class="fas fa-clock"></i> Urgent (24h)
+                            <span class="modern-badge badge-warning">
+                                <i class="fas fa-clock"></i> URGENT (24H)
                             </span>
                         {% else %}
-                            <span class="badge badge-info">
+                            <span class="modern-badge badge-info">
                                 <i class="fas fa-calendar"></i> Planifié
                             </span>
                         {% endif %}
                         
-                        {% if blood_request.is_fulfilled %}
-                            <span class="badge badge-success">
-                                <i class="fas fa-check-circle"></i> Satisfaite
+                        {% if blood_request.status == 'completed' %}
+                            <span class="modern-badge badge-success">
+                                <i class="fas fa-check-circle"></i> SATISFAITE
+                            </span>
+                        {% elif blood_request.status == 'cancelled' or blood_request.status == 'rejected' %}
+                            <span class="modern-badge badge-danger">
+                                <i class="fas fa-times-circle"></i> Annulée
                             </span>
                         {% else %}
-                            <span class="badge badge-primary">
+                            <span class="modern-badge badge-primary">
                                 <i class="fas fa-hourglass-half"></i> Active
                             </span>
                         {% endif %}
                     </div>
                 </div>
                 <div class="card-body">
-                    <div class="row">
-                        <div class="col-md-6">
+                    <div class="info-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 2rem;">
+                        <div>
                             <div class="info-group">
                                 <label class="info-label">
                                     <i class="fas fa-hospital"></i>
@@ -136,7 +98,7 @@
                             </div>
                         </div>
                         
-                        <div class="col-md-6">
+                        <div>
                             <div class="info-group">
                                 <label class="info-label">
                                     <i class="fas fa-calendar-alt"></i>
@@ -183,55 +145,41 @@
                 </div>
             </div>
 
-            <!-- Action Card -->
-            {% if not blood_request.is_fulfilled %}
-            <div class="modern-card mt-4">
-                <div class="card-body text-center">
-                    <h3 class="mb-3">
-                        <i class="fas fa-hand-holding-heart text-danger"></i>
-                        Vous pouvez aider !
-                    </h3>
-                    <p class="text-muted mb-4">
-                        Cette demande correspond à votre groupe sanguin. Votre don peut sauver des vies.
-                    </p>
-                    <a href="{% url 'donations:respond_to_request' blood_request.id %}" class="btn-modern btn-modern-primary btn-modern-lg">
-                        <i class="fas fa-check-circle"></i> Répondre à la demande
-                    </a>
-                </div>
-            </div>
-            {% endif %}
-
             <!-- Response Status / Action Button -->
             {% if user_response %}
-            <div class="alert alert-info mt-4">
-                <div class="d-flex align-items-center">
-                    <i class="fas fa-info-circle fa-2x me-3"></i>
+            <div class="modern-alert alert-info" style="margin-top: 1.5rem; padding: 1.5rem; border-radius: 12px; background: linear-gradient(135deg, #E0F2FE, #BAE6FD); border-left: 4px solid #0EA5E9;">
+                <div style="display: flex; align-items: center; gap: 1rem;">
+                    <i class="fas fa-info-circle" style="font-size: 2rem; color: #0EA5E9;"></i>
                     <div>
-                        <h5 class="mb-1">Vous avez déjà répondu à cette demande</h5>
-                        <p class="mb-0">
-                            Statut : 
+                        <h5 style="margin: 0 0 0.5rem 0; font-weight: 700; color: var(--text-dark);">Vous avez déjà répondu à cette demande</h5>
+                        <p style="margin: 0; display: flex; align-items: center; gap: 0.5rem;">
+                            <span style="color: var(--text-light); font-weight: 600;">Statut :</span>
                             {% if user_response.status == 'accepted' %}
-                                <span class="badge badge-success">Acceptée</span>
+                                <span class="modern-badge badge-success"><i class="fas fa-check-circle"></i> Acceptée</span>
+                            {% elif user_response.status == 'completed' %}
+                                <span class="modern-badge badge-success"><i class="fas fa-trophy"></i> Complétée</span>
                             {% elif user_response.status == 'pending' %}
-                                <span class="badge badge-warning">En attente</span>
+                                <span class="modern-badge badge-warning"><i class="fas fa-clock"></i> En attente</span>
+                            {% elif user_response.status == 'rejected' %}
+                                <span class="modern-badge badge-danger"><i class="fas fa-times-circle"></i> Rejetée</span>
                             {% else %}
-                                <span class="badge badge-secondary">{{ user_response.get_status_display }}</span>
+                                <span class="modern-badge badge-secondary">{{ user_response.get_status_display }}</span>
                             {% endif %}
                         </p>
                     </div>
                 </div>
             </div>
-            {% else %}
+            {% elif blood_request.status not in 'completed,cancelled,rejected' %}
             <!-- Bouton Répondre -->
-            <div class="mt-4">
-                <a href="{% url 'donations:respond_to_request' blood_request.id %}" class="btn-modern btn-modern-primary btn-modern-lg w-100" style="display: flex; align-items: center; justify-content: center; gap: 12px; padding: 16px; font-size: 18px;">
-                    <i class="fas fa-hand-holding-heart"></i>
-                    Je veux donner mon sang pour cette demande
+            <div style="margin-top: 1.5rem;">
+                <a href="{% url 'donations:respond_to_request' blood_request.id %}" class="btn-modern btn-modern-primary btn-modern-lg" style="width: 100%; display: flex; align-items: center; justify-content: center; gap: 12px; padding: 18px; font-size: 1.125rem; font-weight: 700;">
+                    <i class="fas fa-hand-holding-heart" style="font-size: 1.5rem;"></i>
+                    <span>Je veux donner mon sang pour cette demande</span>
                 </a>
             </div>
             {% endif %}
         </div>
-    </main>
+    </div>
 </div>
 
 <style>
@@ -240,39 +188,72 @@
 }
 
 .info-label {
-    display: block;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
     font-size: 0.875rem;
     font-weight: 600;
-    color: #64748b;
+    color: var(--text-light);
     margin-bottom: 0.5rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
 }
 
 .info-label i {
-    width: 20px;
-    margin-right: 0.5rem;
+    font-size: 1rem;
+    color: var(--primary-red);
 }
 
 .info-value {
-    font-size: 1rem;
-    color: #1e293b;
-    font-weight: 500;
+    font-size: 1.125rem;
+    color: var(--text-dark);
+    font-weight: 600;
+    padding-left: 1.5rem;
 }
 
 .blood-type-badge {
-    display: inline-block;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
     background: linear-gradient(135deg, #EF4444, #DC2626);
     color: white;
-    padding: 0.5rem 1.5rem;
+    padding: 0.75rem 2rem;
     border-radius: 50px;
-    font-size: 1.25rem;
+    font-size: 1.5rem;
     font-weight: 700;
-    box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+    box-shadow: 0 4px 16px rgba(239, 68, 68, 0.4);
+    min-width: 80px;
 }
 
-.badge-group {
-    display: flex;
-    gap: 0.5rem;
-    flex-wrap: wrap;
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .info-grid {
+        grid-template-columns: 1fr !important;
+        gap: 1rem !important;
+    }
+    
+    .info-value {
+        font-size: 1rem;
+        padding-left: 1rem;
+    }
+    
+    .blood-type-badge {
+        font-size: 1.25rem;
+        padding: 0.5rem 1.5rem;
+    }
+    
+    /* Topbar responsive */
+    div[style*="padding: 1.5rem 2rem"] {
+        padding: 1rem !important;
+    }
+    
+    div[style*="max-width: 1200px"] {
+        padding: 0 1rem !important;
+    }
+    
+    h1[style*="font-size: 1.75rem"] {
+        font-size: 1.25rem !important;
+    }
 }
 </style>
 {% endblock %}

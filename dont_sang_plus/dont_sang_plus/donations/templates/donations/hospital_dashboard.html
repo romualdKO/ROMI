@@ -10,8 +10,16 @@
     <link rel="stylesheet" href="{% static 'css/modern-design.css' %}">
 </head>
 <body>
+    <!-- Mobile Menu Toggle -->
+    <button class="mobile-menu-toggle" onclick="toggleMobileSidebar()" aria-label="Menu">
+        <i class="fas fa-bars"></i>
+    </button>
+    
+    <!-- Sidebar Overlay -->
+    <div class="sidebar-overlay" onclick="toggleMobileSidebar()"></div>
+    
     <!-- Sidebar -->
-    <div class="modern-sidebar">
+    <div class="modern-sidebar" id="mobileSidebar">
         <div class="sidebar-logo">
             <div class="sidebar-logo-icon">
                 <i class="fas fa-hospital"></i>
@@ -39,6 +47,10 @@
             <a href="#donors-section" class="sidebar-nav-item">
                 <i class="fas fa-users sidebar-nav-icon"></i>
                 Donneurs
+            </a>
+            <a href="{% url 'donations:manage_donor_rankings' %}" class="sidebar-nav-item">
+                <i class="fas fa-trophy sidebar-nav-icon"></i>
+                Classements
             </a>
             <a href="{% url 'donations:edit_profile' %}" class="sidebar-nav-item">
                 <i class="fas fa-cog sidebar-nav-icon"></i>
@@ -114,13 +126,13 @@
                     </div>
                 </div>
                 
-                <div class="topbar-user">
+                <a href="{% url 'donations:edit_profile' %}" class="topbar-user" style="text-decoration: none; color: inherit; transition: transform 0.2s ease;">
                     <div class="user-avatar">{{ user.hospital_name.0|default:"H" }}</div>
                     <div class="user-info">
                         <div class="user-name">{{ user.hospital_name }}</div>
                         <div class="user-role">Établissement</div>
                     </div>
-                </div>
+                </a>
             </div>
         </div>
 
@@ -550,6 +562,30 @@
                     d.style.display = 'none';
                 });
             }
+        });
+        
+        // ✅ FONCTION POUR TOGGLE LE SIDEBAR MOBILE
+        function toggleMobileSidebar() {
+            const sidebar = document.getElementById('mobileSidebar');
+            const overlay = document.querySelector('.sidebar-overlay');
+            
+            sidebar.classList.toggle('open');
+            overlay.classList.toggle('active');
+            
+            if (sidebar.classList.contains('open')) {
+                document.body.style.overflow = 'hidden';
+            } else {
+                document.body.style.overflow = '';
+            }
+        }
+        
+        // Fermer le sidebar en cliquant sur un lien
+        document.querySelectorAll('.sidebar-nav-item').forEach(item => {
+            item.addEventListener('click', () => {
+                if (window.innerWidth <= 768) {
+                    toggleMobileSidebar();
+                }
+            });
         });
     </script>
     
