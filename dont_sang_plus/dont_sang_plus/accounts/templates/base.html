@@ -21,6 +21,9 @@
     <!-- Custom CSS -->
     <link href="{% static 'css/style.css' %}" rel="stylesheet">
     
+    <!-- Voice Assistant CSS -->
+    <link href="{% static 'css/voice-assistant.css' %}" rel="stylesheet">
+    
     {% block extra_css %}{% endblock %}
     
     <!-- Meta tags -->
@@ -205,6 +208,9 @@
     <!-- Scripts -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="{% static 'js/main.js' %}"></script>
+    
+    <!-- Voice Assistant -->
+    <script src="{% static 'js/voice-assistant.js' %}"></script>
     
     {% block extra_js %}{% endblock %}
 </body>

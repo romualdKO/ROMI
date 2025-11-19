@@ -19,14 +19,10 @@ def custom_login(request):
         email = request.POST.get('username')  # Le champ s'appelle username mais contient l'email
         password = request.POST.get('password')
         
-        print(f"DEBUG: Tentative de connexion - Email: {email}")
-        
         # Authentification avec l'email
         user = authenticate(request, username=email, password=password)
         
         if user is not None:
-            print(f"DEBUG: Utilisateur trouvé - {user.email}, Type: {user.user_type}")
-            
             # Vérification pour les hôpitaux
             if user.user_type == 'hospital':
                 if not user.is_verified or user.verification_status != 'approved':
@@ -34,28 +30,22 @@ def custom_login(request):
                         "🏥 Votre compte hôpital n'est pas encore validé. "
                         "Vous recevrez un email dès que la vérification sera terminée."
                     )
-                    print("DEBUG: Hôpital non vérifié")
                     form = AuthenticationForm()
                     return render(request, 'accounts/login.html', {'form': form})
             
             # Connexion réussie
             login(request, user)
-            print(f"DEBUG: Connexion réussie pour {user.email}")
             
             # Redirection selon le type d'utilisateur
             if user.user_type == 'donor':
                 messages.success(request, f"🩸 Bienvenue {user.get_full_name()} !")
-                print("DEBUG: Redirection vers donor dashboard")
                 return redirect('donations:donor_dashboard')
             elif user.user_type == 'hospital':
                 messages.success(request, f"🏥 Bienvenue {user.hospital_name} !")
-                print("DEBUG: Redirection vers hospital dashboard")
                 return redirect('donations:hospital_dashboard')
             else:
-                print("DEBUG: Redirection vers home")
                 return redirect('home')
         else:
-            print("DEBUG: Échec de l'authentification")
             messages.error(request, "❌ Nom d'utilisateur ou mot de passe incorrect.")
     
     form = AuthenticationForm()
@@ -102,9 +92,8 @@ def donor_signup(request):
                             recipient_list=[user.email],
                             fail_silently=True,
                         )
-                        print("DEBUG: Email bienvenue donneur envoyé")
                     except Exception as e:
-                        print(f"ERREUR EMAIL DONNEUR: {e}")
+                        pass
                     
                     messages.success(request, 
                         f"✅ Compte créé avec succès ! Bienvenue {user.get_full_name()}. "
@@ -142,12 +131,8 @@ def hospital_signup(request):
                     user.is_active = True
                     user.save()
                     
-                    print(f"DEBUG: Hôpital créé - {user.hospital_name}")
-                    
                     # Email automatique à l'admin
                     try:
-                        print("DEBUG: Tentative d'envoi email admin...")
-                        
                         send_mail(
                             subject='🚨 NOUVEAU HÔPITAL À VALIDER - URGENT',
                             message=f'⚠️ NOUVELLE DEMANDE DE VALIDATION :\n\n'
@@ -165,16 +150,12 @@ def hospital_signup(request):
                             recipient_list=['romualdndri9@gmail.com'],
                             fail_silently=False,
                         )
-                        print("DEBUG: Email admin envoyé avec succès")
                         
                     except Exception as e:
-                        print(f"ERREUR EMAIL ADMIN: {e}")
                         messages.warning(request, f"Inscription réussie mais email admin non envoyé: {e}")
                     
                     # Email de confirmation au demandeur
                     try:
-                        print("DEBUG: Tentative d'envoi email confirmation...")
-                        
                         send_mail(
                             subject='🏥 Inscription en attente de validation - Don Sang Plus',
                             message=f'Bonjour {user.get_full_name()},\n\n'
@@ -192,10 +173,9 @@ def hospital_signup(request):
                             recipient_list=[user.email],
                             fail_silently=False,
                         )
-                        print("DEBUG: Email confirmation envoyé avec succès")
                         
                     except Exception as e:
-                        print(f"ERREUR EMAIL CONFIRMATION: {e}")
+                        pass
                     
                     messages.success(request, 
                         "🎉 Inscription enregistrée avec succès ! "
