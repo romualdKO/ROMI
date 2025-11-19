@@ -1,8 +1,10 @@
 services:
-  # Web Service (Django App)
   - type: web
     name: dont-sang-plus
-    runtime: python
+    env: python
+    region: oregon
+    plan: free
+    branch: main
     buildCommand: "./build.sh"
     startCommand: "gunicorn dont_sang_plus.wsgi:application"
     envVars:
@@ -13,22 +15,13 @@ services:
       - key: SECRET_KEY
         generateValue: true
       - key: DEBUG
-        value: "False"
+        value: false
+      - key: PYTHON_VERSION
+        value: 3.13.5
       - key: ALLOWED_HOSTS
         sync: false
-      - key: EMAIL_HOST_USER
-        sync: false
-      - key: EMAIL_HOST_PASSWORD
-        sync: false
-      - key: EMAIL_USE_TLS
-        value: "True"
-      - key: EMAIL_PORT
-        value: "587"
-      - key: EMAIL_HOST
-        value: "smtp.gmail.com"
 
 databases:
-  # PostgreSQL Database
   - name: dont-sang-plus-db
     databaseName: dont_sang_plus_db
     user: dont_sang_plus_user
