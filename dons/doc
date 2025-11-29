@@ -1,0 +1,34 @@
+KLc4N9K9JzT9mvS6hlLD -- my password
+
+manage.py migrate
+
+DONNEUR
+
+1. Je m'inscris → je renseigne mon groupe sanguin (ex: O+)
+                     ↓
+2. Je vais sur mon dashboard → je vois SEULEMENT les demandes 
+   compatibles avec mon groupe sanguin
+                     ↓
+3. Je clique sur une demande urgente → je réponds "je suis dispo demain"
+                     ↓
+4. L'hôpital accepte ma réponse → on discute par chat
+                     ↓
+5. Je vais donner → l'hôpital valide que j'ai donné
+                     ↓
+6. Je gagne des points au classement 🏆
+
+
+
+HOPITAL
+
+1. Je m'inscris → j'attends validation de l'admin
+                     ↓
+2. Admin approuve mon compte → j'accède au dashboard
+                     ↓
+3. Je crée une demande → "Besoin de 5 poches de B+, URGENT"
+                     ↓
+4. Je reçois des réponses de donneurs compatibles (B+, O+, O-)
+                     ↓
+5. J'accepte un donneur → on fixe un RDV par chat
+                     ↓
+6. Le donneur vient → je valide que le don est effectué
