@@ -1,15 +1,18 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard Hôpital - Don Sang Plus</title>
-    {% load static %}
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="{% static 'css/modern-design.css' %}">
     <!-- Assistant Vocal IA -->
     <link rel="stylesheet" href="{% static 'css/voice-assistant.css' %}">
+    
+    <!-- Mobile Menu Script - Chargé dans le head pour être disponible immédiatement -->
+    <script src="{% static 'js/mobile-menu.js' %}"></script>
 </head>
 <body>
     <!-- Mobile Menu Toggle -->
@@ -564,30 +567,6 @@
                     d.style.display = 'none';
                 });
             }
-        });
-        
-        // ✅ FONCTION POUR TOGGLE LE SIDEBAR MOBILE
-        function toggleMobileSidebar() {
-            const sidebar = document.getElementById('mobileSidebar');
-            const overlay = document.querySelector('.sidebar-overlay');
-            
-            sidebar.classList.toggle('open');
-            overlay.classList.toggle('active');
-            
-            if (sidebar.classList.contains('open')) {
-                document.body.style.overflow = 'hidden';
-            } else {
-                document.body.style.overflow = '';
-            }
-        }
-        
-        // Fermer le sidebar en cliquant sur un lien
-        document.querySelectorAll('.sidebar-nav-item').forEach(item => {
-            item.addEventListener('click', () => {
-                if (window.innerWidth <= 768) {
-                    toggleMobileSidebar();
-                }
-            });
         });
     </script>
     
