@@ -8,98 +8,160 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Centralized project styles -->
-    <link href="{% static 'css/modern-design.css' %}?v=4.2" rel="stylesheet">
-    <link href="{% static 'css/style.css' %}?v=4.2" rel="stylesheet">
+    <link href="{% static 'css/modern-design.css' %}?v=6.0" rel="stylesheet">
+    <link href="{% static 'css/style.css' %}?v=6.0" rel="stylesheet">
 </head>
 <body>
     <!-- Modern Navbar -->
-    <nav class="modern-navbar">
+    <nav class="navbar-modern-redesign">
         <div class="container">
-            <div class="navbar-wrapper">
+            <div class="navbar-content-wrapper">
                 <!-- Logo -->
-                <a href="/" class="navbar-brand-custom">
-                    <i class="fas fa-heartbeat"></i>
-                    <span class="brand-text">Don Sang Plus</span>
+                <a href="/" class="navbar-logo-modern">
+                    <div class="logo-icon-wrapper">
+                        <i class="fas fa-heartbeat"></i>
+                    </div>
+                    <div class="logo-text-wrapper">
+                        <span class="logo-main">Don Sang Plus</span>
+                        <span class="logo-tagline">Sauvez des vies</span>
+                    </div>
                 </a>
 
                 <!-- Desktop Navigation -->
-                <div class="navbar-menu desktop-menu">
+                <div class="navbar-nav-desktop">
                     {% if user.is_authenticated %}
-                        <a href="{% if user.user_type == 'donor' %}/donations/donor-dashboard/{% else %}/donations/hospital-dashboard/{% endif %}" class="nav-link-custom">
-                            <i class="fas fa-tachometer-alt"></i>
+                        <a href="{% if user.user_type == 'donor' %}/donations/donor-dashboard/{% else %}/donations/hospital-dashboard/{% endif %}" class="nav-link-modern">
+                            <div class="nav-link-icon">
+                                <i class="fas fa-tachometer-alt"></i>
+                            </div>
                             <span>Tableau de bord</span>
                         </a>
-                        <a href="/accounts/logout/" class="btn-outline-custom">
+                        <a href="/accounts/logout/" class="btn-nav-logout">
                             <i class="fas fa-sign-out-alt"></i>
                             <span>Déconnexion</span>
                         </a>
                     {% else %}
-                        <a href="/accounts/login/" class="nav-link-custom">
-                            <i class="fas fa-sign-in-alt"></i>
+                        <a href="/accounts/login/" class="nav-link-modern">
+                            <div class="nav-link-icon">
+                                <i class="fas fa-sign-in-alt"></i>
+                            </div>
                             <span>Connexion</span>
                         </a>
-                        <div class="dropdown">
-                            <button class="btn-primary-custom dropdown-toggle" data-bs-toggle="dropdown">
+                        <div class="dropdown-modern">
+                            <button class="btn-nav-primary" data-bs-toggle="dropdown">
+                                <div class="btn-nav-glow"></div>
                                 <i class="fas fa-user-plus"></i>
                                 <span>Inscription</span>
+                                <i class="fas fa-chevron-down"></i>
                             </button>
-                            <ul class="dropdown-menu dropdown-menu-end">
-                                <li><a class="dropdown-item" href="/accounts/signup/donor/">
-                                    <i class="fas fa-heart text-danger me-2"></i> Donneur
-                                </a></li>
-                                <li><a class="dropdown-item" href="/accounts/signup/hospital/">
-                                    <i class="fas fa-hospital text-info me-2"></i> Hôpital
-                                </a></li>
+                            <ul class="dropdown-menu-modern">
+                                <li>
+                                    <a class="dropdown-item-modern donor" href="/accounts/signup/donor/">
+                                        <div class="dropdown-icon donor-icon">
+                                            <i class="fas fa-heart"></i>
+                                        </div>
+                                        <div class="dropdown-text">
+                                            <span class="item-title">Donneur</span>
+                                            <span class="item-desc">Sauver des vies</span>
+                                        </div>
+                                        <i class="fas fa-arrow-right item-arrow"></i>
+                                    </a>
+                                </li>
+                                <li class="dropdown-divider-modern"></li>
+                                <li>
+                                    <a class="dropdown-item-modern hospital" href="/accounts/signup/hospital/">
+                                        <div class="dropdown-icon hospital-icon">
+                                            <i class="fas fa-hospital"></i>
+                                        </div>
+                                        <div class="dropdown-text">
+                                            <span class="item-title">Hôpital</span>
+                                            <span class="item-desc">Accès professionnel</span>
+                                        </div>
+                                        <i class="fas fa-arrow-right item-arrow"></i>
+                                    </a>
+                                </li>
                             </ul>
                         </div>
                     {% endif %}
                 </div>
 
                 <!-- Mobile Menu Toggle -->
-                <button class="mobile-menu-toggle" id="mobileMenuToggle" aria-label="Menu">
-                    <i class="fas fa-bars"></i>
+                <button class="mobile-toggle-modern" id="mobileMenuToggle" aria-label="Menu">
+                    <span class="toggle-line"></span>
+                    <span class="toggle-line"></span>
+                    <span class="toggle-line"></span>
                 </button>
             </div>
         </div>
 
         <!-- Mobile Navigation Menu -->
-        <div class="mobile-menu" id="mobileMenu">
-            <div class="mobile-menu-content">
-                {% if user.is_authenticated %}
-                    <a href="{% if user.user_type == 'donor' %}/donations/donor-dashboard/{% else %}/donations/hospital-dashboard/{% endif %}" class="mobile-nav-item">
-                        <i class="fas fa-tachometer-alt"></i>
-                        <span>Tableau de bord</span>
-                    </a>
-                    <a href="/accounts/logout/" class="mobile-nav-item logout">
-                        <i class="fas fa-sign-out-alt"></i>
-                        <span>Déconnexion</span>
-                    </a>
-                {% else %}
-                    <a href="/accounts/login/" class="mobile-nav-item">
-                        <i class="fas fa-sign-in-alt"></i>
-                        <span>Connexion</span>
-                    </a>
-                    <div class="mobile-nav-section">
-                        <div class="mobile-nav-title">
-                            <i class="fas fa-user-plus"></i>
+        <div class="mobile-nav-modern" id="mobileMenu">
+            <div class="mobile-nav-wrapper">
+                <div class="mobile-nav-header">
+                    <div class="mobile-logo">
+                        <i class="fas fa-heartbeat"></i>
+                        <span>Menu</span>
+                    </div>
+                </div>
+                
+                <div class="mobile-nav-body">
+                    {% if user.is_authenticated %}
+                        <a href="{% if user.user_type == 'donor' %}/donations/donor-dashboard/{% else %}/donations/hospital-dashboard/{% endif %}" class="mobile-link-modern">
+                            <div class="mobile-link-icon">
+                                <i class="fas fa-tachometer-alt"></i>
+                            </div>
+                            <span>Tableau de bord</span>
+                            <i class="fas fa-chevron-right"></i>
+                        </a>
+                        <a href="/accounts/logout/" class="mobile-link-modern logout-link">
+                            <div class="mobile-link-icon">
+                                <i class="fas fa-sign-out-alt"></i>
+                            </div>
+                            <span>Déconnexion</span>
+                            <i class="fas fa-chevron-right"></i>
+                        </a>
+                    {% else %}
+                        <a href="/accounts/login/" class="mobile-link-modern">
+                            <div class="mobile-link-icon">
+                                <i class="fas fa-sign-in-alt"></i>
+                            </div>
+                            <span>Connexion</span>
+                            <i class="fas fa-chevron-right"></i>
+                        </a>
+                        
+                        <div class="mobile-section-divider">
                             <span>Inscription</span>
                         </div>
-                        <a href="/accounts/signup/donor/" class="mobile-nav-item sub-item">
-                            <i class="fas fa-heart text-danger"></i>
-                            <span>Je suis donneur</span>
+                        
+                        <a href="/accounts/signup/donor/" class="mobile-link-modern highlight donor">
+                            <div class="mobile-link-icon">
+                                <i class="fas fa-heart"></i>
+                            </div>
+                            <div class="mobile-link-text">
+                                <span class="link-title">Devenir donneur</span>
+                                <span class="link-subtitle">Sauver des vies</span>
+                            </div>
+                            <i class="fas fa-arrow-right"></i>
                         </a>
-                        <a href="/accounts/signup/hospital/" class="mobile-nav-item sub-item">
-                            <i class="fas fa-hospital text-info"></i>
-                            <span>Je suis un hôpital</span>
+                        
+                        <a href="/accounts/signup/hospital/" class="mobile-link-modern highlight hospital">
+                            <div class="mobile-link-icon">
+                                <i class="fas fa-hospital"></i>
+                            </div>
+                            <div class="mobile-link-text">
+                                <span class="link-title">Espace hôpital</span>
+                                <span class="link-subtitle">Accès professionnel</span>
+                            </div>
+                            <i class="fas fa-arrow-right"></i>
                         </a>
-                    </div>
-                {% endif %}
+                    {% endif %}
+                </div>
             </div>
         </div>
     </nav>
 
     <!-- Mobile Menu Overlay -->
-    <div class="mobile-menu-overlay" id="mobileMenuOverlay"></div>
+    <div class="mobile-overlay-modern" id="mobileMenuOverlay"></div>
 
     <!-- Hero Section -->
     <section class="hero-section">
@@ -236,29 +298,67 @@
     <!-- Statistics Section -->
     <section class="stats-section">
         <div class="container">
-            <div class="row g-4">
-                <div class="col-md-3 col-6">
-                    <div class="stat-card">
+            <!-- Section Header -->
+            <div class="stats-header">
+                <span class="section-badge">
+                    <i class="fas fa-chart-line"></i>
+                    <span>Notre impact</span>
+                </span>
+                <h2 class="stats-title">Des chiffres qui parlent</h2>
+                <p class="stats-subtitle">Une communauté engagée au service de la vie</p>
+            </div>
+
+            <!-- Stats Grid -->
+            <div class="stats-grid">
+                <div class="stat-card-modern">
+                    <div class="stat-icon-wrapper donors">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <div class="stat-content">
                         <div class="stat-number">1 500+</div>
                         <div class="stat-label">Donneurs actifs</div>
+                        <div class="stat-progress">
+                            <div class="stat-progress-bar" style="width: 85%"></div>
+                        </div>
                     </div>
                 </div>
-                <div class="col-md-3 col-6">
-                    <div class="stat-card">
+
+                <div class="stat-card-modern">
+                    <div class="stat-icon-wrapper hospitals">
+                        <i class="fas fa-hospital"></i>
+                    </div>
+                    <div class="stat-content">
                         <div class="stat-number">120+</div>
                         <div class="stat-label">Hôpitaux partenaires</div>
+                        <div class="stat-progress">
+                            <div class="stat-progress-bar" style="width: 70%"></div>
+                        </div>
                     </div>
                 </div>
-                <div class="col-md-3 col-6">
-                    <div class="stat-card">
+
+                <div class="stat-card-modern">
+                    <div class="stat-icon-wrapper lives">
+                        <i class="fas fa-heart-pulse"></i>
+                    </div>
+                    <div class="stat-content">
                         <div class="stat-number">5 000+</div>
                         <div class="stat-label">Vies sauvées</div>
+                        <div class="stat-progress">
+                            <div class="stat-progress-bar" style="width: 95%"></div>
+                        </div>
                     </div>
                 </div>
-                <div class="col-md-3 col-6">
-                    <div class="stat-card">
+
+                <div class="stat-card-modern">
+                    <div class="stat-icon-wrapper availability">
+                        <i class="fas fa-clock"></i>
+                    </div>
+                    <div class="stat-content">
                         <div class="stat-number">24/7</div>
                         <div class="stat-label">Disponibilité</div>
+                        <div class="stat-progress">
+                            <div class="stat-progress-bar" style="width: 100%"></div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -268,43 +368,62 @@
     <!-- Features Section -->
     <section class="features-section">
         <div class="container">
-            <h2 class="section-title">Comment ça fonctionne</h2>
-            <p class="section-subtitle">
-                Un processus simple et efficace pour connecter les donneurs avec les structures médicales en besoin
-            </p>
+            <!-- Section Header -->
+            <div class="features-header">
+                <span class="section-badge">
+                    <i class="fas fa-route"></i>
+                    <span>Processus</span>
+                </span>
+                <h2 class="section-title-modern">Comment ça fonctionne</h2>
+                <p class="section-subtitle-modern">
+                    Un parcours simple en 3 étapes pour faire la différence
+                </p>
+            </div>
             
-            <div class="row g-4">
-                <div class="col-md-4">
-                    <div class="feature-card">
-                        <div class="feature-icon">
-                            <i class="fas fa-user-plus"></i>
-                        </div>
-                        <h3 class="feature-title">1. Inscription gratuite</h3>
-                        <p class="feature-description">
-                            Créez votre profil en quelques minutes. Indiquez votre groupe sanguin et vos disponibilités.
-                        </p>
+            <!-- Features Cards -->
+            <div class="features-grid">
+                <div class="feature-card-modern">
+                    <div class="feature-number">01</div>
+                    <div class="feature-icon-modern">
+                        <i class="fas fa-user-plus"></i>
+                    </div>
+                    <h3 class="feature-title-modern">Inscription gratuite</h3>
+                    <p class="feature-description-modern">
+                        Créez votre profil en quelques minutes. Indiquez votre groupe sanguin et vos disponibilités.
+                    </p>
+                    <div class="feature-link">
+                        <span>Commencer</span>
+                        <i class="fas fa-arrow-right"></i>
                     </div>
                 </div>
-                <div class="col-md-4">
-                    <div class="feature-card">
-                        <div class="feature-icon">
-                            <i class="fas fa-bell"></i>
-                        </div>
-                        <h3 class="feature-title">2. Notifications instantanées</h3>
-                        <p class="feature-description">
-                            Recevez des alertes pour les demandes urgentes correspondant à votre groupe sanguin.
-                        </p>
+
+                <div class="feature-card-modern">
+                    <div class="feature-number">02</div>
+                    <div class="feature-icon-modern">
+                        <i class="fas fa-bell"></i>
+                    </div>
+                    <h3 class="feature-title-modern">Notifications instantanées</h3>
+                    <p class="feature-description-modern">
+                        Recevez des alertes pour les demandes urgentes correspondant à votre groupe sanguin.
+                    </p>
+                    <div class="feature-link">
+                        <span>En savoir plus</span>
+                        <i class="fas fa-arrow-right"></i>
                     </div>
                 </div>
-                <div class="col-md-4">
-                    <div class="feature-card">
-                        <div class="feature-icon">
-                            <i class="fas fa-hand-holding-heart"></i>
-                        </div>
-                        <h3 class="feature-title">3. Sauvez des vies</h3>
-                        <p class="feature-description">
-                            Répondez aux demandes et effectuez votre don dans les établissements partenaires.
-                        </p>
+
+                <div class="feature-card-modern">
+                    <div class="feature-number">03</div>
+                    <div class="feature-icon-modern">
+                        <i class="fas fa-hand-holding-heart"></i>
+                    </div>
+                    <h3 class="feature-title-modern">Sauvez des vies</h3>
+                    <p class="feature-description-modern">
+                        Répondez aux demandes et effectuez votre don dans les établissements partenaires.
+                    </p>
+                    <div class="feature-link">
+                        <span>Agir maintenant</span>
+                        <i class="fas fa-arrow-right"></i>
                     </div>
                 </div>
             </div>
@@ -312,58 +431,184 @@
     </section>
 
     <!-- Call to Action -->
-    <section class="cta-section">
-        <div class="container cta-content">
-            <h2 class="cta-title">Prêt à faire la différence ?</h2>
-            <p class="cta-subtitle">
-                Rejoignez des milliers de héros du quotidien qui donnent de leur temps pour sauver des vies
-            </p>
-            <div class="d-flex justify-content-center gap-3 flex-wrap">
-                <a href="/accounts/signup/donor/" class="btn-cta-white">
-                    <i class="fas fa-heart"></i>
-                    Commencer maintenant
-                </a>
-                <a href="/accounts/login/" class="btn-cta-outline">
-                    <i class="fas fa-sign-in-alt"></i>
-                    Se connecter
-                </a>
+    <section class="cta-section-modern">
+        <div class="container">
+            <div class="cta-card-modern">
+                <!-- Decorative elements -->
+                <div class="cta-deco-circle cta-circle-1"></div>
+                <div class="cta-deco-circle cta-circle-2"></div>
+                <div class="cta-deco-dots"></div>
+                
+                <div class="cta-content-modern">
+                    <!-- Badge -->
+                    <div class="cta-badge-modern">
+                        <i class="fas fa-rocket"></i>
+                        <span>Rejoignez-nous</span>
+                    </div>
+                    
+                    <!-- Title & Subtitle -->
+                    <h2 class="cta-title-modern">
+                        Prêt à faire la <span class="text-gradient-cta">différence</span> ?
+                    </h2>
+                    <p class="cta-subtitle-modern">
+                        Rejoignez des milliers de héros du quotidien qui donnent de leur temps pour sauver des vies
+                    </p>
+                    
+                    <!-- CTA Buttons -->
+                    <div class="cta-buttons-wrapper">
+                        <a href="/accounts/signup/donor/" class="btn-cta-primary-modern">
+                            <div class="btn-cta-glow"></div>
+                            <div class="btn-cta-content">
+                                <i class="fas fa-heart"></i>
+                                <span>Commencer maintenant</span>
+                                <i class="fas fa-arrow-right"></i>
+                            </div>
+                        </a>
+                        <a href="/accounts/login/" class="btn-cta-secondary-modern">
+                            <i class="fas fa-sign-in-alt"></i>
+                            <span>Se connecter</span>
+                        </a>
+                    </div>
+                    
+                    <!-- Stats Bar -->
+                    <div class="cta-stats-bar">
+                        <div class="cta-stat-item">
+                            <i class="fas fa-star"></i>
+                            <span>4.9/5</span>
+                        </div>
+                        <div class="cta-stat-divider"></div>
+                        <div class="cta-stat-item">
+                            <i class="fas fa-users"></i>
+                            <span>1500+ donneurs</span>
+                        </div>
+                        <div class="cta-stat-divider"></div>
+                        <div class="cta-stat-item">
+                            <i class="fas fa-shield-check"></i>
+                            <span>100% sécurisé</span>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </section>
 
     <!-- Footer -->
-    <footer class="footer">
+    <footer class="footer-modern">
         <div class="container">
-            <div class="row">
-                <div class="col-md-4 mb-4">
-                    <h5 class="footer-title">
-                        <i class="fas fa-heartbeat me-2"></i>Don Sang Plus
-                    </h5>
-                    <p class="text-light">
+            <!-- Footer Content -->
+            <div class="footer-content-grid">
+                <!-- Brand Column -->
+                <div class="footer-column footer-brand">
+                    <div class="footer-logo">
+                        <i class="fas fa-heartbeat"></i>
+                        <span>Don Sang Plus</span>
+                    </div>
+                    <p class="footer-description">
                         Plateforme innovante de mise en relation entre donneurs de sang et établissements de santé. 
                         Ensemble, sauvons des vies !
                     </p>
+                    <div class="footer-social">
+                        <a href="#" class="social-link" aria-label="Facebook">
+                            <i class="fab fa-facebook-f"></i>
+                        </a>
+                        <a href="#" class="social-link" aria-label="Twitter">
+                            <i class="fab fa-twitter"></i>
+                        </a>
+                        <a href="#" class="social-link" aria-label="Instagram">
+                            <i class="fab fa-instagram"></i>
+                        </a>
+                        <a href="#" class="social-link" aria-label="LinkedIn">
+                            <i class="fab fa-linkedin-in"></i>
+                        </a>
+                    </div>
                 </div>
-                <div class="col-md-4 mb-4">
-                    <h5 class="footer-title">Liens rapides</h5>
-                    <ul class="footer-links">
-                        <li><a href="/">Accueil</a></li>
-                        <li><a href="/accounts/signup/donor/">Devenir donneur</a></li>
-                        <li><a href="/accounts/signup/hospital/">Espace hôpital</a></li>
-                        <li><a href="/accounts/login/">Connexion</a></li>
+
+                <!-- Links Column -->
+                <div class="footer-column">
+                    <h5 class="footer-column-title">
+                        <i class="fas fa-link"></i>
+                        <span>Liens rapides</span>
+                    </h5>
+                    <ul class="footer-links-modern">
+                        <li>
+                            <a href="/">
+                                <i class="fas fa-chevron-right"></i>
+                                <span>Accueil</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="/accounts/signup/donor/">
+                                <i class="fas fa-chevron-right"></i>
+                                <span>Devenir donneur</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="/accounts/signup/hospital/">
+                                <i class="fas fa-chevron-right"></i>
+                                <span>Espace hôpital</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="/accounts/login/">
+                                <i class="fas fa-chevron-right"></i>
+                                <span>Connexion</span>
+                            </a>
+                        </li>
                     </ul>
                 </div>
-                <div class="col-md-4 mb-4">
-                    <h5 class="footer-title">Contact</h5>
-                    <ul class="footer-links">
-                        <li><i class="fas fa-envelope me-2"></i> contact@donsangplus.ci</li>
-                        <li><i class="fas fa-phone me-2"></i> +225 XX XX XX XX XX</li>
-                        <li><i class="fas fa-map-marker-alt me-2"></i> Abidjan, Côte d'Ivoire</li>
+
+                <!-- Contact Column -->
+                <div class="footer-column">
+                    <h5 class="footer-column-title">
+                        <i class="fas fa-address-book"></i>
+                        <span>Contact</span>
+                    </h5>
+                    <ul class="footer-contact-list">
+                        <li class="contact-item">
+                            <div class="contact-icon">
+                                <i class="fas fa-envelope"></i>
+                            </div>
+                            <div class="contact-info">
+                                <span class="contact-label">Email</span>
+                                <a href="mailto:contact@donsangplus.ci">contact@donsangplus.ci</a>
+                            </div>
+                        </li>
+                        <li class="contact-item">
+                            <div class="contact-icon">
+                                <i class="fas fa-phone"></i>
+                            </div>
+                            <div class="contact-info">
+                                <span class="contact-label">Téléphone</span>
+                                <span>+225 XX XX XX XX XX</span>
+                            </div>
+                        </li>
+                        <li class="contact-item">
+                            <div class="contact-icon">
+                                <i class="fas fa-map-marker-alt"></i>
+                            </div>
+                            <div class="contact-info">
+                                <span class="contact-label">Adresse</span>
+                                <span>Abidjan, Côte d'Ivoire</span>
+                            </div>
+                        </li>
                     </ul>
                 </div>
             </div>
-            <div class="footer-bottom">
-                <p class="mb-0">&copy; 2025 Don Sang Plus. Tous droits réservés.</p>
+
+            <!-- Footer Bottom -->
+            <div class="footer-bottom-modern">
+                <div class="footer-divider"></div>
+                <div class="footer-bottom-content">
+                    <p class="footer-copyright">
+                        <i class="fas fa-copyright"></i>
+                        <span>2025 Don Sang Plus. Tous droits réservés.</span>
+                    </p>
+                    <div class="footer-bottom-links">
+                        <a href="#">Politique de confidentialité</a>
+                        <span class="separator">•</span>
+                        <a href="#">Conditions d'utilisation</a>
+                    </div>
+                </div>
             </div>
         </div>
     </footer>
@@ -372,34 +617,39 @@
     
     <!-- Mobile Menu Script -->
     <script>
-        // Mobile menu toggle
+        // Mobile menu toggle with modern animations
         const mobileMenuToggle = document.getElementById('mobileMenuToggle');
         const mobileMenu = document.getElementById('mobileMenu');
         const mobileMenuOverlay = document.getElementById('mobileMenuOverlay');
         
         function toggleMobileMenu() {
-            mobileMenu.classList.toggle('active');
-            mobileMenuOverlay.classList.toggle('active');
-            document.body.classList.toggle('menu-open');
+            const isActive = mobileMenu.classList.contains('active');
             
-            // Toggle icon
-            const icon = mobileMenuToggle.querySelector('i');
-            if (mobileMenu.classList.contains('active')) {
-                icon.classList.remove('fa-bars');
-                icon.classList.add('fa-times');
+            if (isActive) {
+                // Close menu
+                mobileMenu.classList.remove('active');
+                mobileMenuOverlay.classList.remove('active');
+                mobileMenuToggle.classList.remove('active');
+                document.body.classList.remove('menu-open');
             } else {
-                icon.classList.remove('fa-times');
-                icon.classList.add('fa-bars');
+                // Open menu
+                mobileMenu.classList.add('active');
+                mobileMenuOverlay.classList.add('active');
+                mobileMenuToggle.classList.add('active');
+                document.body.classList.add('menu-open');
             }
         }
         
+        // Toggle button click
         mobileMenuToggle.addEventListener('click', toggleMobileMenu);
+        
+        // Overlay click to close
         mobileMenuOverlay.addEventListener('click', toggleMobileMenu);
         
         // Close menu when clicking on a link
-        document.querySelectorAll('.mobile-nav-item').forEach(item => {
+        document.querySelectorAll('.mobile-link-modern').forEach(item => {
             item.addEventListener('click', () => {
-                if (window.innerWidth <= 768) {
+                if (window.innerWidth <= 992) {
                     toggleMobileMenu();
                 }
             });
@@ -407,10 +657,25 @@
         
         // Close menu on window resize if desktop
         window.addEventListener('resize', () => {
-            if (window.innerWidth > 768 && mobileMenu.classList.contains('active')) {
+            if (window.innerWidth > 992 && mobileMenu.classList.contains('active')) {
                 toggleMobileMenu();
             }
         });
+        
+        // Prevent body scroll when menu is open
+        const observer = new MutationObserver((mutations) => {
+            mutations.forEach((mutation) => {
+                if (mutation.attributeName === 'class') {
+                    if (document.body.classList.contains('menu-open')) {
+                        document.body.style.overflow = 'hidden';
+                    } else {
+                        document.body.style.overflow = '';
+                    }
+                }
+            });
+        });
+        
+        observer.observe(document.body, { attributes: true });
     </script>
 </body>
 </html>
