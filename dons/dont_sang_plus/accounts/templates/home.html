@@ -1,511 +1,233 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Don Sang Plus - Sauvez des vies ensemble</title>
-    {% load static %}
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-            overflow-x: hidden;
-        }
-
-        /* Modern Navbar - TOUJOURS VISIBLE */
-        .modern-navbar {
-            background: white;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
-            padding: 1.2rem 0;
-            position: sticky;
-            top: 0;
-            z-index: 10000;
-        }
-
-        .navbar-brand-custom {
-            font-size: 1.5rem;
-            font-weight: 800;
-            color: #EF4444;
-            text-decoration: none;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            transition: all 0.3s ease;
-        }
-
-        .navbar-brand-custom:hover {
-            color: #DC2626;
-            transform: scale(1.05);
-        }
-
-        .nav-link-custom {
-            color: #475569;
-            text-decoration: none;
-            font-weight: 500;
-            padding: 0.5rem 1rem;
-            border-radius: 8px;
-            transition: all 0.3s ease;
-        }
-
-        .nav-link-custom:hover {
-            color: #EF4444;
-            background: #FEF2F2;
-        }
-
-        .btn-primary-custom {
-            background: linear-gradient(135deg, #EF4444, #DC2626);
-            color: white !important;
-            padding: 0.75rem 2rem;
-            border-radius: 50px;
-            text-decoration: none;
-            font-weight: 600;
-            transition: all 0.3s ease;
-            border: none;
-            display: inline-flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-
-        .btn-primary-custom:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 25px rgba(239, 68, 68, 0.3);
-        }
-
-        .btn-outline-custom {
-            background: white;
-            color: #EF4444 !important;
-            padding: 0.75rem 2rem;
-            border-radius: 50px;
-            text-decoration: none;
-            font-weight: 600;
-            border: 2px solid #EF4444;
-            transition: all 0.3s ease;
-            display: inline-flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-
-        .btn-outline-custom:hover {
-            background: #EF4444;
-            color: white !important;
-            transform: translateY(-2px);
-        }
-
-        /* Hero Section */
-        .hero-section {
-            background: linear-gradient(135deg, #FEF2F2 0%, #FEE2E2 100%);
-            padding: 6rem 0 4rem;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .hero-section::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23EF4444' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
-            opacity: 0.3;
-        }
-
-        .hero-content {
-            position: relative;
-            z-index: 1;
-        }
-
-        .hero-title {
-            font-size: 3.5rem;
-            font-weight: 900;
-            color: #DC2626;
-            margin-bottom: 1.5rem;
-            line-height: 1.1;
-            animation: fadeInUp 0.8s ease;
-        }
-
-        .hero-subtitle {
-            font-size: 1.3rem;
-            color: #64748b;
-            margin-bottom: 2.5rem;
-            line-height: 1.7;
-            animation: fadeInUp 0.8s ease 0.2s both;
-        }
-
-        .hero-features {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 2rem;
-            margin-top: 2rem;
-            animation: fadeInUp 0.8s ease 0.4s both;
-        }
-
-        .hero-feature {
-            display: flex;
-            align-items: center;
-            gap: 0.7rem;
-            color: #475569;
-            font-weight: 500;
-        }
-
-        .hero-feature i {
-            color: #10B981;
-            font-size: 1.5rem;
-        }
-
-        .hero-image {
-            position: relative;
-            animation: fadeInUp 0.8s ease 0.3s both;
-        }
-
-        .hero-image img {
-            width: 100%;
-            height: auto;
-            border-radius: 20px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
-        }
-
-        @keyframes fadeInUp {
-            from {
-                opacity: 0;
-                transform: translateY(30px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        /* Stats Section */
-        .stats-section {
-            padding: 5rem 0;
-            background: white;
-        }
-
-        .stat-card {
-            text-align: center;
-            padding: 2rem;
-            border-radius: 20px;
-            background: white;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-            transition: all 0.3s ease;
-            height: 100%;
-        }
-
-        .stat-card:hover {
-            transform: translateY(-10px);
-            box-shadow: 0 10px 30px rgba(239, 68, 68, 0.2);
-        }
-
-        .stat-number {
-            font-size: 3.5rem;
-            font-weight: 900;
-            background: linear-gradient(135deg, #EF4444, #DC2626);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            margin-bottom: 0.5rem;
-        }
-
-        .stat-label {
-            color: #64748b;
-            font-size: 1.1rem;
-            font-weight: 600;
-        }
-
-        /* Features Section */
-        .features-section {
-            padding: 5rem 0;
-            background: #F9FAFB;
-        }
-
-        .section-title {
-            text-align: center;
-            font-size: 2.8rem;
-            font-weight: 800;
-            color: #1e293b;
-            margin-bottom: 1rem;
-        }
-
-        .section-subtitle {
-            text-align: center;
-            color: #64748b;
-            font-size: 1.2rem;
-            margin-bottom: 4rem;
-            max-width: 700px;
-            margin-left: auto;
-            margin-right: auto;
-        }
-
-        .feature-card {
-            background: white;
-            padding: 2.5rem;
-            border-radius: 20px;
-            text-align: center;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-            transition: all 0.3s ease;
-            height: 100%;
-        }
-
-        .feature-card:hover {
-            transform: translateY(-10px);
-            box-shadow: 0 10px 30px rgba(239, 68, 68, 0.15);
-        }
-
-        .feature-icon {
-            width: 90px;
-            height: 90px;
-            margin: 0 auto 1.5rem;
-            background: linear-gradient(135deg, #FEE2E2, #FEF2F2);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 2.5rem;
-            color: #EF4444;
-        }
-
-        .feature-title {
-            font-size: 1.4rem;
-            font-weight: 700;
-            color: #1e293b;
-            margin-bottom: 1rem;
-        }
-
-        .feature-description {
-            color: #64748b;
-            line-height: 1.7;
-            font-size: 1.05rem;
-        }
-
-        /* CTA Section */
-        .cta-section {
-            background: linear-gradient(135deg, #EF4444, #DC2626);
-            padding: 6rem 0;
-            color: white;
-            text-align: center;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .cta-section::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23FFFFFF' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
-        }
-
-        .cta-content {
-            position: relative;
-            z-index: 1;
-        }
-
-        .cta-title {
-            font-size: 3rem;
-            font-weight: 900;
-            margin-bottom: 1.5rem;
-        }
-
-        .cta-subtitle {
-            font-size: 1.3rem;
-            margin-bottom: 2.5rem;
-            opacity: 0.95;
-        }
-
-        .btn-cta-white {
-            background: white;
-            color: #EF4444 !important;
-            padding: 1.2rem 3rem;
-            border-radius: 50px;
-            text-decoration: none;
-            font-weight: 700;
-            font-size: 1.1rem;
-            transition: all 0.3s ease;
-            display: inline-flex;
-            align-items: center;
-            gap: 0.7rem;
-        }
-
-        .btn-cta-white:hover {
-            background: #FEF2F2;
-            transform: translateY(-5px);
-            box-shadow: 0 15px 40px rgba(255, 255, 255, 0.3);
-        }
-
-        .btn-cta-outline {
-            background: transparent;
-            color: white !important;
-            padding: 1.2rem 3rem;
-            border-radius: 50px;
-            text-decoration: none;
-            font-weight: 700;
-            font-size: 1.1rem;
-            border: 3px solid white;
-            transition: all 0.3s ease;
-            display: inline-flex;
-            align-items: center;
-            gap: 0.7rem;
-        }
-
-        .btn-cta-outline:hover {
-            background: white;
-            color: #EF4444 !important;
-            transform: translateY(-5px);
-        }
-
-        /* Footer */
-        .footer {
-            background: #1e293b;
-            color: white;
-            padding: 3rem 0 1rem;
-        }
-
-        .footer-title {
-            color: #EF4444;
-            font-weight: 700;
-            margin-bottom: 1.5rem;
-            font-size: 1.3rem;
-        }
-
-        .footer-links {
-            list-style: none;
-            padding: 0;
-        }
-
-        .footer-links li {
-            margin-bottom: 0.7rem;
-        }
-
-        .footer-links a {
-            color: #cbd5e1;
-            text-decoration: none;
-            transition: color 0.3s ease;
-        }
-
-        .footer-links a:hover {
-            color: #EF4444;
-        }
-
-        .footer-bottom {
-            border-top: 1px solid rgba(255, 255, 255, 0.1);
-            padding-top: 1.5rem;
-            margin-top: 2rem;
-            text-align: center;
-            color: #cbd5e1;
-        }
-
-        @media (max-width: 768px) {
-            .hero-title {
-                font-size: 2.5rem;
-            }
-            
-            .hero-subtitle {
-                font-size: 1.1rem;
-            }
-
-            .stat-number {
-                font-size: 2.5rem;
-            }
-
-            .section-title {
-                font-size: 2rem;
-            }
-
-            .cta-title {
-                font-size: 2rem;
-            }
-        }
-    </style>
+    <!-- Centralized project styles -->
+    <link href="{% static 'css/modern-design.css' %}?v=4.2" rel="stylesheet">
+    <link href="{% static 'css/style.css' %}?v=4.2" rel="stylesheet">
 </head>
 <body>
     <!-- Modern Navbar -->
     <nav class="modern-navbar">
         <div class="container">
-            <div class="d-flex justify-content-between align-items-center">
+            <div class="navbar-wrapper">
+                <!-- Logo -->
                 <a href="/" class="navbar-brand-custom">
                     <i class="fas fa-heartbeat"></i>
-                    Don Sang Plus
+                    <span class="brand-text">Don Sang Plus</span>
                 </a>
-                <div class="d-flex align-items-center gap-3">
+
+                <!-- Desktop Navigation -->
+                <div class="navbar-menu desktop-menu">
                     {% if user.is_authenticated %}
                         <a href="{% if user.user_type == 'donor' %}/donations/donor-dashboard/{% else %}/donations/hospital-dashboard/{% endif %}" class="nav-link-custom">
-                            <i class="fas fa-tachometer-alt me-1"></i> Tableau de bord
+                            <i class="fas fa-tachometer-alt"></i>
+                            <span>Tableau de bord</span>
                         </a>
                         <a href="/accounts/logout/" class="btn-outline-custom">
-                            <i class="fas fa-sign-out-alt"></i> Déconnexion
+                            <i class="fas fa-sign-out-alt"></i>
+                            <span>Déconnexion</span>
                         </a>
                     {% else %}
                         <a href="/accounts/login/" class="nav-link-custom">
-                            <i class="fas fa-sign-in-alt me-1"></i> Connexion
+                            <i class="fas fa-sign-in-alt"></i>
+                            <span>Connexion</span>
                         </a>
                         <div class="dropdown">
                             <button class="btn-primary-custom dropdown-toggle" data-bs-toggle="dropdown">
-                                <i class="fas fa-user-plus"></i> Inscription
+                                <i class="fas fa-user-plus"></i>
+                                <span>Inscription</span>
                             </button>
-                            <ul class="dropdown-menu">
+                            <ul class="dropdown-menu dropdown-menu-end">
                                 <li><a class="dropdown-item" href="/accounts/signup/donor/">
-                                    <i class="fas fa-heart text-danger me-2"></i> Je suis donneur 
+                                    <i class="fas fa-heart text-danger me-2"></i> Donneur
                                 </a></li>
                                 <li><a class="dropdown-item" href="/accounts/signup/hospital/">
-                                    <i class="fas fa-hospital text-info me-2"></i> Je suis un hôpital
+                                    <i class="fas fa-hospital text-info me-2"></i> Hôpital
                                 </a></li>
                             </ul>
                         </div>
                     {% endif %}
                 </div>
+
+                <!-- Mobile Menu Toggle -->
+                <button class="mobile-menu-toggle" id="mobileMenuToggle" aria-label="Menu">
+                    <i class="fas fa-bars"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Mobile Navigation Menu -->
+        <div class="mobile-menu" id="mobileMenu">
+            <div class="mobile-menu-content">
+                {% if user.is_authenticated %}
+                    <a href="{% if user.user_type == 'donor' %}/donations/donor-dashboard/{% else %}/donations/hospital-dashboard/{% endif %}" class="mobile-nav-item">
+                        <i class="fas fa-tachometer-alt"></i>
+                        <span>Tableau de bord</span>
+                    </a>
+                    <a href="/accounts/logout/" class="mobile-nav-item logout">
+                        <i class="fas fa-sign-out-alt"></i>
+                        <span>Déconnexion</span>
+                    </a>
+                {% else %}
+                    <a href="/accounts/login/" class="mobile-nav-item">
+                        <i class="fas fa-sign-in-alt"></i>
+                        <span>Connexion</span>
+                    </a>
+                    <div class="mobile-nav-section">
+                        <div class="mobile-nav-title">
+                            <i class="fas fa-user-plus"></i>
+                            <span>Inscription</span>
+                        </div>
+                        <a href="/accounts/signup/donor/" class="mobile-nav-item sub-item">
+                            <i class="fas fa-heart text-danger"></i>
+                            <span>Je suis donneur</span>
+                        </a>
+                        <a href="/accounts/signup/hospital/" class="mobile-nav-item sub-item">
+                            <i class="fas fa-hospital text-info"></i>
+                            <span>Je suis un hôpital</span>
+                        </a>
+                    </div>
+                {% endif %}
             </div>
         </div>
     </nav>
 
+    <!-- Mobile Menu Overlay -->
+    <div class="mobile-menu-overlay" id="mobileMenuOverlay"></div>
+
     <!-- Hero Section -->
     <section class="hero-section">
         <div class="container">
-            <div class="row align-items-center">
-                <div class="col-lg-6 hero-content">
-                    <h1 class="hero-title">Donnez votre sang,<br>Sauvez des vies</h1>
-                    <p class="hero-subtitle">
-                        Rejoignez notre plateforme innovante qui connecte les donneurs de sang avec les hôpitaux en besoin. 
-                        Chaque don compte, chaque geste sauve des vies.
-                    </p>
-                    
-                    <div class="d-flex gap-3 mb-4">
-                        <a href="/accounts/signup/donor/" class="btn-primary-custom">
-                            <i class="fas fa-hand-holding-heart"></i>
-                            Devenir donneur
-                        </a>
-                        <a href="/accounts/signup/hospital/" class="btn-outline-custom">
-                            <i class="fas fa-hospital"></i>
-                            Espace hôpital
-                        </a>
+            <div class="hero-card">
+                <div class="row g-0 align-items-stretch">
+                    <!-- Left Content -->
+                    <div class="col-lg-6 hero-content-wrapper">
+                        <div class="hero-content">
+                            <!-- Badge nouvelle plateforme -->
+                            <div class="hero-badge">
+                                <i class="fas fa-sparkles"></i>
+                                <span>Nouvelle plateforme innovante</span>
+                            </div>
+
+                            <!-- Titre principal -->
+                            <h1 class="hero-title">
+                                Donnez votre <span class="text-gradient">sang</span>,<br>
+                                Sauvez des <span class="text-gradient">vies</span>
+                            </h1>
+
+                            <!-- Sous-titre -->
+                            <p class="hero-subtitle">
+                                Rejoignez une communauté de héros du quotidien qui connectent donneurs 
+                                et hôpitaux pour sauver des vies en urgence.
+                            </p>
+                            
+                            <!-- Features Mini Stats (avant les boutons) -->
+                            <div class="hero-mini-stats">
+                                <div class="mini-stat-item">
+                                    <i class="fas fa-users"></i>
+                                    <span class="stat-value">1500+</span>
+                                    <span class="stat-label">Donneurs</span>
+                                </div>
+                                <div class="mini-stat-item">
+                                    <i class="fas fa-hospital"></i>
+                                    <span class="stat-value">120+</span>
+                                    <span class="stat-label">Hôpitaux</span>
+                                </div>
+                                <div class="mini-stat-item">
+                                    <i class="fas fa-heart-pulse"></i>
+                                    <span class="stat-value">5000+</span>
+                                    <span class="stat-label">Vies sauvées</span>
+                                </div>
+                            </div>
+                            
+                            <!-- CTA Buttons - Disposition améliorée -->
+                            <div class="hero-cta-wrapper">
+                                <!-- Bouton principal -->
+                                <a href="/accounts/signup/donor/" class="btn-hero-primary-new">
+                                    <div class="btn-glow"></div>
+                                    <div class="btn-content-new">
+                                        <div class="btn-icon-large">
+                                            <i class="fas fa-hand-holding-heart"></i>
+                                        </div>
+                                        <div class="btn-text-wrapper">
+                                            <span class="btn-main-text">Devenir donneur</span>
+                                            <span class="btn-sub-text">
+                                                <i class="fas fa-check-circle"></i> Inscription gratuite et rapide
+                                            </span>
+                                        </div>
+                                        <div class="btn-arrow-wrapper">
+                                            <i class="fas fa-arrow-right"></i>
+                                        </div>
+                                    </div>
+                                </a>
+                                
+                                <!-- Bouton secondaire -->
+                                <a href="/accounts/signup/hospital/" class="btn-hero-secondary-new">
+                                    <div class="btn-content-new">
+                                        <div class="btn-icon-medium">
+                                            <i class="fas fa-hospital"></i>
+                                        </div>
+                                        <div class="btn-text-wrapper">
+                                            <span class="btn-main-text">Espace hôpital</span>
+                                            <span class="btn-sub-text">Accès professionnel</span>
+                                        </div>
+                                    </div>
+                                </a>
+                                
+                                <!-- Lien connexion rapide -->
+                                <a href="/accounts/login/" class="btn-hero-link">
+                                    <i class="fas fa-sign-in-alt"></i>
+                                    <span>Déjà inscrit ? Connectez-vous</span>
+                                    <i class="fas fa-chevron-right"></i>
+                                </a>
+                            </div>
+                            
+                            <!-- Features Grid - Disposition compacte -->
+                            <div class="hero-features-compact">
+                                <div class="feature-badge">
+                                    <i class="fas fa-shield-check"></i>
+                                    <span>100% Sécurisé</span>
+                                </div>
+                                <div class="feature-badge">
+                                    <i class="fas fa-bolt"></i>
+                                    <span>Réponse rapide</span>
+                                </div>
+                                <div class="feature-badge">
+                                    <i class="fas fa-clock"></i>
+                                    <span>24/7 Disponible</span>
+                                </div>
+                            </div>
+
+                        </div>
                     </div>
-                    
-                    <div class="hero-features">
-                        <div class="hero-feature">
-                            <i class="fas fa-shield-check"></i>
-                            <span>100% Sécurisé</span>
+
+                    <!-- Right Image -->
+                    <div class="col-lg-6 hero-image-wrapper">
+                        <!-- Floating badge urgence - Positionné en haut -->
+                        <div class="floating-badge pulse">
+                            <i class="fas fa-heartbeat"></i>
+                            <span>Urgence vitale</span>
                         </div>
-                        <div class="hero-feature">
-                            <i class="fas fa-clock"></i>
-                            <span>Réponse rapide</span>
-                        </div>
-                        <div class="hero-feature">
-                            <i class="fas fa-heart"></i>
-                            <span>Impact réel</span>
+                        
+                        <div class="hero-image-container">
+                            <!-- Image principale -->
+                            <div class="hero-image-frame">
+                                <img src="{% static 'images/urgence.jpeg' %}" alt="Don de sang" class="hero-main-image">
+                                <div class="image-overlay"></div>
+                            </div>
+
+                            <!-- Decorative elements -->
+                            <div class="deco-circle circle-1"></div>
+                            <div class="deco-circle circle-2"></div>
+                            <div class="deco-dots"></div>
                         </div>
                     </div>
-                </div>
-                <div class="col-lg-6 hero-image">
-                    <img src="{% static 'images/urgence.jpeg' %}" alt="Don de sang" class="img-fluid">
                 </div>
             </div>
         </div>
@@ -647,5 +369,48 @@
     </footer>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Mobile Menu Script -->
+    <script>
+        // Mobile menu toggle
+        const mobileMenuToggle = document.getElementById('mobileMenuToggle');
+        const mobileMenu = document.getElementById('mobileMenu');
+        const mobileMenuOverlay = document.getElementById('mobileMenuOverlay');
+        
+        function toggleMobileMenu() {
+            mobileMenu.classList.toggle('active');
+            mobileMenuOverlay.classList.toggle('active');
+            document.body.classList.toggle('menu-open');
+            
+            // Toggle icon
+            const icon = mobileMenuToggle.querySelector('i');
+            if (mobileMenu.classList.contains('active')) {
+                icon.classList.remove('fa-bars');
+                icon.classList.add('fa-times');
+            } else {
+                icon.classList.remove('fa-times');
+                icon.classList.add('fa-bars');
+            }
+        }
+        
+        mobileMenuToggle.addEventListener('click', toggleMobileMenu);
+        mobileMenuOverlay.addEventListener('click', toggleMobileMenu);
+        
+        // Close menu when clicking on a link
+        document.querySelectorAll('.mobile-nav-item').forEach(item => {
+            item.addEventListener('click', () => {
+                if (window.innerWidth <= 768) {
+                    toggleMobileMenu();
+                }
+            });
+        });
+        
+        // Close menu on window resize if desktop
+        window.addEventListener('resize', () => {
+            if (window.innerWidth > 768 && mobileMenu.classList.contains('active')) {
+                toggleMobileMenu();
+            }
+        });
+    </script>
 </body>
 </html>

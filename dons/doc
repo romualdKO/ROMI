@@ -2,6 +2,11 @@ KLc4N9K9JzT9mvS6hlLD -- my password
 
 manage.py migrate
 
+staticflies
+cd /home/volbis/Documents/Docs/romi/dons/dont_sang_plus && python manage.py collectstatic --no-input
+
+cd /home/volbis/Documents/Docs/romi/dons ./update_css.sh
+
 DONNEUR
 
 1. Je m'inscris → je renseigne mon groupe sanguin (ex: O+)

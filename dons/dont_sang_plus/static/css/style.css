@@ -347,9 +347,10 @@ body::before {
 .hero-content {
     background: rgba(248, 249, 250, 0.95);
     backdrop-filter: blur(10px);
-    border-radius: 0 50px 50px 0;
+    border-radius: 30px;
     box-shadow: var(--shadow-heavy);
     animation: fadeInLeft 1s ease;
+    padding: 20px;
 }
 
 .hero-content h1 {
