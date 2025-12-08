@@ -1,0 +1,556 @@
+/* ================================
+   DON SANG PLUS - REWARDS PAGE CSS
+   Styles pour la page des récompenses et avantages
+   Design: Modern Soft UI avec effets premium
+   ================================ */
+
+:root {
+    --primary-red: #EF4444;
+    --primary-red-dark: #DC2626;
+    --primary-red-light: #FEE2E2;
+    --success-green: #10B981;
+    --success-green-dark: #059669;
+    --warning-yellow: #F59E0B;
+    --warning-yellow-dark: #D97706;
+    --info-blue: #3B82F6;
+    --text-dark: #1F2937;
+    --text-gray: #6B7280;
+    --border-color: #E5E7EB;
+    --bg-gray: #F9FAFB;
+}
+
+/* ================================
+   REWARDS HEADER - HERO SECTION
+   ================================ */
+.rewards-header {
+    background: linear-gradient(135deg, #EF4444 0%, #DC2626 100%);
+    color: white;
+    padding: 3rem;
+    border-radius: 24px;
+    margin-bottom: 2.5rem;
+    box-shadow: 0 12px 40px rgba(239, 68, 68, 0.3),
+                0 4px 16px rgba(0, 0, 0, 0.1);
+    position: relative;
+    overflow: hidden;
+}
+
+.rewards-header::before {
+    content: '';
+    position: absolute;
+    top: -100px;
+    right: -100px;
+    width: 300px;
+    height: 300px;
+    background: radial-gradient(circle, rgba(255, 255, 255, 0.15), transparent);
+    border-radius: 50%;
+}
+
+.rewards-header::after {
+    content: '';
+    position: absolute;
+    bottom: -80px;
+    left: -80px;
+    width: 200px;
+    height: 200px;
+    background: radial-gradient(circle, rgba(255, 255, 255, 0.1), transparent);
+    border-radius: 50%;
+}
+
+.rewards-header > div {
+    position: relative;
+    z-index: 1;
+}
+
+.rewards-header h2 {
+    font-size: 2.5rem;
+    font-weight: 800;
+    margin-bottom: 0.5rem;
+    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.rewards-header p {
+    opacity: 0.95;
+    font-size: 1.1rem;
+    font-weight: 500;
+}
+
+/* ================================
+   TIER BADGES - PREMIUM DESIGN
+   ================================ */
+.tier-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.75rem 2rem;
+    border-radius: 50px;
+    font-weight: 800;
+    font-size: 1.2rem;
+    margin-top: 1.5rem;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2),
+                inset 0 -2px 8px rgba(0, 0, 0, 0.15);
+    transition: all 0.3s ease;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.tier-badge:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.25);
+}
+
+.tier-badge i {
+    font-size: 1.5rem;
+    animation: spin-slow 3s linear infinite;
+}
+
+@keyframes spin-slow {
+    0%, 100% { transform: rotate(0deg); }
+    50% { transform: rotate(15deg); }
+}
+
+.tier-standard { 
+    background: linear-gradient(135deg, #9CA3AF, #6B7280);
+    color: white;
+}
+
+.tier-bronze { 
+    background: linear-gradient(135deg, #CD7F32, #B87333);
+    color: white;
+}
+
+.tier-silver { 
+    background: linear-gradient(135deg, #C0C0C0, #A8A8A8);
+    color: white;
+}
+
+.tier-gold { 
+    background: linear-gradient(135deg, #FFD700, #FFC700);
+    color: #1e293b;
+    animation: shimmer 3s ease-in-out infinite;
+}
+
+.tier-platinum { 
+    background: linear-gradient(135deg, #E5E4E2, #BCC6CC);
+    color: #1e293b;
+}
+
+@keyframes shimmer {
+    0%, 100% { box-shadow: 0 8px 24px rgba(255, 215, 0, 0.3); }
+    50% { box-shadow: 0 8px 32px rgba(255, 215, 0, 0.5); }
+}
+
+/* ================================
+   STATS MINI GRID
+   ================================ */
+.stats-mini-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 1.5rem;
+    margin-top: 2rem;
+}
+
+.stat-mini-card {
+    background: rgba(255, 255, 255, 0.25);
+    backdrop-filter: blur(10px);
+    padding: 1.5rem;
+    border-radius: 20px;
+    text-align: center;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15),
+                inset 0 1px 0 rgba(255, 255, 255, 0.4);
+    transition: all 0.3s ease;
+}
+
+.stat-mini-card:hover {
+    transform: translateY(-4px);
+    background: rgba(255, 255, 255, 0.35);
+}
+
+.stat-mini-value {
+    font-size: 3rem;
+    font-weight: 900;
+    margin-bottom: 0.5rem;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    background: linear-gradient(135deg, white, rgba(255, 255, 255, 0.8));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.stat-mini-label {
+    font-size: 1rem;
+    opacity: 0.95;
+    font-weight: 600;
+}
+
+/* ================================
+   PROGRESS SECTION
+   ================================ */
+.progress-section {
+    background: linear-gradient(135deg, white, #F9FAFB);
+    padding: 2rem;
+    border-radius: 20px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06),
+                0 2px 8px rgba(0, 0, 0, 0.04);
+    margin-bottom: 3rem;
+    border: 1px solid rgba(239, 68, 68, 0.1);
+    position: relative;
+    overflow: hidden;
+}
+
+.progress-section::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -20px;
+    width: 150px;
+    height: 200%;
+    background: linear-gradient(90deg, transparent, rgba(239, 68, 68, 0.03), transparent);
+    transform: skewX(-15deg);
+}
+
+.progress-section h4 {
+    font-size: 1.5rem;
+    font-weight: 800;
+    color: var(--text-dark);
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.progress-section h4 i {
+    width: 40px;
+    height: 40px;
+    background: linear-gradient(135deg, #EF4444, #DC2626);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 1.2rem;
+    box-shadow: 0 4px 16px rgba(239, 68, 68, 0.3);
+}
+
+.progress-bar-custom {
+    height: 32px;
+    border-radius: 16px;
+    background: #E5E7EB;
+    overflow: hidden;
+    position: relative;
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #EF4444, #F87171, #EF4444);
+    background-size: 200% 100%;
+    animation: gradient-flow 3s ease infinite;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: 800;
+    font-size: 0.95rem;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 2px 8px rgba(239, 68, 68, 0.4);
+    transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes gradient-flow {
+    0%, 100% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+}
+
+/* ================================
+   BENEFIT CARDS - PREMIUM
+   ================================ */
+.benefit-card {
+    background: white;
+    border-radius: 24px;
+    padding: 2rem;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08),
+                0 2px 8px rgba(0, 0, 0, 0.04);
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    margin-bottom: 2rem;
+    border: 1px solid rgba(0, 0, 0, 0.05);
+    position: relative;
+    overflow: hidden;
+}
+
+.benefit-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 4px;
+    background: linear-gradient(90deg, #EF4444, #F87171, #EF4444);
+    background-size: 200% 100%;
+    animation: gradient-flow 3s ease infinite;
+}
+
+.benefit-card:hover {
+    transform: translateY(-8px) scale(1.02);
+    box-shadow: 0 16px 48px rgba(0, 0, 0, 0.15),
+                0 8px 24px rgba(239, 68, 68, 0.1);
+}
+
+.benefit-card.locked {
+    opacity: 0.65;
+    background: linear-gradient(135deg, #F9FAFB, #F3F4F6);
+    position: relative;
+    filter: grayscale(0.3);
+}
+
+.benefit-card.locked::before {
+    background: linear-gradient(90deg, #9CA3AF, #6B7280);
+}
+
+.benefit-card.locked::after {
+    content: '🔒';
+    position: absolute;
+    top: 2rem;
+    right: 2rem;
+    font-size: 2rem;
+    opacity: 0.5;
+}
+
+.benefit-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 1.5rem;
+}
+
+.benefit-icon {
+    width: 64px;
+    height: 64px;
+    border-radius: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2rem;
+    margin-bottom: 1.5rem;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15),
+                inset 0 -2px 8px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+}
+
+.benefit-card:hover .benefit-icon {
+    transform: rotate(-5deg) scale(1.1);
+}
+
+.discount-badge {
+    background: linear-gradient(135deg, #10B981, #059669);
+    color: white;
+    padding: 0.75rem 1.5rem;
+    border-radius: 16px;
+    font-weight: 800;
+    font-size: 1.5rem;
+    box-shadow: 0 6px 20px rgba(16, 185, 129, 0.3),
+                inset 0 -2px 6px rgba(0, 0, 0, 0.15);
+    animation: pulse-badge 2s ease-in-out infinite;
+}
+
+@keyframes pulse-badge {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+}
+
+.benefit-card h5 {
+    font-size: 1.4rem;
+    font-weight: 800;
+    color: var(--text-dark);
+    margin-bottom: 0.75rem;
+}
+
+.benefit-card p {
+    color: var(--text-gray);
+    font-size: 1rem;
+    line-height: 1.6;
+    margin-bottom: 1.5rem;
+}
+
+/* ================================
+   VOUCHER CARDS - TICKET STYLE
+   ================================ */
+.voucher-card {
+    background: linear-gradient(135deg, #FEF3C7, #FDE68A);
+    border-left: 6px solid #F59E0B;
+    padding: 2rem;
+    border-radius: 20px;
+    margin-bottom: 2rem;
+    position: relative;
+    box-shadow: 0 8px 24px rgba(245, 158, 11, 0.2),
+                0 4px 12px rgba(0, 0, 0, 0.08);
+    transition: all 0.3s ease;
+    overflow: hidden;
+}
+
+.voucher-card::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    right: 0;
+    width: 40px;
+    height: 40px;
+    background: white;
+    border-radius: 50%;
+    transform: translateY(-50%) translateX(20px);
+    box-shadow: -4px 0 8px rgba(0, 0, 0, 0.1);
+}
+
+.voucher-card::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 0;
+    width: 40px;
+    height: 40px;
+    background: white;
+    border-radius: 50%;
+    transform: translateY(-50%) translateX(-20px);
+    box-shadow: 4px 0 8px rgba(0, 0, 0, 0.1);
+}
+
+.voucher-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 32px rgba(245, 158, 11, 0.3),
+                0 6px 16px rgba(0, 0, 0, 0.1);
+}
+
+.voucher-card h5 {
+    font-size: 1.3rem;
+    font-weight: 800;
+    color: #92400E;
+    margin-bottom: 0.5rem;
+}
+
+.voucher-code {
+    font-family: 'Courier New', monospace;
+    font-size: 1.8rem;
+    font-weight: 900;
+    color: #92400E;
+    background: white;
+    padding: 1rem 1.5rem;
+    border-radius: 12px;
+    display: inline-block;
+    margin: 1rem 0;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1),
+                inset 0 2px 0 rgba(255, 255, 255, 0.5);
+    border: 2px dashed #F59E0B;
+    letter-spacing: 0.1em;
+}
+
+.voucher-status {
+    position: absolute;
+    top: 1.5rem;
+    right: 1.5rem;
+    z-index: 2;
+}
+
+/* ================================
+   SECTION HEADERS
+   ================================ */
+.section-header-rewards {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 2rem;
+}
+
+.section-header-rewards h3 {
+    font-size: 1.8rem;
+    font-weight: 800;
+    color: var(--text-dark);
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.section-header-rewards h3 i {
+    width: 48px;
+    height: 48px;
+    background: linear-gradient(135deg, #EF4444, #DC2626);
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 1.3rem;
+    box-shadow: 0 6px 20px rgba(239, 68, 68, 0.3);
+}
+
+/* ================================
+   EMPTY STATES
+   ================================ */
+.empty-state-rewards {
+    text-align: center;
+    padding: 4rem 2rem;
+    background: linear-gradient(135deg, #F9FAFB, #F3F4F6);
+    border-radius: 20px;
+    box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+.empty-state-rewards i {
+    font-size: 5rem;
+    color: #9CA3AF;
+    margin-bottom: 1.5rem;
+    opacity: 0.5;
+    animation: float 3s ease-in-out infinite;
+}
+
+@keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-15px); }
+}
+
+.empty-state-rewards p {
+    color: var(--text-gray);
+    font-size: 1.1rem;
+    font-weight: 600;
+}
+
+/* ================================
+   RESPONSIVE DESIGN
+   ================================ */
+@media (max-width: 768px) {
+    .rewards-header {
+        padding: 2rem;
+    }
+    
+    .rewards-header h2 {
+        font-size: 2rem;
+    }
+    
+    .tier-badge {
+        font-size: 1rem;
+        padding: 0.6rem 1.5rem;
+    }
+    
+    .stats-mini-grid {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+    
+    .benefit-card {
+        padding: 1.5rem;
+    }
+    
+    .voucher-code {
+        font-size: 1.4rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .benefit-header {
+        flex-direction: column;
+        gap: 1rem;
+    }
+    
+    .discount-badge {
+        align-self: flex-start;
+        font-size: 1.2rem;
+    }
+}

@@ -1,0 +1,454 @@
+/* ================================
+   DON SANG PLUS - AVAILABILITY PAGE CSS
+   Styles pour la page de disponibilité
+   Design: Modern Soft UI avec effets premium
+   ================================ */
+
+:root {
+    --primary-red: #EF4444;
+    --primary-red-dark: #DC2626;
+    --success-green: #10B981;
+    --success-green-dark: #059669;
+    --danger-red: #EF4444;
+    --warning-orange: #F59E0B;
+    --primary-blue: #3B82F6;
+    --dark-text: #1F2937;
+    --text-gray: #6B7280;
+    --border-color: #E5E7EB;
+    --secondary-gray: #F9FAFB;
+}
+
+/* ================================
+   STATUS ICON - HERO DESIGN
+   ================================ */
+.status-icon-large {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15),
+                inset 0 -2px 8px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+    animation: pulse-status 2s ease-in-out infinite;
+}
+
+@keyframes pulse-status {
+    0%, 100% { 
+        transform: scale(1);
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15),
+                    inset 0 -2px 8px rgba(0, 0, 0, 0.1);
+    }
+    50% { 
+        transform: scale(1.05);
+        box-shadow: 0 12px 32px rgba(0, 0, 0, 0.2),
+                    inset 0 -2px 8px rgba(0, 0, 0, 0.15);
+    }
+}
+
+/* ================================
+   SWITCH CONTAINER - PREMIUM
+   ================================ */
+.switch-container-moderne {
+    background: linear-gradient(135deg, #F9FAFB, #F3F4F6);
+    padding: 1.75rem;
+    border-radius: 16px;
+    border: 2px solid var(--border-color);
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04),
+                inset 0 1px 0 rgba(255, 255, 255, 0.5);
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.switch-container-moderne::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -20px;
+    width: 100px;
+    height: 200%;
+    background: linear-gradient(90deg, transparent, rgba(239, 68, 68, 0.03), transparent);
+    transform: skewX(-15deg);
+}
+
+.switch-container-moderne:hover {
+    border-color: rgba(239, 68, 68, 0.3);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+}
+
+.switch-moderne:checked {
+    background-color: var(--success-green) !important;
+    border-color: var(--success-green) !important;
+    box-shadow: 0 2px 8px rgba(16, 185, 129, 0.3) !important;
+}
+
+.switch-moderne {
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.switch-moderne:focus {
+    box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.2) !important;
+}
+
+/* ================================
+   FORM LABELS - MODERN DESIGN
+   ================================ */
+.form-label-moderne {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    font-weight: 800;
+    color: var(--dark-text);
+    margin-bottom: 1rem;
+    font-size: 1.05rem;
+    letter-spacing: -0.01em;
+}
+
+.form-label-moderne i {
+    width: 32px;
+    height: 32px;
+    background: linear-gradient(135deg, #EF4444, #DC2626);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 0.95rem;
+    box-shadow: 0 4px 12px rgba(239, 68, 68, 0.25);
+}
+
+/* ================================
+   FORM CONTROLS - SOFT UI
+   ================================ */
+.form-control-moderne {
+    width: 100%;
+    padding: 1rem 1.25rem;
+    border: 2px solid var(--border-color);
+    border-radius: 14px;
+    font-size: 1rem;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    font-family: inherit;
+    background: white;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04),
+                inset 0 1px 2px rgba(0, 0, 0, 0.04);
+    color: var(--dark-text);
+    font-weight: 500;
+}
+
+.form-control-moderne::placeholder {
+    color: #9CA3AF;
+    font-weight: 400;
+}
+
+.form-control-moderne:focus {
+    outline: none;
+    border-color: var(--primary-red);
+    box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.1),
+                0 4px 16px rgba(239, 68, 68, 0.15);
+    transform: translateY(-1px);
+}
+
+.form-control-moderne:hover:not(:focus) {
+    border-color: rgba(239, 68, 68, 0.3);
+}
+
+textarea.form-control-moderne {
+    resize: vertical;
+    min-height: 120px;
+    line-height: 1.6;
+}
+
+/* ================================
+   FORM ACTIONS - BUTTON CONTAINER
+   ================================ */
+.form-actions-moderne {
+    display: flex;
+    gap: 1.25rem;
+    padding-top: 2rem;
+    border-top: 2px solid rgba(239, 68, 68, 0.1);
+    margin-top: 2rem;
+}
+
+.form-actions-moderne button,
+.form-actions-moderne a {
+    flex: 1;
+}
+
+.form-actions-moderne .btn-modern-primary {
+    background: linear-gradient(135deg, #EF4444, #DC2626);
+    box-shadow: 0 6px 20px rgba(239, 68, 68, 0.35),
+                0 2px 8px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+}
+
+.form-actions-moderne .btn-modern-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 28px rgba(239, 68, 68, 0.45),
+                0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.form-actions-moderne .btn-modern-primary:active {
+    transform: translateY(0);
+}
+
+/* ================================
+   ALERT BOXES - MODERN INFO/WARNING
+   ================================ */
+.alert-modern {
+    padding: 1.5rem 1.75rem;
+    border-radius: 16px;
+    border-left: 5px solid;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06),
+                0 2px 8px rgba(0, 0, 0, 0.04);
+    position: relative;
+    overflow: hidden;
+}
+
+.alert-modern::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, transparent, rgba(255, 255, 255, 0.3));
+    pointer-events: none;
+}
+
+.alert-modern > div {
+    position: relative;
+    z-index: 1;
+}
+
+.alert-modern.info {
+    background: linear-gradient(135deg, #EFF6FF, #DBEAFE);
+    border-left-color: var(--primary-blue);
+    color: #1E3A8A;
+}
+
+.alert-modern.info h6 {
+    color: #1E40AF;
+}
+
+.alert-modern.info ul li strong {
+    color: #1E40AF;
+}
+
+.alert-modern.warning {
+    background: linear-gradient(135deg, #FEF3C7, #FDE68A);
+    border-left-color: var(--warning-orange);
+}
+
+.alert-modern.warning h6 {
+    color: #92400E;
+    font-weight: 800;
+}
+
+.alert-modern.warning p {
+    color: #78350F;
+}
+
+.alert-modern.warning strong {
+    color: #92400E;
+    font-weight: 800;
+}
+
+.alert-modern h6 {
+    font-weight: 800;
+    margin-bottom: 0.75rem;
+    font-size: 1.05rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.alert-modern ul {
+    margin: 0;
+    padding-left: 1.5rem;
+}
+
+.alert-modern ul li {
+    margin-bottom: 0.5rem;
+    line-height: 1.6;
+}
+
+.alert-modern ul li:last-child {
+    margin-bottom: 0;
+}
+
+/* ================================
+   STATUS BANNER ENHANCEMENTS
+   ================================ */
+.card-modern[style*="border-left: 5px"] {
+    position: relative;
+    overflow: hidden;
+}
+
+.card-modern[style*="border-left: 5px"]::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: -100px;
+    width: 250px;
+    height: 100%;
+    background: radial-gradient(circle, rgba(255, 255, 255, 0.1), transparent);
+    pointer-events: none;
+}
+
+/* ================================
+   TEXT HELPERS
+   ================================ */
+.text-muted {
+    color: var(--text-gray) !important;
+    font-size: 0.9rem;
+    line-height: 1.5;
+}
+
+.text-muted i {
+    margin-right: 0.25rem;
+}
+
+/* ================================
+   FORM SWITCHES - BOOTSTRAP OVERRIDE
+   ================================ */
+.form-check-input[type="checkbox"] {
+    transition: all 0.3s ease;
+}
+
+.form-check-input:checked {
+    background-color: var(--success-green);
+    border-color: var(--success-green);
+}
+
+.form-check-label {
+    cursor: pointer;
+    user-select: none;
+    transition: color 0.2s ease;
+}
+
+.form-check:hover .form-check-label {
+    color: var(--dark-text);
+}
+
+/* ================================
+   CARD ENHANCEMENTS
+   ================================ */
+.card-modern-header {
+    padding: 1.75rem 2rem;
+    border-bottom: 2px solid rgba(239, 68, 68, 0.1);
+    background: linear-gradient(135deg, #FAFAFA, #F9FAFB);
+}
+
+.carte-titre-moderne {
+    font-size: 1.5rem;
+    font-weight: 800;
+    color: var(--dark-text);
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.carte-titre-moderne i {
+    width: 40px;
+    height: 40px;
+    background: linear-gradient(135deg, #EF4444, #DC2626);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 1.1rem;
+    box-shadow: 0 4px 16px rgba(239, 68, 68, 0.3);
+}
+
+.card-modern-body {
+    padding: 2rem;
+}
+
+/* ================================
+   RESPONSIVE DESIGN
+   ================================ */
+@media (max-width: 768px) {
+    .form-actions-moderne {
+        flex-direction: column;
+    }
+    
+    .form-actions-moderne button,
+    .form-actions-moderne a {
+        width: 100%;
+    }
+    
+    .status-icon-large {
+        width: 60px;
+        height: 60px;
+    }
+    
+    .status-icon-large i {
+        font-size: 24px !important;
+    }
+    
+    .switch-container-moderne {
+        padding: 1.25rem;
+    }
+    
+    .form-label-moderne i {
+        width: 28px;
+        height: 28px;
+        font-size: 0.85rem;
+    }
+    
+    .alert-modern {
+        padding: 1.25rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .card-modern-header {
+        padding: 1.25rem 1.5rem;
+    }
+    
+    .card-modern-body {
+        padding: 1.5rem;
+    }
+    
+    .carte-titre-moderne {
+        font-size: 1.25rem;
+    }
+    
+    .carte-titre-moderne i {
+        width: 36px;
+        height: 36px;
+        font-size: 1rem;
+    }
+}
+
+/* ================================
+   ANIMATION ENHANCEMENTS
+   ================================ */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.card-modern,
+.alert-modern {
+    animation: fadeInUp 0.6s ease-out;
+}
+
+.card-modern:nth-child(2) {
+    animation-delay: 0.1s;
+}
+
+.card-modern:nth-child(3) {
+    animation-delay: 0.2s;
+}

@@ -3,30 +3,31 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ma Disponibilité - Don Sang Plus</title>
+    <title>Ma disponibilité - Don Sang Plus</title>
     {% load static %}
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
     <link rel="stylesheet" href="{% static 'css/modern-design.css' %}">
-    <link rel="stylesheet" href="{% static 'css/soft-ui-enhancements.css' %}">
+    <link rel="stylesheet" href="{% static 'css/availability.css' %}">
 </head>
 <body>
     {% include 'includes/donor_sidebar.html' with active_page='availability' %}
-
 
     <!-- Main Content -->
     <div class="modern-main-content">
         <!-- Top Bar -->
         <div class="modern-topbar">
             <div>
-                <div class="topbar-title">Ma Disponibilité</div>
+                <div class="topbar-title">
+                    <i class="fas fa-calendar-check"></i> Ma Disponibilité
+                </div>
                 <div class="topbar-subtitle">Gérez votre disponibilité pour le don de sang</div>
             </div>
             <div class="topbar-actions">
-                <a href="{% url 'donations:donor_dashboard' %}" class="btn-modern btn-modern-secondary" style="display: inline-flex; align-items: center; gap: 8px; padding: 10px 20px; font-weight: 600;">
+                <a href="{% url 'donations:donor_dashboard' %}" class="btn-modern btn-modern-secondary">
                     <i class="fas fa-arrow-left"></i>
-                    Retour au Dashboard
+                    Retour
                 </a>
             </div>
         </div>
@@ -50,7 +51,7 @@
                                         Statut : {% if availability.is_available %}DISPONIBLE{% else %}INDISPONIBLE{% endif %}
                                     </h3>
                                     {% if availability.next_available_date %}
-                                    <p class="mb-0" style="color: var(--text-gray);">
+                                    <p class="mb-0" style="color: var(--text-gray); font-size: 1.05rem;">
                                         <i class="fas fa-calendar-alt"></i>
                                         Prochaine disponibilité : <strong>{{ availability.next_available_date|date:"d/m/Y" }}</strong>
                                     </p>
@@ -63,15 +64,15 @@
 
                     <!-- Info Card -->
                     <div class="alert-modern info mb-4">
-                        <div style="display: flex; align-items: start; gap: 16px;">
-                            <div style="font-size: 28px; color: var(--primary-blue);">
+                        <div style="display: flex; align-items: start; gap: 1rem;">
+                            <div style="font-size: 2rem; color: var(--primary-blue);">
                                 <i class="fas fa-info-circle"></i>
                             </div>
                             <div>
-                                <h6 style="font-weight: 700; margin-bottom: 12px; color: var(--dark-text);">À savoir :</h6>
-                                <ul style="margin: 0; padding-left: 20px;">
-                                    <li style="margin-bottom: 6px;">Vous devez attendre au moins <strong>3 mois</strong> entre deux dons</li>
-                                    <li style="margin-bottom: 6px;">Votre disponibilité sera visible par les hôpitaux</li>
+                                <h6>À savoir :</h6>
+                                <ul>
+                                    <li>Vous devez attendre au moins <strong>3 mois</strong> entre deux dons</li>
+                                    <li>Votre disponibilité sera visible par les hôpitaux</li>
                                     <li>Vous recevrez des notifications pour les demandes compatibles</li>
                                 </ul>
                             </div>
@@ -104,11 +105,11 @@
                                                    name="is_available" 
                                                    {% if availability.is_available %}checked{% endif %}
                                                    style="width: 60px; height: 30px; cursor: pointer;">
-                                            <label class="form-check-label" for="is_available" style="font-weight: 600; margin-left: 12px;">
+                                            <label class="form-check-label" for="is_available" style="font-weight: 700; margin-left: 0.75rem; color: var(--dark-text);">
                                                 Je suis disponible pour faire un don de sang
                                             </label>
                                         </div>
-                                        <small class="text-muted" style="display: block; margin-top: 8px;">
+                                        <small class="text-muted" style="display: block; margin-top: 0.75rem;">
                                             <i class="fas fa-info-circle"></i>
                                             Cochez cette case si vous êtes disponible et prêt à donner du sang
                                         </small>
@@ -126,7 +127,7 @@
                                            id="next_available_date" 
                                            name="next_available_date" 
                                            value="{% if availability.next_available_date %}{{ availability.next_available_date|date:'Y-m-d' }}{% endif %}">
-                                    <small class="text-muted" style="display: block; margin-top: 8px;">
+                                    <small class="text-muted" style="display: block; margin-top: 0.75rem;">
                                         <i class="fas fa-info-circle"></i>
                                         Si vous êtes temporairement indisponible, indiquez quand vous serez à nouveau disponible
                                     </small>
@@ -143,7 +144,7 @@
                                               name="notes" 
                                               rows="4" 
                                               placeholder="Précisions sur votre disponibilité, contraintes horaires, etc.">{{ availability.notes|default:"" }}</textarea>
-                                    <small class="text-muted" style="display: block; margin-top: 8px;">
+                                    <small class="text-muted" style="display: block; margin-top: 0.75rem;">
                                         <i class="fas fa-info-circle"></i>
                                         Ces notes sont visibles uniquement par vous et les administrateurs
                                     </small>
@@ -151,13 +152,13 @@
 
                                 <!-- Warning Box -->
                                 <div class="alert-modern warning mb-4">
-                                    <div style="display: flex; align-items: start; gap: 16px;">
-                                        <div style="font-size: 28px; color: var(--warning-orange);">
+                                    <div style="display: flex; align-items: start; gap: 1rem;">
+                                        <div style="font-size: 2rem; color: var(--warning-orange);">
                                             <i class="fas fa-exclamation-triangle"></i>
                                         </div>
                                         <div>
-                                            <h6 style="font-weight: 700; margin-bottom: 8px; color: #92400E;">Rappel important :</h6>
-                                            <p style="margin: 0; color: #92400E;">
+                                            <h6>Rappel important :</h6>
+                                            <p style="margin: 0;">
                                                 Après un don effectué, vous serez automatiquement marqué comme <strong>indisponible pour 3 mois</strong> pour respecter le délai légal entre deux dons.
                                             </p>
                                         </div>
@@ -165,12 +166,12 @@
                                 </div>
 
                                 <!-- Buttons -->
-                                <div class="form-actions-moderne" style="display: flex; gap: 1rem; margin-top: 2rem;">
-                                    <button type="submit" class="btn-modern btn-modern-primary btn-modern-lg" style="flex: 1; display: flex; align-items: center; justify-content: center; gap: 10px; padding: 14px 24px; font-size: 1.05rem; font-weight: 700; box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3); transition: all 0.3s ease;">
+                                <div class="form-actions-moderne">
+                                    <button type="submit" class="btn-modern btn-modern-primary btn-modern-lg">
                                         <i class="fas fa-save"></i>
-                                        <span>Mettre à jour ma disponibilité</span>
+                                        <span>Mettre à jour</span>
                                     </button>
-                                    <a href="{% url 'donations:donor_dashboard' %}" class="btn-modern btn-modern-secondary btn-modern-lg" style="flex: 0.5; display: flex; align-items: center; justify-content: center; gap: 10px; padding: 14px 24px; font-size: 1.05rem; font-weight: 700; transition: all 0.3s ease;">
+                                    <a href="{% url 'donations:donor_dashboard' %}" class="btn-modern btn-modern-secondary btn-modern-lg">
                                         <i class="fas fa-times"></i>
                                         <span>Annuler</span>
                                     </a>
@@ -182,100 +183,6 @@
             </div>
         </div>
     </div>
-
-    <style>
-        .status-icon-large {
-            width: 70px;
-            height: 70px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-        }
-
-        .switch-container-moderne {
-            background: var(--secondary-gray);
-            padding: 20px;
-            border-radius: 12px;
-            border: 2px solid var(--border-color);
-        }
-
-        .switch-moderne:checked {
-            background-color: var(--success-green) !important;
-            border-color: var(--success-green) !important;
-        }
-
-        .form-label-moderne {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            font-weight: 700;
-            color: var(--dark-text);
-            margin-bottom: 12px;
-            font-size: 15px;
-        }
-
-        .form-label-moderne i {
-            color: var(--primary-red);
-            font-size: 18px;
-        }
-
-        .form-control-moderne {
-            width: 100%;
-            padding: 14px 16px;
-            border: 2px solid var(--border-color);
-            border-radius: 12px;
-            font-size: 15px;
-            transition: all 0.3s ease;
-            font-family: inherit;
-        }
-
-        .form-control-moderne:focus {
-            outline: none;
-            border-color: var(--primary-red);
-            box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.1);
-        }
-
-        textarea.form-control-moderne {
-            resize: vertical;
-        }
-
-        .form-actions-moderne {
-            display: flex;
-            gap: 16px;
-            padding-top: 24px;
-            border-top: 2px solid var(--border-color);
-        }
-
-        .form-actions-moderne button,
-        .form-actions-moderne a {
-            flex: 1;
-        }
-
-        .alert-modern {
-            padding: 20px;
-            border-radius: 12px;
-            border-left: 4px solid;
-        }
-
-        .alert-modern.info {
-            background: #EFF6FF;
-            border-left-color: var(--primary-blue);
-            color: #1E3A8A;
-        }
-
-        .alert-modern.warning {
-            background: #FEF3C7;
-            border-left-color: var(--warning-orange);
-        }
-
-        @media (max-width: 768px) {
-            .form-actions-moderne {
-                flex-direction: column;
-            }
-        }
-    </style>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="{% static 'js/mobile-menu.js' %}"></script>

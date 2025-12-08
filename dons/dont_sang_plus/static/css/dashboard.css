@@ -849,3 +849,549 @@
         right: -10px;
     }
 }
+
+/* ================================
+   COMPATIBILITY CARD - SOFT UI
+   ================================ */
+.compatibility-card {
+    background: linear-gradient(135deg, rgba(239, 68, 68, 0.04), rgba(220, 38, 38, 0.02));
+    border: 1px solid rgba(239, 68, 68, 0.1);
+    border-radius: 24px;
+    padding: 0;
+    margin-bottom: 32px;
+    overflow: hidden;
+    box-shadow: 0 4px 24px rgba(239, 68, 68, 0.08), 
+                0 2px 8px rgba(0, 0, 0, 0.04);
+    position: relative;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.compatibility-card::before {
+    content: '';
+    position: absolute;
+    top: -50px;
+    right: -50px;
+    width: 200px;
+    height: 200px;
+    background: radial-gradient(circle, rgba(239, 68, 68, 0.1), transparent);
+    border-radius: 50%;
+    pointer-events: none;
+}
+
+.compatibility-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 40px rgba(239, 68, 68, 0.15), 
+                0 4px 16px rgba(0, 0, 0, 0.06);
+}
+
+.compatibility-header {
+    padding: 32px;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    position: relative;
+    z-index: 1;
+}
+
+.compatibility-icon {
+    width: 70px;
+    height: 70px;
+    background: linear-gradient(135deg, #EF4444, #DC2626);
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    box-shadow: 0 8px 24px rgba(239, 68, 68, 0.25), 
+                inset 0 -2px 8px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+}
+
+.compatibility-icon i {
+    font-size: 32px;
+    color: white;
+    animation: heartbeat 2s ease-in-out infinite;
+}
+
+@keyframes heartbeat {
+    0%, 100% { transform: scale(1); }
+    10%, 30% { transform: scale(1.1); }
+    20%, 40% { transform: scale(1); }
+}
+
+.compatibility-card:hover .compatibility-icon {
+    transform: rotate(-5deg) scale(1.05);
+    box-shadow: 0 12px 32px rgba(239, 68, 68, 0.35);
+}
+
+.compatibility-title {
+    font-size: 24px;
+    font-weight: 800;
+    color: #1F2937;
+    margin: 0 0 4px 0;
+    letter-spacing: -0.02em;
+}
+
+.compatibility-subtitle {
+    margin: 0;
+    color: #6B7280;
+    font-size: 14px;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.compatibility-subtitle i {
+    color: #EF4444;
+}
+
+.compatibility-body {
+    padding: 0 32px 32px 32px;
+}
+
+.compatibility-description {
+    margin: 0 0 20px 0;
+    color: #374151;
+    font-size: 15px;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.compatibility-description i {
+    color: #EF4444;
+    font-size: 18px;
+}
+
+.compatibility-description strong {
+    color: #EF4444;
+    font-weight: 700;
+    font-size: 16px;
+}
+
+.blood-types-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+    gap: 12px;
+}
+
+.blood-type-badge {
+    background: linear-gradient(135deg, #FEE2E2, #FECACA);
+    border: 2px solid #FCA5A5;
+    border-radius: 14px;
+    padding: 16px 12px;
+    text-align: center;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    cursor: pointer;
+    box-shadow: 0 2px 8px rgba(239, 68, 68, 0.1);
+    position: relative;
+    overflow: hidden;
+}
+
+.blood-type-badge::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+    transition: left 0.5s ease;
+}
+
+.blood-type-badge:hover::before {
+    left: 100%;
+}
+
+.blood-type-badge:hover {
+    transform: translateY(-4px) scale(1.02);
+    box-shadow: 0 8px 20px rgba(239, 68, 68, 0.2);
+    border-color: #F87171;
+}
+
+.blood-type-badge i {
+    width: 36px;
+    height: 36px;
+    background: linear-gradient(135deg, #EF4444, #DC2626);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 8px auto;
+    box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+    font-size: 16px;
+    color: white;
+    transition: all 0.3s ease;
+}
+
+.blood-type-badge:hover i {
+    transform: rotate(360deg) scale(1.1);
+}
+
+.blood-type-badge span {
+    display: block;
+    font-size: 18px;
+    font-weight: 800;
+    color: #991B1B;
+    letter-spacing: -0.01em;
+}
+
+/* Responsive pour la carte de compatibilité */
+@media (max-width: 768px) {
+    .compatibility-header {
+        padding: 24px;
+        flex-direction: column;
+        text-align: center;
+    }
+    
+    .compatibility-body {
+        padding: 0 24px 24px 24px;
+    }
+    
+    .compatibility-title {
+        font-size: 20px;
+    }
+    
+    .blood-types-grid {
+        grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+        gap: 10px;
+    }
+}
+
+/* ================================
+   MODERN TABLE CONTAINER - ENHANCED
+   ================================ */
+.modern-table-container {
+    background: white;
+    border-radius: 24px;
+    margin-bottom: 32px;
+    overflow: hidden;
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.06), 
+                0 2px 8px rgba(0, 0, 0, 0.04);
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    border: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.modern-table-container:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.1), 
+                0 4px 16px rgba(0, 0, 0, 0.06);
+}
+
+.section-header {
+    padding: 28px 32px;
+    background: linear-gradient(135deg, rgba(239, 68, 68, 0.04), rgba(220, 38, 38, 0.02));
+    border-bottom: 2px solid rgba(239, 68, 68, 0.08);
+}
+
+.section-header-content {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+}
+
+.section-icon {
+    width: 60px;
+    height: 60px;
+    background: linear-gradient(135deg, #EF4444, #DC2626);
+    border-radius: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    box-shadow: 0 8px 24px rgba(239, 68, 68, 0.3), 
+                inset 0 -2px 8px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+}
+
+.section-icon i {
+    font-size: 28px;
+    color: white;
+}
+
+.modern-table-container:hover .section-icon {
+    transform: rotate(-5deg) scale(1.05);
+    box-shadow: 0 12px 32px rgba(239, 68, 68, 0.4);
+}
+
+.section-title {
+    font-size: 24px;
+    font-weight: 800;
+    color: #1F2937;
+    margin: 0 0 6px 0;
+    letter-spacing: -0.02em;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.section-subtitle {
+    margin: 0;
+    color: #6B7280;
+    font-size: 14px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.badge-count {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #EF4444, #DC2626);
+    color: white;
+    border-radius: 12px;
+    padding: 4px 14px;
+    font-size: 13px;
+    font-weight: 800;
+    box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.9; transform: scale(1.05); }
+}
+
+/* Modern Table Styles */
+.modern-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+}
+
+.modern-table thead {
+    background: linear-gradient(135deg, #F9FAFB, #F3F4F6);
+    border-bottom: 2px solid #E5E7EB;
+}
+
+.modern-table thead th {
+    padding: 18px 20px;
+    text-align: left;
+    font-weight: 700;
+    font-size: 13px;
+    color: #374151;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    white-space: nowrap;
+}
+
+.modern-table thead th i {
+    margin-right: 6px;
+    color: #EF4444;
+    font-size: 14px;
+}
+
+.modern-table tbody tr {
+    border-bottom: 1px solid #F3F4F6;
+    transition: all 0.2s ease;
+}
+
+.modern-table tbody tr:hover {
+    background: linear-gradient(135deg, rgba(239, 68, 68, 0.02), rgba(254, 242, 242, 0.5));
+    transform: translateX(4px);
+}
+
+.modern-table tbody tr:last-child {
+    border-bottom: none;
+}
+
+.modern-table tbody td {
+    padding: 20px;
+    vertical-align: middle;
+    color: #1F2937;
+}
+
+/* Badge Styles Enhanced */
+.badge-modern {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 14px;
+    border-radius: 10px;
+    font-size: 13px;
+    font-weight: 700;
+    border: 2px solid;
+    transition: all 0.3s ease;
+    white-space: nowrap;
+}
+
+.badge-modern.danger {
+    background: linear-gradient(135deg, #FEE2E2, #FECACA);
+    color: #991B1B;
+    border-color: #FCA5A5;
+    box-shadow: 0 4px 12px rgba(239, 68, 68, 0.15);
+}
+
+.badge-modern.success {
+    background: linear-gradient(135deg, #D1FAE5, #A7F3D0);
+    color: #065F46;
+    border-color: #6EE7B7;
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.15);
+}
+
+.badge-modern.warning {
+    background: linear-gradient(135deg, #FEF3C7, #FDE68A);
+    color: #92400E;
+    border-color: #FCD34D;
+    box-shadow: 0 4px 12px rgba(245, 158, 11, 0.15);
+}
+
+.badge-modern.info {
+    background: linear-gradient(135deg, #DBEAFE, #BFDBFE);
+    color: #1E3A8A;
+    border-color: #93C5FD;
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15);
+}
+
+.badge-modern.completed {
+    background: linear-gradient(135deg, #DBEAFE, #BFDBFE);
+    color: #1E3A8A;
+    border-color: #93C5FD;
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15);
+}
+
+.badge-modern.closed {
+    background: linear-gradient(135deg, #F3F4F6, #E5E7EB);
+    color: #4B5563;
+    border-color: #D1D5DB;
+    box-shadow: 0 4px 12px rgba(107, 114, 128, 0.15);
+}
+
+.badge-modern:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+}
+
+/* Button Styles Enhanced */
+.btn-modern {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 18px;
+    border-radius: 12px;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    border: none;
+    white-space: nowrap;
+}
+
+.btn-modern-primary {
+    background: linear-gradient(135deg, #EF4444, #DC2626);
+    color: white;
+    box-shadow: 0 4px 16px rgba(239, 68, 68, 0.3);
+}
+
+.btn-modern-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(239, 68, 68, 0.4);
+    color: white;
+}
+
+.btn-modern-secondary {
+    background: white;
+    color: #374151;
+    border: 2px solid #E5E7EB;
+}
+
+.btn-modern-secondary:hover {
+    background: #F9FAFB;
+    border-color: #EF4444;
+    color: #EF4444;
+}
+
+.btn-modern-outline {
+    background: transparent;
+    color: #EF4444;
+    border: 2px solid #EF4444;
+}
+
+.btn-modern-outline:hover {
+    background: #EF4444;
+    color: white;
+}
+
+.btn-modern-sm {
+    padding: 8px 14px;
+    font-size: 13px;
+}
+
+/* Empty State Styling */
+.empty-state-container {
+    text-align: center;
+    padding: 64px 32px;
+}
+
+.empty-state-icon {
+    width: 120px;
+    height: 120px;
+    background: linear-gradient(135deg, #FEE2E2, #FECACA);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 24px auto;
+    box-shadow: 0 8px 32px rgba(239, 68, 68, 0.15);
+    animation: float 3s ease-in-out infinite;
+}
+
+@keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+}
+
+.empty-state-icon i {
+    font-size: 56px;
+    color: #DC2626;
+}
+
+.empty-state-title {
+    font-size: 20px;
+    font-weight: 800;
+    color: #1F2937;
+    margin: 0 0 12px 0;
+}
+
+.empty-state-text {
+    font-size: 15px;
+    color: #6B7280;
+    margin: 0;
+}
+
+/* Responsive Tables */
+@media (max-width: 1024px) {
+    .modern-table-container {
+        overflow-x: auto;
+    }
+    
+    .section-header {
+        padding: 24px;
+    }
+    
+    .section-title {
+        font-size: 20px;
+    }
+}
+
+@media (max-width: 768px) {
+    .section-header-content {
+        flex-direction: column;
+        text-align: center;
+    }
+    
+    .modern-table {
+        font-size: 13px;
+    }
+    
+    .modern-table thead th,
+    .modern-table tbody td {
+        padding: 12px;
+    }
+}
+
