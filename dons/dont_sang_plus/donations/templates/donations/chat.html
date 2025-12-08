@@ -36,26 +36,11 @@
 </head>
 <body>
   <div class="chat-container">
-    <aside class="modern-sidebar">
-      <div class="sidebar-logo">
-        <i class="fas fa-heart-pulse"></i>
-        <div>Don Sang Plus</div>
-      </div>
-      <nav class="sidebar-nav">
-        {% if user.user_type == 'donor' %}
-          <a href="{% url 'donations:donor_dashboard' %}"><i class="fas fa-home"></i>Dashboard</a>
-          <a href="{% url 'donations:donor_messages' %}" class="active"><i class="fas fa-envelope"></i>Messages</a>
-          <a href="{% url 'donations:donor_history' %}"><i class="fas fa-history"></i>Historique</a>
-        {% else %}
-          <a href="{% url 'donations:hospital_dashboard' %}"><i class="fas fa-home"></i>Dashboard</a>
-          <a href="{% url 'donations:hospital_messages' %}" class="active"><i class="fas fa-envelope"></i>Messages</a>
-          <a href="{% url 'donations:hospital_history' %}"><i class="fas fa-history"></i>Historique</a>
-        {% endif %}
-      </nav>
-      <div style="padding:12px;border-top:1px solid #eee">
-        <a href="{% url 'accounts:logout' %}" style="color:var(--primary-red);text-decoration:none"><i class="fas fa-sign-out-alt"></i> Déconnexion</a>
-      </div>
-    </aside>
+    {% if user.user_type == 'donor' %}
+      {% include 'includes/donor_sidebar.html' with active_page='messages' %}
+    {% else %}
+      {% include 'includes/hospital_sidebar.html' with active_page='messages' %}
+    {% endif %}
 
     <main class="chat-main">
       <div class="chat-header">

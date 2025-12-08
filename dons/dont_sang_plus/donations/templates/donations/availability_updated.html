@@ -1,14 +1,18 @@
-{% extends 'base.html' %}
 {% load static %}
-
-{% block title %}Disponibilité mise à jour - Don Sang Plus{% endblock %}
-
-{% block content %}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Disponibilité mise à jour - Don Sang Plus</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
 <style>
     * {
         margin: 0;
         padding: 0;
-        box-sizing: border-box;
+        box-sizing: border-box; 
     }
 
     body {
@@ -245,15 +249,16 @@
         {% endif %}
 
         <div class="button-group">
-            <a href="{% url 'donations:donor_dashboard' %}" class="btn-modern btn-modern-primary">
+            <a href="{% url 'donations:donor_dashboard' %}" class="btn btn-primary">
                 <i class="fas fa-home"></i>
                 Tableau de bord
             </a>
-            <a href="{% url 'donations:update_availability' %}" class="btn-modern btn-modern-secondary">
+            <a href="{% url 'donations:update_availability' %}" class="btn btn-secondary">
                 <i class="fas fa-edit"></i>
                 Modifier
             </a>
         </div>
     </div>
 </div>
-{% endblock %}
+</body>
+</html>

@@ -10,56 +10,7 @@
 {% block content %}
 <div class="modern-layout">
     <!-- Mobile Menu Toggle -->
-    <button class="mobile-menu-toggle" onclick="toggleMobileSidebar()" aria-label="Menu">
-        <i class="fas fa-bars"></i>
-    </button>
-
-    <!-- Sidebar Overlay -->
-    <div class="sidebar-overlay" onclick="toggleMobileSidebar()"></div>
-
-    <!-- Sidebar -->
-    <div class="modern-sidebar" id="mobileSidebar">
-        <div class="sidebar-header">
-            <div class="logo-container">
-                <i class="fas fa-heartbeat"></i>
-                <span class="logo-text">Don Sang Plus</span>
-            </div>
-        </div>
-        
-        <nav class="sidebar-nav">
-            <a href="{% url 'donations:donor_dashboard' %}" class="sidebar-nav-item">
-                <i class="fas fa-home"></i>
-                <span>Dashboard</span>
-            </a>
-            <a href="{% url 'donations:donor_dashboard' %}" class="sidebar-nav-item active">
-                <i class="fas fa-list"></i>
-                <span>Demandes</span>
-            </a>
-            <a href="{% url 'donations:donor_messages' %}" class="sidebar-nav-item">
-                <i class="fas fa-comments"></i>
-                <span>Messages</span>
-            </a>
-            <a href="{% url 'donations:donor_history' %}" class="sidebar-nav-item">
-                <i class="fas fa-history"></i>
-                <span>Historique</span>
-            </a>
-            <a href="{% url 'donations:update_availability' %}" class="sidebar-nav-item">
-                <i class="fas fa-calendar-check"></i>
-                <span>Disponibilité</span>
-            </a>
-            <a href="{% url 'donations:edit_profile' %}" class="sidebar-nav-item">
-                <i class="fas fa-user"></i>
-                <span>Profil</span>
-            </a>
-        </nav>
-        
-        <div class="sidebar-footer">
-            <a href="{% url 'accounts:logout' %}" class="sidebar-nav-item logout-item">
-                <i class="fas fa-sign-out-alt"></i>
-                <span>Déconnexion</span>
-            </a>
-        </div>
-    </div>
+    {% include 'includes/donor_sidebar.html' with active_page='requests' %}
 
     <!-- Main Content -->
     <main class="modern-main">

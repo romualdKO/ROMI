@@ -10,48 +10,7 @@
     <link rel="stylesheet" href="{% static 'css/modern-design.css' %}">
 </head>
 <body>
-    <!-- Sidebar -->
-    <div class="modern-sidebar">
-        <!-- Logo -->
-        <div class="sidebar-logo">
-            <div class="sidebar-logo-icon">
-                <i class="fas fa-heart-pulse"></i>
-            </div>
-            <div class="sidebar-logo-text">Don Sang Plus</div>
-        </div>
-
-        <!-- Navigation -->
-        <nav class="sidebar-nav">
-            <a href="{% url 'donations:hospital_dashboard' %}" class="sidebar-nav-item">
-                <i class="fas fa-home sidebar-nav-icon"></i>
-                Dashboard
-            </a>
-            <a href="{% url 'donations:hospital_dashboard' %}#requests-section" class="sidebar-nav-item active">
-                <i class="fas fa-heartbeat sidebar-nav-icon"></i>
-                Mes demandes
-            </a>
-            <a href="{% url 'donations:hospital_messages' %}" class="sidebar-nav-item">
-                <i class="fas fa-envelope sidebar-nav-icon"></i>
-                Messages
-            </a>
-            <a href="{% url 'donations:hospital_history' %}" class="sidebar-nav-item">
-                <i class="fas fa-history sidebar-nav-icon"></i>
-                Historique
-            </a>
-            <a href="{% url 'donations:edit_profile' %}" class="sidebar-nav-item">
-                <i class="fas fa-user-edit sidebar-nav-icon"></i>
-                Profil
-            </a>
-        </nav>
-
-        <!-- Sidebar Footer -->
-        <div class="sidebar-footer">
-            <a href="{% url 'accounts:logout' %}" class="sidebar-nav-item" style="color: var(--danger-red);">
-                <i class="fas fa-sign-out-alt sidebar-nav-icon"></i>
-                Déconnexion
-            </a>
-        </div>
-    </div>
+    {% include 'includes/hospital_sidebar.html' with active_page='requests' %}
 
     <!-- Main Content -->
     <div class="modern-main-content">

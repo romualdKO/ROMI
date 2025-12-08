@@ -8,46 +8,7 @@
 {% endblock %}
 
 {% block content %}
-<div class="dashboard-container">
-    <!-- Sidebar -->
-    <aside class="sidebar">
-        <div class="sidebar-header">
-            <div class="logo">
-                <i class="fas fa-heartbeat"></i>
-                <span>Don Sang Plus</span>
-            </div>
-        </div>
-        
-        <nav class="sidebar-nav">
-            <a href="{% url 'donations:donor_dashboard' %}" class="nav-item">
-                <i class="fas fa-home"></i>
-                <span>Tableau de bord</span>
-            </a>
-            <a href="{% url 'donations:donor_dashboard' %}" class="nav-item active">
-                <i class="fas fa-list"></i>
-                <span>Demandes</span>
-            </a>
-            <a href="{% url 'donations:donor_messages' %}" class="nav-item">
-                <i class="fas fa-comments"></i>
-                <span>Messages</span>
-            </a>
-            <a href="{% url 'donations:donor_history' %}" class="nav-item">
-                <i class="fas fa-history"></i>
-                <span>Historique</span>
-            </a>
-            <a href="{% url 'donations:edit_profile' %}" class="nav-item">
-                <i class="fas fa-user"></i>
-                <span>Profil</span>
-            </a>
-        </nav>
-        
-        <div class="sidebar-footer">
-            <a href="{% url 'accounts:logout' %}" class="nav-item text-danger">
-                <i class="fas fa-sign-out-alt"></i>
-                <span>Déconnexion</span>
-            </a>
-        </div>
-    </aside>
+    {% include 'includes/donor_sidebar.html' with active_page='requests' %}
 
     <!-- Main Content -->
     <main class="main-content">

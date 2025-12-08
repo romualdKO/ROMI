@@ -1,13 +1,14 @@
 {% load static %}
 <!DOCTYPE html>
 <html lang="fr">
-<head>
+<head> 
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard Donneur - Don Sang Plus</title> 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="{% static 'css/modern-design.css' %}">
+    <link rel="stylesheet" href="{% static 'css/dashboard.css' %}?v=1.0">
     <!-- Assistant Vocal IA -->
     <link rel="stylesheet" href="{% static 'css/voice-assistant.css' %}">
     
@@ -15,67 +16,7 @@
     <script src="{% static 'js/mobile-menu.js' %}"></script>
 </head>
 <body>
-    <!-- Mobile Menu Toggle -->
-    <button class="mobile-menu-toggle" onclick="toggleMobileSidebar()" aria-label="Menu">
-        <i class="fas fa-bars"></i>
-    </button>
-    
-    <!-- Sidebar Overlay (pour fermer en cliquant à l'extérieur) -->
-    <div class="sidebar-overlay" onclick="toggleMobileSidebar()"></div>
-    
-    <!-- Sidebar -->
-    <div class="modern-sidebar" id="mobileSidebar">
-        <!-- Logo -->
-        <div class="sidebar-logo">
-            <div class="sidebar-logo-icon">
-                <i class="fas fa-heart-pulse"></i>
-            </div>
-            <div class="sidebar-logo-text">Don Sang Plus</div>
-        </div>
-
-        <!-- Navigation -->
-        <nav class="sidebar-nav">
-            <a href="{% url 'donations:donor_dashboard' %}" class="sidebar-nav-item active">
-                <i class="fas fa-home sidebar-nav-icon"></i>
-                Dashboard
-            </a>
-            <a href="#requests-section" class="sidebar-nav-item">
-                <i class="fas fa-heart sidebar-nav-icon"></i>
-                Demandes
-            </a>
-            <a href="{% url 'donations:donor_messages' %}" class="sidebar-nav-item">
-                <i class="fas fa-envelope sidebar-nav-icon"></i>
-                Messages
-                {% if new_messages and new_messages.count %}
-                <span class="notification-badge">{{ new_messages.count }}</span>
-                {% endif %}
-            </a>
-            <a href="{% url 'donations:donor_history' %}" class="sidebar-nav-item">
-                <i class="fas fa-history sidebar-nav-icon"></i>
-                Historique
-            </a>
-            <a href="{% url 'donations:my_rewards' %}" class="sidebar-nav-item">
-                <i class="fas fa-trophy sidebar-nav-icon"></i>
-                Mes Avantages
-            </a>
-            <a href="{% url 'donations:update_availability' %}" class="sidebar-nav-item">
-                <i class="fas fa-calendar-check sidebar-nav-icon"></i>
-                Disponibilité
-            </a>
-            <a href="{% url 'donations:edit_profile' %}" class="sidebar-nav-item">
-                <i class="fas fa-user-edit sidebar-nav-icon"></i>
-                Profil
-            </a>
-        </nav>
-
-        <!-- Sidebar Footer -->
-        <div class="sidebar-footer">
-            <a href="{% url 'accounts:logout' %}" class="sidebar-nav-item" style="color: var(--danger-red);">
-                <i class="fas fa-sign-out-alt sidebar-nav-icon"></i>
-                Déconnexion
-            </a>
-        </div>
-    </div>
+    {% include 'includes/donor_sidebar.html' with active_page='dashboard' new_messages_count=new_messages.count %}
 
     <!-- Main Content -->
     <div class="modern-main-content">
@@ -266,23 +207,26 @@
             </div>
 
             <!-- Info compatibilité -->
-            <div class="card-modern mb-lg" style="background: linear-gradient(135deg, var(--primary-red-light) 0%, white 100%); padding: 1.25rem;">
-                <div class="card-modern-header">
-                    <h3 class="card-modern-title">
-                        <i class="fas fa-info-circle"></i>
-                        Compatibilité de votre groupe {{ donor_blood_type }}
-                    </h3>
+            <div class="compatibility-card">
+                <div class="compatibility-header">
+                    <div class="compatibility-icon">
+                        <i class="fas fa-heart-pulse"></i>
+                    </div>
+                    <div>
+                        <h3 class="compatibility-title">Compatibilité Sanguine</h3>
+                        <p class="compatibility-subtitle">Votre groupe {{ donor_blood_type }} peut sauver des vies</p>
+                    </div>
                 </div>
-                <div class="card-modern-body">
-                    <p style="color: var(--text-gray); margin-bottom: 16px;">
-                        En tant que donneur {{ donor_blood_type }}, vous pouvez aider les personnes ayant besoin des groupes suivants :
+                <div class="compatibility-body">
+                    <p class="compatibility-description">
+                        En tant que donneur <strong>{{ donor_blood_type }}</strong>, vous pouvez aider les personnes ayant besoin des groupes suivants :
                     </p>
-                    <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                    <div class="blood-types-grid">
                         {% for blood_type in can_give_to %}
-                            <span class="badge-modern success">
-                                <i class="fas fa-check"></i>
-                                {{ blood_type }}
-                            </span>
+                            <div class="blood-type-badge">
+                                <i class="fas fa-check-circle"></i>
+                                <span>{{ blood_type }}</span>
+                            </div>
                         {% endfor %}
                     </div>
                 </div>
@@ -290,15 +234,17 @@
 
             <!-- Demandes compatibles -->
             <div class="modern-table-container" id="requests-section">
-                <div class="table-header">
-                    <div>
-                        <h3 class="table-title">
+                <div class="section-header">
+                    <div class="section-header-content">
+                        <div class="section-icon">
                             <i class="fas fa-heart"></i>
-                            Demandes Urgentes Compatibles
-                        </h3>
-                        <p style="color: var(--text-gray); font-size: 14px; margin-top: 4px;">
-                            {{ total_compatible }} demande(s) compatible(s) avec votre groupe sanguin
-                        </p>
+                        </div>
+                        <div>
+                            <h3 class="section-title">Demandes Urgentes</h3>
+                            <p class="section-subtitle">
+                                <span class="badge-count">{{ total_compatible }}</span> demande(s) compatible(s) avec votre groupe sanguin
+                            </p>
+                        </div>
                     </div>
                 </div>
 
@@ -392,11 +338,16 @@
 
             <!-- Mes réponses -->
             <div class="modern-table-container" id="history-section">
-                <div class="table-header">
-                    <h3 class="table-title">
-                        <i class="fas fa-history"></i>
-                        Mes Réponses aux Demandes
-                    </h3>
+                <div class="section-header">
+                    <div class="section-header-content">
+                        <div class="section-icon">
+                            <i class="fas fa-history"></i>
+                        </div>
+                        <div>
+                            <h3 class="section-title">Mes Réponses aux Demandes</h3>
+                            <p class="section-subtitle">Historique de vos contributions</p>
+                        </div>
+                    </div>
                 </div>
 
                 {% if my_responses %}
@@ -479,135 +430,6 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    
-    <style>
-        /* Notification Dropdown Styles */
-        .notification-dropdown {
-            position: absolute;
-            top: calc(100% + 10px);
-            right: 0;
-            width: 380px;
-            max-height: 500px;
-            background: white;
-            border-radius: 12px;
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
-            overflow: hidden;
-            z-index: 1000;
-            animation: slideDown 0.3s ease;
-        }
-        
-        @keyframes slideDown {
-            from {
-                opacity: 0;
-                transform: translateY(-10px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-        
-        .notification-dropdown-header {
-            padding: 16px 20px;
-            border-bottom: 1px solid #E5E7EB;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            background: var(--secondary-gray);
-        }
-        
-        .notification-dropdown-body {
-            max-height: 420px;
-            overflow-y: auto;
-        }
-        
-        .notification-item-dropdown {
-            display: flex;
-            padding: 16px 20px;
-            border-bottom: 1px solid #F3F4F6;
-            text-decoration: none;
-            transition: background 0.2s ease;
-            gap: 12px;
-        }
-        
-        .notification-item-dropdown:hover {
-            background: var(--secondary-gray);
-        }
-        
-        .notification-avatar {
-            width: 45px;
-            height: 45px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, var(--info-blue), #3B82F6);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-weight: 700;
-            flex-shrink: 0;
-        }
-        
-        .notification-content {
-            flex: 1;
-            min-width: 0;
-        }
-        
-        .notification-title {
-            font-weight: 600;
-            color: var(--text-dark);
-            font-size: 14px;
-            margin-bottom: 4px;
-        }
-        
-        .notification-text {
-            color: var(--text-gray);
-            font-size: 13px;
-            line-height: 1.4;
-            margin-bottom: 6px;
-            display: -webkit-box;
-            -webkit-line-clamp: 2;
-            line-clamp: 2;
-            -webkit-box-orient: vertical;
-            overflow: hidden;
-        }
-        
-        .notification-time {
-            color: var(--text-gray);
-            font-size: 12px;
-        }
-        
-        .notification-footer-link {
-            display: block;
-            padding: 14px 20px;
-            text-align: center;
-            color: var(--primary-red);
-            font-weight: 600;
-            font-size: 14px;
-            text-decoration: none;
-            border-top: 1px solid #E5E7EB;
-            background: var(--secondary-gray);
-        }
-        
-        .notification-footer-link:hover {
-            background: #E5E7EB;
-        }
-        
-        .notification-empty {
-            text-align: center;
-            padding: 48px 20px;
-            color: var(--text-gray);
-        }
-        
-        .notification-empty i {
-            font-size: 48px;
-            color: var(--success-green);
-            margin-bottom: 12px;
-        }
-        
-        .notification-empty div {
-            font-size: 14px;
-        }
-    </style>
     
     <script>
         // Toggle Notifications Dropdown

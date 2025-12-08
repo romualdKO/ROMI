@@ -15,61 +15,7 @@
     <script src="{% static 'js/mobile-menu.js' %}"></script>
 </head>
 <body>
-    <!-- Mobile Menu Toggle -->
-    <button class="mobile-menu-toggle" onclick="toggleMobileSidebar()" aria-label="Menu">
-        <i class="fas fa-bars"></i>
-    </button>
-    
-    <!-- Sidebar Overlay -->
-    <div class="sidebar-overlay" onclick="toggleMobileSidebar()"></div>
-    
-    <!-- Sidebar -->
-    <div class="modern-sidebar" id="mobileSidebar">
-        <div class="sidebar-logo">
-            <div class="sidebar-logo-icon">
-                <i class="fas fa-hospital"></i>
-            </div>
-            <div class="sidebar-logo-text">Don Sang Plus</div>
-        </div>
-
-        <nav class="sidebar-nav">
-            <a href="{% url 'donations:hospital_dashboard' %}" class="sidebar-nav-item active">
-                <i class="fas fa-home sidebar-nav-icon"></i>
-                Dashboard
-            </a>
-            <a href="#requests-section" class="sidebar-nav-item">
-                <i class="fas fa-clipboard-list sidebar-nav-icon"></i>
-                Demandes
-            </a>
-            <a href="{% url 'donations:hospital_messages' %}" class="sidebar-nav-item">
-                <i class="fas fa-envelope sidebar-nav-icon"></i>
-                Messages
-            </a>
-            <a href="{% url 'donations:hospital_history' %}" class="sidebar-nav-item">
-                <i class="fas fa-history sidebar-nav-icon"></i>
-                Historique
-            </a>
-            <a href="#donors-section" class="sidebar-nav-item">
-                <i class="fas fa-users sidebar-nav-icon"></i>
-                Donneurs
-            </a>
-            <a href="{% url 'donations:manage_donor_rankings' %}" class="sidebar-nav-item">
-                <i class="fas fa-trophy sidebar-nav-icon"></i>
-                Classements
-            </a>
-            <a href="{% url 'donations:edit_profile' %}" class="sidebar-nav-item">
-                <i class="fas fa-cog sidebar-nav-icon"></i>
-                Paramètres
-            </a>
-        </nav>
-
-        <div class="sidebar-footer">
-            <a href="{% url 'accounts:logout' %}" class="sidebar-nav-item" style="color: var(--danger-red);">
-                <i class="fas fa-sign-out-alt sidebar-nav-icon"></i>
-                Déconnexion
-            </a>
-        </div>
-    </div>
+    {% include 'includes/hospital_sidebar.html' with active_page='dashboard' %}
 
     <!-- Main Content -->
     <div class="modern-main-content">

@@ -1,0 +1,62 @@
+{% load static %}
+<!-- Mobile Menu Toggle -->
+<button class="mobile-menu-toggle" onclick="toggleMobileSidebar()" aria-label="Menu">
+    <i class="fas fa-bars"></i>
+</button>
+
+<!-- Sidebar Overlay -->
+<div class="sidebar-overlay" onclick="toggleMobileSidebar()"></div>
+
+<!-- Sidebar Donneur -->
+<div class="modern-sidebar" id="mobileSidebar">
+    <!-- Logo -->
+    <div class="sidebar-logo">
+        <div class="sidebar-logo-icon">
+            <i class="fas fa-heart-pulse"></i>
+        </div>
+        <div class="sidebar-logo-text">Don Sang Plus</div>
+    </div>
+
+    <!-- Navigation -->
+    <nav class="sidebar-nav">
+        <a href="{% url 'donations:donor_dashboard' %}" class="sidebar-nav-item {% if active_page == 'dashboard' %}active{% endif %}">
+            <i class="fas fa-home sidebar-nav-icon"></i>
+            Dashboard
+        </a>
+        <a href="{% if active_page == 'dashboard' %}#requests-section{% else %}{% url 'donations:donor_dashboard' %}#requests-section{% endif %}" class="sidebar-nav-item {% if active_page == 'requests' %}active{% endif %}">
+            <i class="fas fa-heart sidebar-nav-icon"></i>
+            Demandes
+        </a>
+        <a href="{% url 'donations:donor_messages' %}" class="sidebar-nav-item {% if active_page == 'messages' %}active{% endif %}">
+            <i class="fas fa-envelope sidebar-nav-icon"></i>
+            Messages
+            {% if new_messages_count and new_messages_count > 0 %}
+            <span class="notification-badge">{{ new_messages_count }}</span>
+            {% endif %}
+        </a>
+        <a href="{% url 'donations:donor_history' %}" class="sidebar-nav-item {% if active_page == 'history' %}active{% endif %}">
+            <i class="fas fa-history sidebar-nav-icon"></i>
+            Historique
+        </a>
+        <a href="{% url 'donations:my_rewards' %}" class="sidebar-nav-item {% if active_page == 'rewards' %}active{% endif %}">
+            <i class="fas fa-trophy sidebar-nav-icon"></i>
+            Mes Avantages
+        </a>
+        <a href="{% url 'donations:update_availability' %}" class="sidebar-nav-item {% if active_page == 'availability' %}active{% endif %}">
+            <i class="fas fa-calendar-check sidebar-nav-icon"></i>
+            Disponibilité
+        </a>
+        <a href="{% url 'donations:edit_profile' %}" class="sidebar-nav-item {% if active_page == 'profile' %}active{% endif %}">
+            <i class="fas fa-user-edit sidebar-nav-icon"></i>
+            Profil
+        </a>
+    </nav>
+
+    <!-- Sidebar Footer -->
+    <div class="sidebar-footer">
+        <a href="{% url 'accounts:logout' %}" class="sidebar-nav-item" style="color: var(--danger-red);">
+            <i class="fas fa-sign-out-alt sidebar-nav-icon"></i>
+            Déconnexion
+        </a>
+    </div>
+</div>
